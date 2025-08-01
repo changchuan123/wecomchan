@@ -1,0 +1,69 @@
+# Tencent Cloud EdgeOne
+.env
+.edgeone/*
+!.edgeone/project.json
+.tef_dist/*
+
+# 系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 编辑器文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 日志文件
+*.log
+logs/
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+
+# 缓存文件
+__pycache__/
+*.py[cod]
+*$py.class
+.cache/
+.pytest_cache/
+
+# 环境文件
+.env.local
+.env.*.local
+.venv/
+venv/
+env/
+
+# 依赖文件
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 构建文件
+dist/
+build/
+*.egg-info/
+
+# 配置文件备份
+*.bak
+*.backup
+
+# Claude相关
+.claude/
+.claude.json
+.claude.json.backup
+
+# 其他
+*.pid
+*.seed
+*.pid.lock

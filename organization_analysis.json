@@ -1,0 +1,374 @@
+{
+  "total_departments": 27,
+  "business_units": [
+    {
+      "id": 69,
+      "name": "空调事业部",
+      "leaders": [
+        "YangNing"
+      ],
+      "parent_id": 86
+    },
+    {
+      "id": 70,
+      "name": "冰冷事业部",
+      "leaders": [
+        "WeiCunGang"
+      ],
+      "parent_id": 86
+    },
+    {
+      "id": 71,
+      "name": "洗护事业部",
+      "leaders": [
+        "YingJieBianHua"
+      ],
+      "parent_id": 86
+    },
+    {
+      "id": 72,
+      "name": "水联网事业部",
+      "leaders": [
+        "WuXiang"
+      ],
+      "parent_id": 86
+    },
+    {
+      "id": 78,
+      "name": "厨电洗碗机事业部",
+      "leaders": [
+        "WuXiang"
+      ],
+      "parent_id": 86
+    }
+  ],
+  "project_groups": [
+    {
+      "id": 3,
+      "name": "卡萨帝项目",
+      "leaders": [
+        "Mao"
+      ],
+      "parent_id": 86
+    },
+    {
+      "id": 26,
+      "name": "同城项目",
+      "leaders": [],
+      "parent_id": 86
+    },
+    {
+      "id": 28,
+      "name": "抖音项目",
+      "leaders": [
+        "LuZhiHang"
+      ],
+      "parent_id": 86
+    }
+  ],
+  "customer_service": [
+    {
+      "id": 10,
+      "name": "湖南客服",
+      "leaders": [],
+      "parent_id": 73
+    },
+    {
+      "id": 23,
+      "name": "合肥客服",
+      "leaders": [],
+      "parent_id": 22
+    },
+    {
+      "id": 25,
+      "name": "崇明客服",
+      "leaders": [],
+      "parent_id": 24
+    },
+    {
+      "id": 29,
+      "name": "拼多多抖音客服组",
+      "leaders": [],
+      "parent_id": 73
+    },
+    {
+      "id": 32,
+      "name": "湖北客服",
+      "leaders": [
+        "CaoJie"
+      ],
+      "parent_id": 73
+    },
+    {
+      "id": 73,
+      "name": "客服体系",
+      "leaders": [],
+      "parent_id": 37
+    },
+    {
+      "id": 79,
+      "name": "前置客服",
+      "leaders": [],
+      "parent_id": 73
+    }
+  ],
+  "other_departments": [
+    {
+      "id": 9,
+      "name": "设计组",
+      "leaders": [],
+      "parent_id": 37
+    },
+    {
+      "id": 22,
+      "name": "合肥团队",
+      "leaders": [],
+      "parent_id": 27
+    },
+    {
+      "id": 24,
+      "name": "崇明团队",
+      "leaders": [],
+      "parent_id": 27
+    },
+    {
+      "id": 27,
+      "name": "其他（待设置部门）",
+      "leaders": [],
+      "parent_id": 37
+    },
+    {
+      "id": 33,
+      "name": "直播一组（空调）",
+      "leaders": [],
+      "parent_id": 28
+    },
+    {
+      "id": 34,
+      "name": "直播三组（洗碗机）",
+      "leaders": [],
+      "parent_id": 28
+    },
+    {
+      "id": 35,
+      "name": "直播二组（冰箱）",
+      "leaders": [],
+      "parent_id": 28
+    },
+    {
+      "id": 36,
+      "name": "售后部门",
+      "leaders": [
+        "liangyimin"
+      ],
+      "parent_id": 73
+    },
+    {
+      "id": 37,
+      "name": "线上平台",
+      "leaders": [
+        "WeiCunGang"
+      ],
+      "parent_id": 1
+    },
+    {
+      "id": 76,
+      "name": "拼多多渠道",
+      "leaders": [
+        "Wen"
+      ],
+      "parent_id": 86
+    },
+    {
+      "id": 86,
+      "name": "运营组",
+      "leaders": [],
+      "parent_id": 37
+    },
+    {
+      "id": 87,
+      "name": "财务组",
+      "leaders": [
+        "TaoXiaoCui"
+      ],
+      "parent_id": 37
+    }
+  ],
+  "department_hierarchy": {
+    "86": [
+      {
+        "id": 3,
+        "name": "卡萨帝项目",
+        "leaders": [
+          "Mao"
+        ]
+      },
+      {
+        "id": 26,
+        "name": "同城项目",
+        "leaders": []
+      },
+      {
+        "id": 28,
+        "name": "抖音项目",
+        "leaders": [
+          "LuZhiHang"
+        ]
+      },
+      {
+        "id": 69,
+        "name": "空调事业部",
+        "leaders": [
+          "YangNing"
+        ]
+      },
+      {
+        "id": 70,
+        "name": "冰冷事业部",
+        "leaders": [
+          "WeiCunGang"
+        ]
+      },
+      {
+        "id": 71,
+        "name": "洗护事业部",
+        "leaders": [
+          "YingJieBianHua"
+        ]
+      },
+      {
+        "id": 72,
+        "name": "水联网事业部",
+        "leaders": [
+          "WuXiang"
+        ]
+      },
+      {
+        "id": 76,
+        "name": "拼多多渠道",
+        "leaders": [
+          "Wen"
+        ]
+      },
+      {
+        "id": 78,
+        "name": "厨电洗碗机事业部",
+        "leaders": [
+          "WuXiang"
+        ]
+      }
+    ],
+    "37": [
+      {
+        "id": 9,
+        "name": "设计组",
+        "leaders": []
+      },
+      {
+        "id": 27,
+        "name": "其他（待设置部门）",
+        "leaders": []
+      },
+      {
+        "id": 73,
+        "name": "客服体系",
+        "leaders": []
+      },
+      {
+        "id": 86,
+        "name": "运营组",
+        "leaders": []
+      },
+      {
+        "id": 87,
+        "name": "财务组",
+        "leaders": [
+          "TaoXiaoCui"
+        ]
+      }
+    ],
+    "73": [
+      {
+        "id": 10,
+        "name": "湖南客服",
+        "leaders": []
+      },
+      {
+        "id": 29,
+        "name": "拼多多抖音客服组",
+        "leaders": []
+      },
+      {
+        "id": 32,
+        "name": "湖北客服",
+        "leaders": [
+          "CaoJie"
+        ]
+      },
+      {
+        "id": 36,
+        "name": "售后部门",
+        "leaders": [
+          "liangyimin"
+        ]
+      },
+      {
+        "id": 79,
+        "name": "前置客服",
+        "leaders": []
+      }
+    ],
+    "27": [
+      {
+        "id": 22,
+        "name": "合肥团队",
+        "leaders": []
+      },
+      {
+        "id": 24,
+        "name": "崇明团队",
+        "leaders": []
+      }
+    ],
+    "22": [
+      {
+        "id": 23,
+        "name": "合肥客服",
+        "leaders": []
+      }
+    ],
+    "24": [
+      {
+        "id": 25,
+        "name": "崇明客服",
+        "leaders": []
+      }
+    ],
+    "28": [
+      {
+        "id": 33,
+        "name": "直播一组（空调）",
+        "leaders": []
+      },
+      {
+        "id": 34,
+        "name": "直播三组（洗碗机）",
+        "leaders": []
+      },
+      {
+        "id": 35,
+        "name": "直播二组（冰箱）",
+        "leaders": []
+      }
+    ],
+    "1": [
+      {
+        "id": 37,
+        "name": "线上平台",
+        "leaders": [
+          "WeiCunGang"
+        ]
+      }
+    ]
+  }
+}
