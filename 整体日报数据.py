@@ -33,6 +33,189 @@ import subprocess
 import pymysql
 import base64
 
+# ========== Git部署相关函数定义 ==========
+def create_gitignore():
+    """创建.gitignore文件"""
+    try:
+        print("📄 创建.gitignore文件...")
+        
+        gitignore_content = """# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Data files
+*.csv
+*.xlsx
+*.xls
+data/
+
+# Keep only HTML reports
+reports/*.html
+!reports/index.html
+"""
+        
+        with open('.gitignore', 'w', encoding='utf-8') as f:
+            f.write(gitignore_content)
+        
+        print("✅ .gitignore文件已创建")
+        return True
+        
+    except Exception as e:
+        print(f"❌ 创建.gitignore失败: {e}")
+        return False
+
+def create_readme():
+    """创建README.md文件"""
+    try:
+        print("📄 创建README.md文件...")
+        
+        readme_content = f"""# 销售日报系统
+
+## 项目简介
+这是一个自动化的销售日报分析系统，通过Git推送方式部署到EdgeOne Pages。
+
+## 功能特性
+- 📊 自动分析销售数据
+- 📈 生成详细的HTML报告
+- 🚀 自动部署到EdgeOne Pages
+- 📱 企业微信推送通知
+
+## 部署方式
+本项目使用Git推送方式自动部署到EdgeOne Pages。
+
+### 配置要求
+- Git远程仓库: {GIT_REMOTE_URL}
+- 分支: {GIT_BRANCH}
+- 用户名: {GIT_USERNAME}
+- 邮箱: {GIT_EMAIL}
+
+### 自动部署流程
+1. 自动创建.gitignore文件
+2. 自动创建README.md文件
+3. 配置Git仓库
+4. 推送代码到远程仓库
+5. 自动部署到EdgeOne Pages
+
+## 使用说明
+运行主脚本即可自动完成所有部署流程。
+"""
+        
+        with open('README.md', 'w', encoding='utf-8') as f:
+            f.write(readme_content)
+        
+        print("✅ README.md文件已创建")
+        return True
+        
+    except Exception as e:
+        print(f"❌ 创建README.md失败: {e}")
+        return False
+
+def configure_git_repository():
+    """配置Git仓库"""
+    try:
+        print("🔧 配置Git仓库...")
+        
+        # 检查Git是否安装
+        try:
+            subprocess.run(['git', '--version'], check=True, capture_output=True)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            print("❌ Git未安装或不在PATH中")
+            return False
+        
+        # 初始化Git仓库（如果不存在）
+        if not os.path.exists('.git'):
+            subprocess.run(['git', 'init'], check=True)
+            print("✅ Git仓库已初始化")
+        
+        # 配置用户信息
+        subprocess.run(['git', 'config', 'user.name', GIT_USERNAME], check=True)
+        subprocess.run(['git', 'config', 'user.email', GIT_EMAIL], check=True)
+        print("✅ Git用户信息已配置")
+        
+        # 添加远程仓库（如果不存在）
+        try:
+            subprocess.run(['git', 'remote', 'add', 'origin', GIT_REMOTE_URL], check=True)
+            print("✅ 远程仓库已添加")
+        except subprocess.CalledProcessError:
+            # 如果远程仓库已存在，更新URL
+            subprocess.run(['git', 'remote', 'set-url', 'origin', GIT_REMOTE_URL], check=True)
+            print("✅ 远程仓库URL已更新")
+        
+        # 添加所有文件
+        subprocess.run(['git', 'add', '.'], check=True)
+        print("✅ 文件已添加到暂存区")
+        
+        # 提交更改
+        commit_message = f"自动部署更新 - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        subprocess.run(['git', 'commit', '-m', commit_message], check=True)
+        print("✅ 更改已提交")
+        
+        # 推送到远程仓库
+        subprocess.run(['git', 'push', 'origin', GIT_BRANCH], check=True)
+        print("✅ 代码已推送到远程仓库")
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ Git仓库配置失败: {e}")
+        return False
+
+def deploy_to_edgeone(reports_dir):
+    """部署到EdgeOne Pages"""
+    try:
+        print("🚀 部署到EdgeOne Pages...")
+        
+        # 首先配置Git仓库
+        if not configure_git_repository():
+            print("❌ Git仓库配置失败，无法部署")
+            return False
+        
+        print("✅ 部署流程完成")
+        return True
+        
+    except Exception as e:
+        print(f"❌ 部署到EdgeOne失败: {e}")
+        return False
+
+# ========== 其他函数定义 ==========
+
 def to_number(val):
     if pd.isnull(val):
         return 0
@@ -483,151 +666,6 @@ def create_index_html(reports_dir):
     except Exception as e:
         print(f"❌ 创建index.html失败: {e}")
         return False
-
-def configure_git_repository():
-    """配置Git仓库用于EdgeOne Pages部署"""
-    try:
-        print("🔧 配置Git仓库...")
-        
-        # 检查是否在Git仓库中
-        try:
-            subprocess.run(["git", "status"], check=True, capture_output=True)
-            print("✅ 当前目录是Git仓库")
-        except subprocess.CalledProcessError:
-            print("❌ 当前目录不是Git仓库，初始化Git仓库...")
-            subprocess.run(["git", "init"], check=True)
-            print("✅ Git仓库初始化完成")
-        
-        # 创建.gitignore文件
-        create_gitignore()
-        
-        # 创建README.md文件
-        create_readme()
-        
-        # 配置Git用户信息
-        try:
-            subprocess.run(["git", "config", "user.name", GIT_USERNAME], check=True)
-            subprocess.run(["git", "config", "user.email", GIT_EMAIL], check=True)
-            print("✅ Git用户信息配置完成")
-        except subprocess.CalledProcessError as config_error:
-            print(f"⚠️ Git用户信息配置失败: {config_error}")
-        
-        # 检查远程仓库配置
-        try:
-            result = subprocess.run(["git", "remote", "-v"], check=True, capture_output=True, text=True)
-            if "origin" not in result.stdout:
-                print("🔧 配置远程仓库...")
-                subprocess.run(["git", "remote", "add", "origin", GIT_REMOTE_URL], check=True)
-                print("✅ 远程仓库配置完成")
-            else:
-                print("✅ 远程仓库已配置")
-        except subprocess.CalledProcessError as remote_error:
-            print(f"❌ 检查远程仓库失败: {remote_error}")
-            return False
-        
-        return True
-        
-    except Exception as e:
-        print(f"❌ Git仓库配置失败: {e}")
-        return False
-
-def deploy_to_edgeone(reports_dir):
-    """部署到EdgeOne Pages（Git推送方式）"""
-    try:
-        print("🚀 开始部署到EdgeOne Pages...")
-        
-        # 读取HTML文件
-        html_files = [f for f in os.listdir(reports_dir) if f.endswith('.html')]
-        if not html_files:
-            print("❌ 未找到HTML文件")
-            return False
-        
-        print(f"📄 找到 {len(html_files)} 个HTML文件")
-        
-        # 创建index.html入口文件
-        if not create_index_html(reports_dir):
-            print("⚠️ 创建index.html失败，继续部署...")
-        
-        # 方案1：使用Git推送部署
-        try:
-            print("🔧 使用Git推送方式部署...")
-            
-            # 配置Git仓库
-            if not configure_git_repository():
-                print("❌ Git仓库配置失败")
-                return False
-            
-            # 添加reports文件到Git
-            subprocess.run(["git", "add", "reports/"], check=True)
-            print("✅ 文件已添加到Git")
-            
-            # 添加其他必要文件
-            subprocess.run(["git", "add", ".gitignore"], check=True)
-            subprocess.run(["git", "add", "README.md"], check=True)
-            print("✅ 其他文件已添加到Git")
-            
-            # 提交更改
-            commit_message = f"更新销售报告 - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-            subprocess.run(["git", "commit", "-m", commit_message], check=True)
-            print("✅ 更改已提交")
-            
-            # 推送到远程仓库
-            try:
-                subprocess.run(["git", "push", "origin", GIT_BRANCH], check=True)
-                print(f"✅ 已推送到{GIT_BRANCH}分支")
-            except subprocess.CalledProcessError as push_error:
-                print(f"❌ 推送到{GIT_BRANCH}分支失败: {push_error}")
-                # 尝试推送到master分支
-                try:
-                    subprocess.run(["git", "push", "origin", "master"], check=True)
-                    print("✅ 已推送到master分支")
-                except subprocess.CalledProcessError as master_error:
-                    print(f"❌ 推送到master分支也失败: {master_error}")
-                    return False
-            
-            # 返回项目URL
-            project_url = "https://edge.haierht.cn"
-            print(f"✅ Git推送部署成功！")
-            print(f"🌐 项目URL: {project_url}")
-            return True
-            
-        except subprocess.CalledProcessError as git_error:
-            print(f"❌ Git推送失败: {git_error}")
-            print("🔄 降级到CLI部署...")
-            raise git_error
-            
-        except Exception as git_error:
-            print(f"❌ Git推送异常: {git_error}")
-            print("🔄 降级到CLI部署...")
-            raise git_error
-            
-    except Exception as e:
-        print(f"❌ 部署失败: {e}")
-        return False
-
-def _simple_verify_url(public_url):
-    """严格验证URL是否可访问"""
-    print(f"🔍 正在验证URL: {public_url}")
-    
-    # 等待CDN同步，最多重试5次
-    for attempt in range(5):
-        try:
-            time.sleep(3)  # 等待CDN同步
-            response = requests.head(public_url, timeout=15)
-            
-            if response.status_code == 200:
-                print(f"✅ URL验证成功，文件可正常访问: {public_url}")
-                return public_url
-            elif response.status_code == 404:
-                print(f"⚠️ 第{attempt+1}次验证失败，文件不存在 (404)，等待CDN同步...")
-            else:
-                print(f"⚠️ 第{attempt+1}次验证失败，状态码: {response.status_code}")
-                
-        except Exception as verify_e:
-            print(f"⚠️ 第{attempt+1}次验证异常: {verify_e}")
-    
-    print(f"❌ URL验证失败，经过5次重试仍无法访问，不返回URL")
-    return None
 
 # ========== 数据库配置 ==========
 DB_HOST = "212.64.57.87"
@@ -2529,238 +2567,4 @@ except Exception as e:
     {traceback.format_exc()}"""
     print(error_msg)
     send_wecomchan_segment(error_msg)
-
-finally:
-    # 计算总耗时
-    total_time = datetime.now() - total_start_time
-    print(f"\n⏱️ 总执行时间: {total_time}")
-    logging.info(f"脚本执行完成，耗时: {total_time}")
-
-# ========== MCP EdgeOne Pages 部署函数 ==========
-def mcp_deploy_html(html_content, filename="report.html"):
-    """使用MCP EdgeOne Pages部署HTML内容"""
-    try:
-        print("🔧 使用MCP EdgeOne Pages部署...")
-        
-        # 直接调用MCP EdgeOne Pages部署功能
-        try:
-            # 这里需要真正调用MCP函数
-            # 由于MCP函数名包含连字符，我们需要使用正确的方式调用
-            print("📤 正在部署HTML内容到EdgeOne Pages...")
-            
-            # 实际调用MCP部署函数
-            # 注意：这里需要确保MCP模块可用
-            import sys
-            import os
-            
-            # 尝试导入MCP模块
-            try:
-                # 这里应该调用实际的MCP函数
-                # 由于MCP函数名包含连字符，我们需要使用字符串方式调用
-                print("🔧 调用MCP EdgeOne Pages部署...")
-                
-                # 模拟MCP调用（实际使用时需要替换为真实的MCP调用）
-                # 这里我们返回None，表示MCP部署不可用
-                print("⚠️ MCP部署功能暂不可用，返回None")
-                return None
-                
-            except ImportError:
-                print("❌ MCP模块未安装或不可用")
-                return None
-            except Exception as mcp_error:
-                print(f"❌ MCP调用失败: {mcp_error}")
-                return None
-            
-        except Exception as mcp_error:
-            print(f"❌ MCP调用失败: {mcp_error}")
-            return None
-        
-    except Exception as e:
-        print(f"❌ MCP部署失败: {e}")
-        return None
-
-# ========== 真正的MCP EdgeOne Pages 部署函数 ==========
-def real_mcp_deploy_html(html_content):
-    """使用真正的MCP EdgeOne Pages部署HTML内容"""
-    try:
-        print("🔧 使用真正的MCP EdgeOne Pages部署...")
-        
-        # 这里应该调用实际的MCP函数
-        # 由于MCP函数名包含连字符，我们需要使用正确的方式
-        print("📤 正在部署HTML内容到EdgeOne Pages...")
-        
-        # 实际调用MCP部署函数
-        # 注意：这里需要确保MCP模块可用
-        try:
-            # 这里应该调用实际的MCP函数
-            # 由于MCP函数名包含连字符，我们需要使用字符串方式调用
-            print("🔧 调用MCP EdgeOne Pages部署...")
-            
-            # 实际调用MCP部署函数
-            # 这里我们返回None，表示MCP部署不可用
-            print("⚠️ MCP部署功能暂不可用，返回None")
-            return None
-            
-        except ImportError:
-            print("❌ MCP模块未安装或不可用")
-            return None
-        except Exception as mcp_error:
-            print(f"❌ MCP调用失败: {mcp_error}")
-            return None
-        
-    except Exception as e:
-        print(f"❌ MCP部署失败: {e}")
-        return None
-
-# ========== 原有代码继续 ==========
-
-def create_readme():
-    """创建README.md文件"""
-    try:
-        print("📄 创建README.md文件...")
-        
-        readme_content = f"""# 销售日报系统
-
-## 项目简介
-这是一个自动化的销售日报分析系统，通过Git推送方式部署到EdgeOne Pages。
-
-## 功能特性
-- 📊 自动分析销售数据
-- 📈 生成详细的HTML报告
-- 🚀 自动部署到EdgeOne Pages
-- 📱 企业微信推送通知
-
-## 部署方式
-本项目使用Git推送方式自动部署到EdgeOne Pages。
-
-### 配置要求
-- Git远程仓库: {GIT_REMOTE_URL}
-- 分支: {GIT_BRANCH}
-- 用户名: {GIT_USERNAME}
-- 邮箱: {GIT_EMAIL}
-
-### 自动部署流程
-1. 生成HTML报告文件
-2. 创建index.html入口文件
-3. 配置Git仓库
-4. 提交更改到Git
-5. 推送到远程仓库
-6. EdgeOne Pages自动部署
-
-## 访问地址
-- 主页面: https://edge.haierht.cn
-- 报告页面: https://edge.haierht.cn/reports/
-
-## 更新日志
-- {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: 初始化项目，配置Git部署
-"""
-        
-        with open('README.md', 'w', encoding='utf-8') as f:
-            f.write(readme_content)
-        
-        print("✅ README.md文件已创建")
-        return True
-        
-    except Exception as e:
-        print(f"❌ 创建README.md失败: {e}")
-        return False
-
-def create_gitignore():
-    """创建.gitignore文件"""
-    try:
-        print("📄 创建.gitignore文件...")
-        
-        gitignore_content = """# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual Environment
-venv/
-env/
-ENV/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Data files
-*.csv
-*.xlsx
-*.xls
-data/
-
-# Keep only HTML reports
-reports/*.html
-!reports/index.html
-"""
-        
-        with open('.gitignore', 'w', encoding='utf-8') as f:
-            f.write(gitignore_content)
-        
-        print("✅ .gitignore文件已创建")
-        return True
-        
-    except Exception as e:
-        print(f"❌ 创建.gitignore失败: {e}")
-        return False
-
-def create_index_html(reports_dir):
-    """创建index.html作为EdgeOne Pages的入口文件"""
-    try:
-        print("📄 创建index.html入口文件...")
-        
-        # 查找最新的HTML报告文件
-        html_files = [f for f in os.listdir(reports_dir) if f.endswith('.html')]
-        if not html_files:
-            print("❌ 未找到HTML报告文件")
-            return False
-        
-        # 按修改时间排序，获取最新的文件
-        html_files.sort(key=lambda x: os.path.getmtime(os.path.join(reports_dir, x)), reverse=True)
-        latest_html = html_files[0]
-        
-        # 读取最新的HTML内容
-        latest_html_path = os.path.join(reports_dir, latest_html)
-        with open(latest_html_path, 'r', encoding='utf-8') as f:
-            html_content = f.read()
-        
-        # 创建index.html
-        index_path = os.path.join(reports_dir, 'index.html')
-        with open(index_path, 'w', encoding='utf-8') as f:
-            f.write(html_content)
-        
-        print(f"✅ index.html已创建，基于文件: {latest_html}")
-        return True
-        
-    except Exception as e:
-        print(f"❌ 创建index.html失败: {e}")
-        return False
 

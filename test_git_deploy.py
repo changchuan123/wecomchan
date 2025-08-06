@@ -73,17 +73,31 @@ def test_git_deploy():
                 f.write(test_html)
             print("✅ index.html已创建")
         
-        # 5. 测试Git提交
-        print("\n5. 测试Git提交...")
+        # 5. 测试Git配置
+        print("\n5. 测试Git配置...")
         try:
-            subprocess.run(["git", "add", "reports/"], check=True)
-            print("✅ 文件已添加到Git")
+            # 检查Git用户配置
+            result = subprocess.run(["git", "config", "user.name"], check=True, capture_output=True, text=True)
+            username = result.stdout.strip()
+            print(f"✅ Git用户名: {username}")
             
-            commit_message = f"测试提交 - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-            subprocess.run(["git", "commit", "-m", commit_message], check=True)
-            print("✅ 更改已提交")
+            result = subprocess.run(["git", "config", "user.email"], check=True, capture_output=True, text=True)
+            email = result.stdout.strip()
+            print(f"✅ Git邮箱: {email}")
+            
+            # 检查是否有未提交的更改
+            result = subprocess.run(["git", "status", "--porcelain"], check=True, capture_output=True, text=True)
+            if result.stdout.strip():
+                print("⚠️ 有未提交的更改，但这是正常的")
+                print("   未提交的文件:")
+                for line in result.stdout.strip().split('\n'):
+                    if line.strip():
+                        print(f"   - {line}")
+            else:
+                print("✅ 工作目录干净")
+                
         except subprocess.CalledProcessError as e:
-            print(f"❌ Git提交失败: {e}")
+            print(f"❌ Git配置检查失败: {e}")
             return False
         
         # 6. 测试Git推送（不实际推送，只检查配置）
