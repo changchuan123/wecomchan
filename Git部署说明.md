@@ -24,7 +24,7 @@
 git init
 
 # 2. 配置远程仓库
-git remote add origin https://github.com/weixiaogang/wecomchan.git
+git remote add origin https://github.com/changchuan123/wecomchan.git
 
 # 3. 配置Git用户信息
 git config user.name "weixiaogang"
@@ -97,8 +97,8 @@ git config user.email "weixiaogang@haierht.com"
 
 ```python
 # Git部署配置
-GIT_REMOTE_URL = "https://github.com/weixiaogang/wecomchan.git"
-GIT_BRANCH = "main"
+GIT_REMOTE_URL = "https://github.com/changchuan123/wecomchan.git"
+GIT_BRANCH = "master"
 GIT_USERNAME = "weixiaogang"
 GIT_EMAIL = "weixiaogang@haierht.com"
 ```
@@ -160,8 +160,8 @@ python3 demo_git_deploy.py
 ## 访问地址
 
 ### 生产环境
-- 主页面: https://edge.haierht.cn
-- 报告页面: https://edge.haierht.cn/reports/
+- 主页面: https://sales-report.pages.edgeone.com
+- 报告页面: https://sales-report.pages.edgeone.com/reports/
 
 ### 本地测试
 - 本地部署: `file:///path/to/test_deploy/index.html`
