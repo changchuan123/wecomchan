@@ -45,6 +45,6 @@ logs/
 *.xls
 data/
 
-# Keep only HTML reports
-reports/*.html
-!reports/index.html
+# Allow HTML reports to be tracked
+# reports/*.html
+# !reports/index.html
