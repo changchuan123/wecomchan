@@ -272,7 +272,7 @@ EDGEONE_TOKEN = "YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc="  # EdgeOne Pages 
 
 # Git部署配置
 GIT_REMOTE_URL = "https://github.com/weixiaogang/wecomchan.git"  # Git远程仓库URL
-GIT_BRANCH = "main"  # Git分支名称
+GIT_BRANCH = "master"  # Git分支名称
 GIT_USERNAME = "weixiaogang"  # Git用户名
 GIT_EMAIL = "weixiaogang@haierht.com"  # Git邮箱
 
