@@ -206,7 +206,23 @@
             </div>
         </div>
         
-        <script src="chart.js"></script>
+        <script src="chart.js">
+        <script>
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const icon = document.getElementById(sectionId + '-icon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▼';
+            }
+        }
+        </script>
+        
+</script>
         <script>
         // 销售趋势图数据
         const trendRawData = {json.dumps(js_data, ensure_ascii=False)};
@@ -317,10 +333,49 @@
                     let shopAmount = currentTrendFilter.shop ? (trendRawData.shopData[currentTrendFilter.shop][i] || 0) : null;
                     let productAmount = currentTrendFilter.product ? (trendRawData.productData[currentTrendFilter.product][i] || 0) : null;
                     
-                    // 取最具体的筛选结果（优先级：单品 > 店铺 > 品类）
-                    if (productAmount !== null) {
-                        dayAmount = productAmount;
-                    } else if (shopAmount !== null) {
+                    // 正确的组合筛选逻辑
+                    if (currentTrendFilter.category && currentTrendFilter.shop && currentTrendFilter.product) {
+                        // 三个筛选条件都有：显示该单品在该店铺的数据
+                        dayAmount = productAmount || 0;
+                    } else if (currentTrendFilter.category && currentTrendFilter.shop) {
+                        // 品类+店铺：显示该品类在该店铺的数据（取较小值作为近似）
+                        dayAmount = Math.min(categoryAmount || 0, shopAmount || 0);
+                    } else if (currentTrendFilter.category && currentTrendFilter.product) {
+                        // 品类+单品：显示该单品的数据
+                        dayAmount = productAmount || 0;
+                    } else if (currentTrendFilter.shop && currentTrendFilter.product) {
+                        // 店铺+单品：显示该单品在该店铺的数据
+                        dayAmount = productAmount || 0;
+                    } else if (currentTrendFilter.product) {
+                        // 只有单品筛选
+                        dayAmount = productAmount || 0;
+                    } else if (currentTrendFilter.shop) {
+                        // 只有店铺筛选
+                        dayAmount = shopAmount || 0;
+                    } else if (currentTrendFilter.category) {
+                        // 只有品类筛选
+                        dayAmount = categoryAmount || 0;
+                    }
+                    
+                    // 计算对应的数量（按比例分配）
+                    let totalDayAmount = trendRawData.amounts[i] || 0;
+                    if (totalDayAmount > 0) {
+                        dayQty = Math.round((trendRawData.quantities[i] || 0) * (dayAmount / totalDayAmount));
+                    } else {
+                        dayQty = 0;
+                    }
+                } else {
+                    // 没有筛选条件，显示全部数据
+                    dayAmount = trendRawData.amounts[i] || 0;
+                    dayQty = trendRawData.quantities[i] || 0;
+                }
+                
+                amounts.push(dayAmount);
+                quantities.push(dayQty);
+            }
+            
+            return { amounts, quantities };
+        } else if (shopAmount !== null) {
                         dayAmount = shopAmount;
                     } else if (categoryAmount !== null) {
                         dayAmount = categoryAmount;
@@ -676,12 +731,40 @@
             // 延迟初始化，确保Chart.js加载完成
             setTimeout(initTrendChart, 100);
         });
+        
+        <script>
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const icon = document.getElementById(sectionId + '-icon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▼';
+            }
+        }
         </script>
+        
+</script>
         
         
         <!-- 品类变化趋势 -->
         <h2>🔍 【品类变化趋势】</h2>
-        <h3>📊 品类变化趋势</h3><div style="margin-bottom: 8px; padding: 6px; background: #fff0f0; border-radius: 4px;"><strong>❄️ 家用空调: 📉 -60.2%</strong><br>销售额变化: ¥827,399 → ¥329,476<br></div><div style="margin-bottom: 8px; padding: 6px; background: #f0f8ff; border-radius: 4px;"><strong>🧺 洗衣机: 📈 +51.9%</strong><br>销售额变化: ¥96,526 → ¥146,643<br>其中分销: ¥719（1件），环比 📊 0%</div><div style="margin-bottom: 8px; padding: 6px; background: #fff0f0; border-radius: 4px;"><strong>🧊 冰箱: 📉 -15.7%</strong><br>销售额变化: ¥157,631 → ¥132,905<br></div><div style="margin-bottom: 8px; padding: 6px; background: #f0f8ff; border-radius: 4px;"><strong>🍽️ 洗碗机: 📈 +103.4%</strong><br>销售额变化: ¥29,245 → ¥59,471<br></div><div style="margin-bottom: 8px; padding: 6px; background: #fff0f0; border-radius: 4px;"><strong>❄️ 商用空调: 📉 -80.4%</strong><br>销售额变化: ¥166,503 → ¥32,657<br></div><div style="margin-bottom: 8px; padding: 6px; background: #f0f8ff; border-radius: 4px;"><strong>♨️ 热水器: 📈 +212.2%</strong><br>销售额变化: ¥9,985 → ¥31,169<br></div><div style="margin-bottom: 8px; padding: 6px; background: #f0f8ff; border-radius: 4px;"><strong>🍽️ 厨电: 📈 +822.9%</strong><br>销售额变化: ¥1,632 → ¥15,061<br>其中分销: ¥2,489（1件），环比 📊 0%</div><div style="margin-bottom: 8px; padding: 6px; background: #f0f8ff; border-radius: 4px;"><strong>📦 冷柜: 📈 +8.3%</strong><br>销售额变化: ¥3,876 → ¥4,196<br></div><h3>⚠️ 店铺环比监控</h3><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 高速增长店铺 (>20%)</strong><br>🏪 京东-海尔洗嵌旗舰店: +102.2% (¥28,197→¥57,024)<br>🏪 天猫-海尔厨房场景旗舰店: +126.4% (¥18,951→¥42,898)<br>🏪 京东-卡萨帝洗烘套装旗舰店: +62.6% (¥25,095→¥40,798)<br>🏪 天猫-海尔洗嵌旗舰店: +67.3% (¥11,516→¥19,263)<br>🏪 京东-卡萨帝大愉专卖店: +74.4% (¥8,599→¥14,999)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #fff0f0; border-radius: 4px;"><strong>📉 严重下滑店铺 (>20%)</strong><br>🏪 拼多多-海尔虹图专卖店: -35.6% (¥273,958→¥176,335)<br>🏪 京东-海尔净省电空调旗舰店: -39.6% (¥236,903→¥143,000)<br>🏪 京东-海尔空调店大愉供销: -72.4% (¥247,558→¥68,300)<br>🏪 天猫-海尔空调套装旗舰店: -70.3% (¥170,385→¥50,629)<br>🏪 京东-虹图全品类店: -37.2% (¥49,391→¥31,039)<br></div><h3>⚠️ 单品环比监控</h3><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 🧺 洗衣机 - 高速增长单品 (>20%)</strong><br>🔸 XQB80-M308: +1650.0% (2→35件)<br>🔸 XQG100-LD58E: +120.0% (5→11件)<br>🔸 EG100BD176PRO: +33.3% (3→4件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 ❄️ 家用空调 - 高速增长单品 (>20%)</strong><br>🔸 KFR-35G/E1-1Plus室内机: +114.3% (7→15件)<br>🔸 KFR-72G/MEA81U1室内机总成: +50.0% (4→6件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #fff0f0; border-radius: 4px;"><strong>📉 ❄️ 家用空调 - 严重下滑单品 (>20%)</strong><br>🔸 KFR-35G/LKG81TU1室内机: -46.9% (49→26件)<br>🔸 KFR-35G/LPA1-1室内机: -40.0% (40→24件)<br>🔸 KFR-35G/E1-1室内机: -40.0% (20→12件)<br>🔸 KFR-72L/LPA1-1室内机: -38.5% (13→8件)<br>🔸 KFR-48G/MDA81TU1室内机: -57.1% (14→6件)<br>🔸 KFR-35G/LAA81U1室内机总成: -37.5% (8→5件)<br>🔸 KFR-72L/XDB82U1室内机: -33.3% (6→4件)<br>🔸 KFR-72G/PAA81U1室内机: -84.2% (19→3件)<br>🔸 KFR-35G/MTB81TU1(高光白)室内机: -60.0% (5→2件)<br>🔸 KFR-48G/E1-1室内机: -85.7% (14→2件)<br>🔸 KFR-72L/LKB81TU1室内机: -75.0% (8→2件)<br>🔸 KFR-50G/PAA81U1室内机总成: -50.0% (2→1件)<br>🔸 KFR-50L/WDB81TU1室内机总成: -66.7% (3→1件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 ♨️ 热水器 - 高速增长单品 (>20%)</strong><br>🔸 EC6002-PT5U1: +300.0% (1→4件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 🍽️ 洗碗机 - 高速增长单品 (>20%)</strong><br>🔸 EBW12227BKU1: +50.0% (6→9件)<br>🔸 EYBW16328GHU1: +200.0% (1→3件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #fff0f0; border-radius: 4px;"><strong>📉 🍽️ 洗碗机 - 严重下滑单品 (>20%)</strong><br>🔸 EYBW152266BKU1: -66.7% (3→1件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 🧊 冰箱 - 高速增长单品 (>20%)</strong><br>🔸 BCD-501WLHTD58B9U1: +360.0% (5→23件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #fff0f0; border-radius: 4px;"><strong>📉 🧊 冰箱 - 严重下滑单品 (>20%)</strong><br>🔸 BCD-88GHTMZ0WV: -70.7% (99→29件)<br>🔸 BC-93LTMPA: -76.4% (89→21件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #fff0f0; border-radius: 4px;"><strong>📉 ❄️ 商用空调 - 严重下滑单品 (>20%)</strong><br>🔸 KFRd-72N/ECA81U1室内机: -75.0% (4→1件)<br></div>
+        
+            <div class="collapsible-section" style="margin-bottom: 20px;">
+                <div class="section-header" onclick="toggleSection('category-trend')" style="cursor: pointer; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #dee2e6;">
+                    <h3 style="margin: 0; display: flex; align-items: center; justify-content: space-between;">
+                        📊 品类变化趋势
+                        <span id="category-trend-icon" style="font-size: 18px;">▼</span>
+                    </h3>
+                </div>
+                <div id="category-trend-content" class="section-content" style="display: none; padding: 15px; background: white; border: 1px solid #dee2e6; border-top: none; border-radius: 0 0 5px 5px;">
+                    <div style="margin-bottom: 8px; padding: 6px; background: #fff0f0; border-radius: 4px;"><strong>❄️ 家用空调: 📉 -60.2%</strong><br>销售额变化: ¥827,399 → ¥329,476<br></div><div style="margin-bottom: 8px; padding: 6px; background: #f0f8ff; border-radius: 4px;"><strong>🧺 洗衣机: 📈 +51.9%</strong><br>销售额变化: ¥96,526 → ¥146,643<br>其中分销: ¥719（1件），环比 📊 0%</div><div style="margin-bottom: 8px; padding: 6px; background: #fff0f0; border-radius: 4px;"><strong>🧊 冰箱: 📉 -15.7%</strong><br>销售额变化: ¥157,631 → ¥132,905<br></div><div style="margin-bottom: 8px; padding: 6px; background: #f0f8ff; border-radius: 4px;"><strong>🍽️ 洗碗机: 📈 +103.4%</strong><br>销售额变化: ¥29,245 → ¥59,471<br></div><div style="margin-bottom: 8px; padding: 6px; background: #fff0f0; border-radius: 4px;"><strong>❄️ 商用空调: 📉 -80.4%</strong><br>销售额变化: ¥166,503 → ¥32,657<br></div><div style="margin-bottom: 8px; padding: 6px; background: #f0f8ff; border-radius: 4px;"><strong>♨️ 热水器: 📈 +212.2%</strong><br>销售额变化: ¥9,985 → ¥31,169<br></div><div style="margin-bottom: 8px; padding: 6px; background: #f0f8ff; border-radius: 4px;"><strong>🍽️ 厨电: 📈 +822.9%</strong><br>销售额变化: ¥1,632 → ¥15,061<br>其中分销: ¥2,489（1件），环比 📊 0%</div><div style="margin-bottom: 8px; padding: 6px; background: #f0f8ff; border-radius: 4px;"><strong>📦 冷柜: 📈 +8.3%</strong><br>销售额变化: ¥3,876 → ¥4,196<br></div>
+                </div>
+            </div>
+            <h3>⚠️ 店铺环比监控</h3><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 高速增长店铺 (>20%)</strong><br>🏪 京东-海尔洗嵌旗舰店: +102.2% (¥28,197→¥57,024)<br>🏪 天猫-海尔厨房场景旗舰店: +126.4% (¥18,951→¥42,898)<br>🏪 京东-卡萨帝洗烘套装旗舰店: +62.6% (¥25,095→¥40,798)<br>🏪 天猫-海尔洗嵌旗舰店: +67.3% (¥11,516→¥19,263)<br>🏪 京东-卡萨帝大愉专卖店: +74.4% (¥8,599→¥14,999)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #fff0f0; border-radius: 4px;"><strong>📉 严重下滑店铺 (>20%)</strong><br>🏪 拼多多-海尔虹图专卖店: -35.6% (¥273,958→¥176,335)<br>🏪 京东-海尔净省电空调旗舰店: -39.6% (¥236,903→¥143,000)<br>🏪 京东-海尔空调店大愉供销: -72.4% (¥247,558→¥68,300)<br>🏪 天猫-海尔空调套装旗舰店: -70.3% (¥170,385→¥50,629)<br>🏪 京东-虹图全品类店: -37.2% (¥49,391→¥31,039)<br></div><h3>⚠️ 单品环比监控</h3><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 🧺 洗衣机 - 高速增长单品 (>20%)</strong><br>🔸 XQB80-M308: +1650.0% (2→35件)<br>🔸 XQG100-LD58E: +120.0% (5→11件)<br>🔸 EG100BD176PRO: +33.3% (3→4件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 ❄️ 家用空调 - 高速增长单品 (>20%)</strong><br>🔸 KFR-35G/E1-1Plus室内机: +114.3% (7→15件)<br>🔸 KFR-72G/MEA81U1室内机总成: +50.0% (4→6件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #fff0f0; border-radius: 4px;"><strong>📉 ❄️ 家用空调 - 严重下滑单品 (>20%)</strong><br>🔸 KFR-35G/LKG81TU1室内机: -46.9% (49→26件)<br>🔸 KFR-35G/LPA1-1室内机: -40.0% (40→24件)<br>🔸 KFR-35G/E1-1室内机: -40.0% (20→12件)<br>🔸 KFR-72L/LPA1-1室内机: -38.5% (13→8件)<br>🔸 KFR-48G/MDA81TU1室内机: -57.1% (14→6件)<br>🔸 KFR-35G/LAA81U1室内机总成: -37.5% (8→5件)<br>🔸 KFR-72L/XDB82U1室内机: -33.3% (6→4件)<br>🔸 KFR-72G/PAA81U1室内机: -84.2% (19→3件)<br>🔸 KFR-35G/MTB81TU1(高光白)室内机: -60.0% (5→2件)<br>🔸 KFR-48G/E1-1室内机: -85.7% (14→2件)<br>🔸 KFR-72L/LKB81TU1室内机: -75.0% (8→2件)<br>🔸 KFR-50G/PAA81U1室内机总成: -50.0% (2→1件)<br>🔸 KFR-50L/WDB81TU1室内机总成: -66.7% (3→1件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 ♨️ 热水器 - 高速增长单品 (>20%)</strong><br>🔸 EC6002-PT5U1: +300.0% (1→4件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 🍽️ 洗碗机 - 高速增长单品 (>20%)</strong><br>🔸 EBW12227BKU1: +50.0% (6→9件)<br>🔸 EYBW16328GHU1: +200.0% (1→3件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #fff0f0; border-radius: 4px;"><strong>📉 🍽️ 洗碗机 - 严重下滑单品 (>20%)</strong><br>🔸 EYBW152266BKU1: -66.7% (3→1件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 🧊 冰箱 - 高速增长单品 (>20%)</strong><br>🔸 BCD-501WLHTD58B9U1: +360.0% (5→23件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #fff0f0; border-radius: 4px;"><strong>📉 🧊 冰箱 - 严重下滑单品 (>20%)</strong><br>🔸 BCD-88GHTMZ0WV: -70.7% (99→29件)<br>🔸 BC-93LTMPA: -76.4% (89→21件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #fff0f0; border-radius: 4px;"><strong>📉 ❄️ 商用空调 - 严重下滑单品 (>20%)</strong><br>🔸 KFRd-72N/ECA81U1室内机: -75.0% (4→1件)<br></div>
         
         <!-- 品类销售排行榜 -->
         <h2>【品类销售排行榜】</h2>
@@ -720,7 +803,23 @@
         document.getElementById('btn_all_shop').style.background = '#6c757d';
         document.getElementById('btn_all_product').style.background = '#007bff';
     }
-    </script>
+    
+        <script>
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const icon = document.getElementById(sectionId + '-icon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▼';
+            }
+        }
+        </script>
+        
+</script>
     <details><summary>❄️ 1. 家用空调 ─ 销售额: ¥329,476 (📉 -60.2%) ─ 销量: 248件 | 单价: ¥1,328</summary>
 
         

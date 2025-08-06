@@ -317,10 +317,52 @@
                     let shopAmount = currentTrendFilter.shop ? (trendRawData.shopData[currentTrendFilter.shop][i] || 0) : null;
                     let productAmount = currentTrendFilter.product ? (trendRawData.productData[currentTrendFilter.product][i] || 0) : null;
                     
-                    // 取最具体的筛选结果（优先级：单品 > 店铺 > 品类）
-                    if (productAmount !== null) {
-                        dayAmount = productAmount;
-                    } else if (shopAmount !== null) {
+                    // 修复：当同时有品类和店铺筛选时，应该显示该品类在该店铺的数据
+                    // 而不是取最具体的筛选结果
+                    if (currentTrendFilter.category && currentTrendFilter.shop && currentTrendFilter.product) {
+                        // 三个筛选条件都有：显示该单品在该店铺的数据
+                        dayAmount = productAmount || 0;
+                    } else if (currentTrendFilter.category && currentTrendFilter.shop) {
+                        // 只有品类和店铺：显示该品类在该店铺的数据
+                        // 这里需要从原始数据中获取该品类在该店铺的数据
+                        // 由于数据结构限制，我们使用品类数据作为近似值
+                        dayAmount = categoryAmount || 0;
+                    } else if (currentTrendFilter.category && currentTrendFilter.product) {
+                        // 只有品类和单品：显示该单品的数据
+                        dayAmount = productAmount || 0;
+                    } else if (currentTrendFilter.shop && currentTrendFilter.product) {
+                        // 只有店铺和单品：显示该单品在该店铺的数据
+                        dayAmount = productAmount || 0;
+                    } else if (currentTrendFilter.product) {
+                        // 只有单品筛选
+                        dayAmount = productAmount || 0;
+                    } else if (currentTrendFilter.shop) {
+                        // 只有店铺筛选
+                        dayAmount = shopAmount || 0;
+                    } else if (currentTrendFilter.category) {
+                        // 只有品类筛选
+                        dayAmount = categoryAmount || 0;
+                    }
+                    
+                    // 计算对应的数量（按比例分配）
+                    let totalDayAmount = trendRawData.amounts[i] || 0;
+                    if (totalDayAmount > 0) {
+                        dayQty = Math.round((trendRawData.quantities[i] || 0) * (dayAmount / totalDayAmount));
+                    } else {
+                        dayQty = 0;
+                    }
+                } else {
+                    // 没有筛选条件，显示全部数据
+                    dayAmount = trendRawData.amounts[i] || 0;
+                    dayQty = trendRawData.quantities[i] || 0;
+                }
+                
+                amounts.push(dayAmount);
+                quantities.push(dayQty);
+            }
+            
+            return { amounts, quantities };
+        } else if (shopAmount !== null) {
                         dayAmount = shopAmount;
                     } else if (categoryAmount !== null) {
                         dayAmount = categoryAmount;
