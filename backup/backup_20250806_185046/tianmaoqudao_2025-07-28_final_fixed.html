@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>天猫渠道日报（2025-07-28）</title>
+    <style>
+        body { 
+            font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; 
+            background: #f8f9fa; 
+            color: #222; 
+            margin: 0; 
+            padding: 0.5em; 
+            max-width: 900px; 
+            margin-left:auto; 
+            margin-right:auto; 
+            text-align: left; 
+            font-size: 10.5pt; 
+        }
+        h1, h2, h3 { 
+            color: #0056b3; 
+            text-align: left; 
+            font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; 
+            font-size: 14pt; 
+            font-weight: bold; 
+            margin: 0.3em 0; 
+        }
+        pre, code { 
+            background: #f3f3f3; 
+            padding: 0.5em; 
+            border-radius: 4px; 
+            white-space: pre-wrap; 
+            word-break: break-all; 
+            text-align: left; 
+            font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; 
+            margin: 0.3em 0; 
+        }
+        .growth-positive { 
+            background-color: #e6f4ea !important; 
+        }
+        .growth-negative { 
+            background-color: #fbeaea !important; 
+        }
+        .section { 
+            margin-bottom: 2em; 
+            text-align: left; 
+        }
+        .highlight { 
+            color: #d63384; 
+            font-weight: bold; 
+        }
+        .emoji { 
+            font-size: 1.2em; 
+        }
+        .shop-item {
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .shop-item.growth-row {
+            background: #d4edda;
+            border-left: 3px solid #28a745;
+        }
+        .shop-item.decline-row {
+            background: #f8d7da;
+            border-left: 3px solid #dc3545;
+        }
+        .shop-item.neutral-row {
+            background: #e2e3e5;
+            border-left: 3px solid #6c757d;
+        }
+        .product-name {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        .product-stats {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .category-item {
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .category-item.growth-row {
+            background: #d4edda;
+            border-left: 3px solid #28a745;
+        }
+        .category-item.decline-row {
+            background: #f8d7da;
+            border-left: 3px solid #dc3545;
+        }
+        .category-item.neutral-row {
+            background: #e2e3e5;
+            border-left: 3px solid #6c757d;
+        }
+        .metric-value {
+            font-weight: bold;
+            color: #0056b3;
+        }
+        .metric-change {
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .change-positive {
+            background: #d4edda;
+            color: #155724;
+        }
+        .change-negative {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .change-neutral {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        @media (max-width: 600px) {
+            body { padding: 0.5em; font-size: 10.5pt; }
+            h1 { font-size: 14pt; }
+        }
+        .left-align { text-align: left !important; }
+        .report-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .report-date {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            color: #0056b3;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .metric-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+        .metric-label {
+            font-weight: bold;
+            color: #495057;
+            min-width: 120px;
+        }
+        .metric-value {
+            font-weight: bold;
+            color: #0056b3;
+            margin: 0 15px;
+        }
+        .metric-change {
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            margin-left: auto;
+        }
+        .fenxiao-info {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            margin-top: 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #6c757d;
+            border-left: 3px solid #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+    <h1>🏢 天猫渠道日报</h1>
+    <p class="report-date">📅 数据日期: 2025-07-28</p>
+    
+    <div class="section">
+        <h2>📊 整体数据</h2>
+        <div class="metric-row">
+            <span class="metric-label">总销售额:</span>
+            <span class="metric-value">¥193,638</span>
+            <span class="metric-change change-positive">+14%</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">总销量:</span>
+            <span class="metric-value">138件</span>
+            <span class="metric-change change-positive">+21%</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">平均单价:</span>
+            <span class="metric-value">¥1,403</span>
+            <span class="metric-change change-negative">-5%</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">分销销售:</span>
+            <span class="metric-value">¥2,630.0</span>
+            <span class="metric-change change-positive">+88%</span>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>📋 品类明细</h2>
+        <div class="category-item growth-row">
+            <div class="product-name">家用空调</div>
+            <div class="product-stats">¥94,830 | 80件 | ¥1,185/件（对比:¥76,428，环比:+24%）</div>
+        </div>
+        <div class="category-item growth-row">
+            <div class="product-name">冰箱</div>
+            <div class="product-stats">¥31,941 | 28件 | ¥1,140/件（对比:¥26,470，环比:+20%）</div>
+        </div>
+        <div class="category-item growth-row">
+            <div class="product-name">厨电</div>
+            <div class="product-stats">¥24,991 | 15件 | ¥1,666/件（对比:¥10,144，环比:+146%）</div>
+            <div class="fenxiao-info">分销数据: ¥1,911 | 2件 | ¥955/件</div>
+        </div>
+        <div class="category-item growth-row">
+            <div class="product-name">洗衣机</div>
+            <div class="product-stats">¥23,832 | 8件 | ¥2,979/件（对比:¥22,862，环比:+4%）</div>
+            <div class="fenxiao-info">分销数据: ¥719 | 1件 | ¥719/件</div>
+        </div>
+        <div class="category-item growth-row">
+            <div class="product-name">洗碗机</div>
+            <div class="product-stats">¥16,645 | 5件 | ¥3,329/件（对比:¥11,796，环比:+41%）</div>
+        </div>
+        <div class="category-item decline-row">
+            <div class="product-name">电热水器</div>
+            <div class="product-stats">¥1,299 | 1件 | ¥1,299/件（对比:¥1,449，环比:-10%）</div>
+        </div>
+        <div class="category-item decline-row">
+            <div class="product-name">其他</div>
+            <div class="product-stats">¥100 | 1件 | ¥100/件（对比:¥150，环比:-33%）</div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🏪 店铺数据</h2>
+        <div class="shop-item decline-row">
+            <div class="product-name">天猫-海尔空调套装旗舰店</div>
+            <div class="product-stats">¥86,532 | 77件（对比:¥88,026，环比:-1%）</div>
+        </div>
+        <div class="shop-item growth-row">
+            <div class="product-name">天猫-海尔厨房场景旗舰店</div>
+            <div class="product-stats">¥62,061 | 36件（对比:¥36,176，环比:+71%）</div>
+            <div class="fenxiao-info">分销数据: ¥1,911 | 2件</div>
+        </div>
+        <div class="shop-item growth-row">
+            <div class="product-name">天猫-海尔洗嵌旗舰店</div>
+            <div class="product-stats">¥23,832 | 8件（对比:¥21,614，环比:+10%）</div>
+            <div class="fenxiao-info">分销数据: ¥719 | 1件</div>
+        </div>
+        <div class="shop-item growth-row">
+            <div class="product-name">天猫-虹图全品类店喵住分销</div>
+            <div class="product-stats">¥11,516 | 12件（对比:¥6,491，环比:+77%）</div>
+        </div>
+        <div class="shop-item decline-row">
+            <div class="product-name">天猫-海尔空调店</div>
+            <div class="product-stats">¥4,299 | 2件（对比:¥8,168，环比:-47%）</div>
+        </div>
+        <div class="shop-item growth-row">
+            <div class="product-name">天猫-喵速达电器旗舰店</div>
+            <div class="product-stats">¥4,099 | 2件（对比:¥3,544，环比:+15%）</div>
+        </div>
+        <div class="shop-item decline-row">
+            <div class="product-name">天猫-海尔热水器专卖店</div>
+            <div class="product-stats">¥1,299 | 1件（对比:¥4,048，环比:-67%）</div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🏆 TOP 单品</h2>
+        <div class="shop-item decline-row">
+            <div class="product-name">KFR-35G/LKG81TU1室内机</div>
+            <div class="product-stats">¥16,190 | 9件 | ¥1,798/件（对比:¥21,487，环比:-24%）</div>
+        </div>
+        <div class="shop-item decline-row">
+            <div class="product-name">BCD-88GHTMZ0WV</div>
+            <div class="product-stats">¥15,130 | 21件 | ¥720/件（对比:¥19,856，环比:-23%）</div>
+        </div>
+        <div class="shop-item decline-row">
+            <div class="product-name">KFR-35G/LPA1-1室内机</div>
+            <div class="product-stats">¥12,592 | 7件 | ¥1,798/件（对比:¥17,689，环比:-28%）</div>
+        </div>
+        <div class="shop-item growth-row">
+            <div class="product-name">BCD-539WGHTDEDSDU1</div>
+            <div class="product-stats">¥9,167 | 3件 | ¥3,055/件（对比:¥5,698，环比:+60%）</div>
+        </div>
+        <div class="shop-item decline-row">
+            <div class="product-name">G100578HBD14LS</div>
+            <div class="product-stats">¥8,998 | 2件 | ¥4,499/件（对比:¥9,168，环比:-1%）</div>
+        </div>
+        <div class="shop-item growth-row">
+            <div class="product-name">CXW-358-EC759UD</div>
+            <div class="product-stats">¥8,916 | 4件 | ¥2,229/件（对比:¥0，环比:+100%）</div>
+        </div>
+        <div class="shop-item decline-row">
+            <div class="product-name">KFR-72L/XDB82U1室内机</div>
+            <div class="product-stats">¥8,797 | 2件 | ¥4,398/件（对比:¥17,745，环比:-50%）</div>
+        </div>
+        <div class="shop-item decline-row">
+            <div class="product-name">KFR-35G/E1-1Plus室内机</div>
+            <div class="product-stats">¥8,006 | 3件 | ¥2,668/件（对比:¥42,493，环比:-81%）</div>
+        </div>
+        <div class="shop-item decline-row">
+            <div class="product-name">EBW12227BKU1</div>
+            <div class="product-stats">¥7,947 | 3件 | ¥2,649/件（对比:¥22,297，环比:-64%）</div>
+        </div>
+        <div class="shop-item growth-row">
+            <div class="product-name">CXW-358-EC739UD</div>
+            <div class="product-stats">¥6,688 | 4件 | ¥1,672/件（对比:¥0，环比:+100%）</div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🏪 店铺单品明细</h2>
+        <div class="shop-item">
+            <h3 style="color: #0056b3; margin-bottom: 15px;">📍 天猫-海尔空调套装旗舰店</h3>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">KFR-35G/LKG81TU1室内机</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥16,190 <span class="metric-change change-positive">+12%</span> | 
+                    销量: 9件 <span class="metric-change change-positive">+12%</span> | 
+                    单价: ¥1,798/件
+                </div>
+            </div>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">KFR-35G/LPA1-1室内机</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥12,592 <span class="metric-change change-positive">+75%</span> | 
+                    销量: 7件 <span class="metric-change change-positive">+75%</span> | 
+                    单价: ¥1,798/件
+                </div>
+            </div>
+            <div class="decline-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">KFR-72L/XDB82U1室内机</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥8,797 <span class="metric-change change-negative">-33%</span> | 
+                    销量: 2件 <span class="metric-change change-negative">-33%</span> | 
+                    单价: ¥4,398/件
+                </div>
+            </div>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">KFR-35G/E1-1Plus室内机</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥8,006 <span class="metric-change change-positive">+50%</span> | 
+                    销量: 3件 <span class="metric-change change-positive">+50%</span> | 
+                    单价: ¥2,668/件
+                </div>
+            </div>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">KFR-50G/PAA81U1室内机总成</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥6,397 <span class="metric-change change-positive">+100%</span> | 
+                    销量: 2件 <span class="metric-change change-positive">+100%</span> | 
+                    单价: ¥3,198/件
+                </div>
+            </div>
+        </div>
+        <div class="shop-item">
+            <h3 style="color: #0056b3; margin-bottom: 15px;">📍 天猫-海尔厨房场景旗舰店</h3>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">BCD-539WGHTDEDSDU1</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥9,167 <span class="metric-change change-positive">+216%</span> | 
+                    销量: 3件 <span class="metric-change change-positive">+200%</span> | 
+                    单价: ¥3,055/件
+                </div>
+            </div>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">CXW-358-EC759UD</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥8,916 <span class="metric-change change-positive">+100%</span> | 
+                    销量: 4件 <span class="metric-change change-positive">+100%</span> | 
+                    单价: ¥2,229/件
+                </div>
+            </div>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">EBW12227BKU1</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥7,947 <span class="metric-change change-positive">+50%</span> | 
+                    销量: 3件 <span class="metric-change change-positive">+50%</span> | 
+                    单价: ¥2,649/件
+                </div>
+            </div>
+            <div class="decline-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">BCD-88GHTMZ0WV</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥7,213 <span class="metric-change change-negative">-2%</span> | 
+                    销量: 10件 <span class="metric-change change-neutral">0%</span> | 
+                    单价: ¥721/件
+                </div>
+            </div>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">CXW-358-EC739UD</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥6,688 <span class="metric-change change-positive">+100%</span> | 
+                    销量: 4件 <span class="metric-change change-positive">+100%</span> | 
+                    单价: ¥1,672/件
+                </div>
+                <div class="fenxiao-info">分销: ¥1,290 | 1件</div>
+            </div>
+        </div>
+        <div class="shop-item">
+            <h3 style="color: #0056b3; margin-bottom: 15px;">📍 天猫-海尔洗嵌旗舰店</h3>
+            <div class="decline-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">G100578HBD14LS</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥8,998 <span class="metric-change change-negative">-1%</span> | 
+                    销量: 2件 <span class="metric-change change-neutral">0%</span> | 
+                    单价: ¥4,499/件
+                </div>
+            </div>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">XQG100-BSDE598WU1</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥5,799 <span class="metric-change change-positive">+100%</span> | 
+                    销量: 1件 <span class="metric-change change-positive">+100%</span> | 
+                    单价: ¥5,799/件
+                </div>
+            </div>
+            <div class="neutral-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">G100578BD14LS</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥3,899 <span class="metric-change change-neutral">0%</span> | 
+                    销量: 1件 <span class="metric-change change-neutral">0%</span> | 
+                    单价: ¥3,899/件
+                </div>
+            </div>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">EG100BD176PRO</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥2,499 <span class="metric-change change-positive">+100%</span> | 
+                    销量: 1件 <span class="metric-change change-positive">+100%</span> | 
+                    单价: ¥2,499/件
+                </div>
+            </div>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">XQB80-M10E0</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥1,438 <span class="metric-change change-positive">+2%</span> | 
+                    销量: 2件 <span class="metric-change change-neutral">0%</span> | 
+                    单价: ¥719/件
+                </div>
+                <div class="fenxiao-info">分销: ¥719 | 1件</div>
+            </div>
+        </div>
+        <div class="shop-item">
+            <h3 style="color: #0056b3; margin-bottom: 15px;">📍 天猫-虹图全品类店喵住分销</h3>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">BCD-88GHTMZ0WV</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥7,917 <span class="metric-change change-positive">+173%</span> | 
+                    销量: 11件 <span class="metric-change change-positive">+175%</span> | 
+                    单价: ¥719/件
+                </div>
+            </div>
+            <div class="neutral-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">BCD-509WGHFD7DS9U1</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥3,599 <span class="metric-change change-neutral">0%</span> | 
+                    销量: 1件 <span class="metric-change change-neutral">0%</span> | 
+                    单价: ¥3,599/件
+                </div>
+            </div>
+        </div>
+        <div class="shop-item">
+            <h3 style="color: #0056b3; margin-bottom: 15px;">📍 天猫-海尔空调店</h3>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">KFR-72G/PAA81U1室内机</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥4,298 <span class="metric-change change-positive">+100%</span> | 
+                    销量: 1件 <span class="metric-change change-positive">+100%</span> | 
+                    单价: ¥4,298/件
+                </div>
+            </div>
+            <div class="neutral-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">KFR-72W/2481室外机</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥0 <span class="metric-change change-neutral">0%</span> | 
+                    销量: 1件 <span class="metric-change change-positive">+100%</span> | 
+                    单价: ¥0/件
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <footer style="margin-top:2em;color:#888;font-size:0.9em;">自动生成 | Powered by EdgeOne Pages & 企业微信机器人</footer>
+</body>
+</html>

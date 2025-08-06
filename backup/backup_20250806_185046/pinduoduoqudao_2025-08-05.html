@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>拼多多渠道日报（2025-08-05）</title>
+    <style>
+        body { 
+            font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; 
+            background: #f8f9fa; 
+            color: #222; 
+            margin: 0; 
+            padding: 0.5em; 
+            max-width: 900px; 
+            margin-left:auto; 
+            margin-right:auto; 
+            text-align: left; 
+            font-size: 10.5pt; 
+        }
+        h1, h2, h3 { 
+            color: #0056b3; 
+            text-align: left; 
+            font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; 
+            font-size: 14pt; 
+            font-weight: bold; 
+            margin: 0.3em 0; 
+        }
+        pre, code { 
+            background: #f3f3f3; 
+            padding: 0.5em; 
+            border-radius: 4px; 
+            white-space: pre-wrap; 
+            word-break: break-all; 
+            text-align: left; 
+            font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; 
+            margin: 0.3em 0; 
+        }
+        .growth-positive { 
+            background-color: #e6f4ea !important; 
+        }
+        .growth-negative { 
+            background-color: #fbeaea !important; 
+        }
+        .section { 
+            margin-bottom: 2em; 
+            text-align: left; 
+        }
+        .highlight { 
+            color: #d63384; 
+            font-weight: bold; 
+        }
+        .emoji { 
+            font-size: 1.2em; 
+        }
+        .shop-item {
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .shop-item.growth-row {
+            background: #d4edda;
+            border-left: 3px solid #28a745;
+        }
+        .shop-item.decline-row {
+            background: #f8d7da;
+            border-left: 3px solid #dc3545;
+        }
+        .shop-item.neutral-row {
+            background: #e2e3e5;
+            border-left: 3px solid #6c757d;
+        }
+        .product-name {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        .product-stats {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .category-item {
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .category-item.growth-row {
+            background: #d4edda;
+            border-left: 3px solid #28a745;
+        }
+        .category-item.decline-row {
+            background: #f8d7da;
+            border-left: 3px solid #dc3545;
+        }
+        .category-item.neutral-row {
+            background: #e2e3e5;
+            border-left: 3px solid #6c757d;
+        }
+        .metric-value {
+            font-weight: bold;
+            color: #0056b3;
+        }
+        .metric-change {
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .change-positive {
+            background: #d4edda;
+            color: #155724;
+        }
+        .change-negative {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .change-neutral {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        @media (max-width: 600px) {
+            body { padding: 0.5em; font-size: 10.5pt; }
+            h1 { font-size: 14pt; }
+        }
+        .left-align { text-align: left !important; }
+        .report-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .report-date {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            color: #0056b3;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .metric-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+        .metric-label {
+            font-weight: bold;
+            color: #495057;
+            min-width: 120px;
+        }
+        .metric-value {
+            font-weight: bold;
+            color: #0056b3;
+            margin: 0 15px;
+        }
+        .metric-change {
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            margin-left: auto;
+        }
+        .fenxiao-info {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            margin-top: 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #6c757d;
+            border-left: 3px solid #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+    <h1>🏢 拼多多渠道日报</h1>
+    <p class="report-date">📅 数据日期: 2025-08-05</p>
+    
+    <div class="section">
+        <h2>📊 整体数据</h2>
+        <div class="metric-row">
+            <span class="metric-label">总销售额:</span>
+            <span class="metric-value">¥250,587</span>
+            <span class="metric-change change-positive">+23%</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">总销量:</span>
+            <span class="metric-value">268件</span>
+            <span class="metric-change change-positive">+87%</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">平均单价:</span>
+            <span class="metric-value">¥935</span>
+            <span class="metric-change change-negative">-33%</span>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>📋 品类明细</h2>
+        <div class="category-item growth-row">
+            <div class="product-name">洗衣机</div>
+            <div class="product-stats">销售额: ¥142,844 (+549%) | 销量: 218件 (+651%) | 单价: ¥655</div>
+        </div>
+        <div class="category-item growth-row">
+            <div class="product-name">冰箱</div>
+            <div class="product-stats">销售额: ¥78,353 (+29%) | 销量: 35件 (+25%) | 单价: ¥2,238</div>
+        </div>
+        <div class="category-item decline-row">
+            <div class="product-name">家用空调</div>
+            <div class="product-stats">销售额: ¥19,159 (-79%) | 销量: 10件 (-85%) | 单价: ¥1,915</div>
+        </div>
+        <div class="category-item decline-row">
+            <div class="product-name">冷柜</div>
+            <div class="product-stats">销售额: ¥5,154 (-39%) | 销量: 2件 (-66%) | 单价: ¥2,577</div>
+        </div>
+        <div class="category-item decline-row">
+            <div class="product-name">洗碗机</div>
+            <div class="product-stats">销售额: ¥4,082 (-54%) | 销量: 2件 (-50%) | 单价: ¥2,041</div>
+        </div>
+        <div class="category-item decline-row">
+            <div class="product-name">电热水器</div>
+            <div class="product-stats">销售额: ¥995 (-84%) | 销量: 1件 (-85%) | 单价: ¥995</div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🏪 店铺数据</h2>
+        <div class="shop-item growth-row">
+            <div class="product-name">拼多多-海尔虹图专卖店</div>
+            <div class="product-stats">¥249,592 | 267件（对比:¥198,630，环比:+25%）</div>
+        </div>
+        <div class="shop-item decline-row">
+            <div class="product-name">拼多多-海尔全屋用水旗舰店</div>
+            <div class="product-stats">¥995 | 1件（对比:¥3,596，环比:-72%）</div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🏆 TOP 单品</h2>
+        <div class="shop-item growth-row">
+            <div class="product-name">XQB80-M10X0</div>
+            <div class="product-stats">¥108,612 | 191件 | ¥568/件（对比:¥0，环比:+100%）</div>
+        </div>
+        <div class="shop-item growth-row">
+            <div class="product-name">BCD-501WLHTD58B9U1</div>
+            <div class="product-stats">¥76,305 | 32件 | ¥2,384/件（对比:¥57,657，环比:+32%）</div>
+        </div>
+        <div class="shop-item growth-row">
+            <div class="product-name">XQG100-LD58E</div>
+            <div class="product-stats">¥26,976 | 15件 | ¥1,798/件（对比:¥8,833，环比:+205%）</div>
+        </div>
+        <div class="shop-item decline-row">
+            <div class="product-name">KFR-72G/MEA81U1室内机总成</div>
+            <div class="product-stats">¥14,694 | 4件 | ¥3,673/件（对比:¥68,780，环比:-78%）</div>
+        </div>
+        <div class="shop-item decline-row">
+            <div class="product-name">XQB80-M308</div>
+            <div class="product-stats">¥7,256 | 12件 | ¥604/件（对比:¥16,055，环比:-54%）</div>
+        </div>
+        <div class="shop-item decline-row">
+            <div class="product-name">KFR-72L/XDB82U1室内机</div>
+            <div class="product-stats">¥4,464 | 1件 | ¥4,464/件（对比:¥13,496，环比:-66%）</div>
+        </div>
+        <div class="shop-item decline-row">
+            <div class="product-name">EBW12227BKU1</div>
+            <div class="product-stats">¥4,082 | 2件 | ¥2,041/件（对比:¥17,305，环比:-76%）</div>
+        </div>
+        <div class="shop-item neutral-row">
+            <div class="product-name">SC/SD-568CX</div>
+            <div class="product-stats">¥3,465 | 1件 | ¥3,465/件（对比:¥3,465，环比:0%）</div>
+        </div>
+        <div class="shop-item growth-row">
+            <div class="product-name">BD-152WGHS9B8</div>
+            <div class="product-stats">¥1,689 | 1件 | ¥1,689/件（对比:¥0，环比:+100%）</div>
+        </div>
+        <div class="shop-item decline-row">
+            <div class="product-name">BCD-88GHTMZ0WV</div>
+            <div class="product-stats">¥1,470 | 2件 | ¥735/件（对比:¥26,063，环比:-94%）</div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🏪 店铺单品明细</h2>
+        <div class="shop-item">
+            <h3 style="color: #0056b3; margin-bottom: 15px;">📍 拼多多-海尔虹图专卖店</h3>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">XQB80-M10X0</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥108,612 <span class="metric-change change-positive">+100%</span> | 
+                    销量: 191件 <span class="metric-change change-positive">+100%</span> | 
+                    单价: ¥568/件
+                </div>
+            </div>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">BCD-501WLHTD58B9U1</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥76,305 <span class="metric-change change-positive">+39%</span> | 
+                    销量: 32件 <span class="metric-change change-positive">+39%</span> | 
+                    单价: ¥2,384/件
+                </div>
+            </div>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">XQG100-LD58E</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥26,976 <span class="metric-change change-positive">+354%</span> | 
+                    销量: 15件 <span class="metric-change change-positive">+400%</span> | 
+                    单价: ¥1,798/件
+                </div>
+            </div>
+            <div class="decline-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">KFR-72G/MEA81U1室内机总成</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥14,694 <span class="metric-change change-negative">-75%</span> | 
+                    销量: 4件 <span class="metric-change change-negative">-75%</span> | 
+                    单价: ¥3,673/件
+                </div>
+            </div>
+            <div class="decline-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">XQB80-M308</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥7,256 <span class="metric-change change-negative">-54%</span> | 
+                    销量: 12件 <span class="metric-change change-negative">-53%</span> | 
+                    单价: ¥604/件
+                </div>
+            </div>
+        </div>
+        <div class="shop-item">
+            <h3 style="color: #0056b3; margin-bottom: 15px;">📍 拼多多-海尔全屋用水旗舰店</h3>
+            <div class="decline-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">ES60H-GD5(A)U1</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥995 <span class="metric-change change-negative">-72%</span> | 
+                    销量: 1件 <span class="metric-change change-negative">-75%</span> | 
+                    单价: ¥995/件
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <footer style="margin-top:2em;color:#888;font-size:0.9em;">自动生成 | Powered by EdgeOne Pages & 企业微信机器人</footer>
+</body>
+</html>

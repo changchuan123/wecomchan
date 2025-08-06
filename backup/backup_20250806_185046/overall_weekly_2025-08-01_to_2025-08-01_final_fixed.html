@@ -1,0 +1,918 @@
+
+
+        <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>销售月报报告 - 2025-08-01至2025-08-01</title>
+    <style>
+        body { font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; background: #f8f9fa; color: #222; margin: 0; padding: 0.5em; max-width: 900px; margin-left:auto; margin-right:auto; text-align: left; font-size: 10.5pt; }
+        h1, h2, h3 { color: #0056b3; text-align: left; font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; font-size: 14pt; font-weight: bold; }
+        pre, code { background: #f3f3f3; padding: 0.5em; border-radius: 4px; white-space: pre-wrap; word-break: break-all; text-align: left; font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; margin: 0.3em 0; }
+        .growth-positive { background-color: #e6f4ea !important; }
+        .growth-negative { background-color: #fbeaea !important; }
+        .left-align { text-align: left !important; }
+        @media (max-width: 600px) { body { padding: 0.5em; font-size: 10.5pt; } h1 { font-size: 14pt; } }
+    </style>
+</head>
+<body>
+    <div class="report-content">
+        
+
+        <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>销售月报报告 - 2025-08-01至2025-08-01</title>
+    <style>
+        body { font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; background: #f8f9fa; color: #222; margin: 0; padding: 2em; max-width: 900px; margin-left:auto; margin-right:auto; text-align: left; font-size: 10.5pt; }
+        h1, h2, h3 { color: #0056b3; text-align: left; font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; font-size: 14pt; font-weight: bold; }
+        pre, code { background: #f3f3f3; padding: 0.5em; border-radius: 4px; white-space: pre-wrap; word-break: break-all; text-align: left; font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; }
+        .section { margin-bottom: 2em; text-align: left; }
+        .highlight { color: #d63384; font-weight: bold; }
+        .emoji { font-size: 1.2em; }
+        details { margin-bottom: 1em; }
+        summary { cursor: pointer; font-weight: bold; }
+        @media (max-width: 600px) { body { padding: 0.5em; font-size: 10.5pt; } h1 { font-size: 14pt; } }
+        .left-align { text-align: left !important; }
+        .overview-box { background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2196f3; }
+    </style>
+</head>
+<body>
+    <h1>8月份销售月报报告</h1>
+    <div style="margin-bottom: 15px; font-size: 11pt; color: #666;">
+        <div>本期2025-08-01至2025-08-01</div>
+        <div>对比期2025-07-01至2025-07-01</div>
+    </div>
+
+    <!-- 整体销售概况（置顶） -->
+    <div class="overview-box">
+        <h2>💰 【整体销售概况】</h2>
+        <div style="font-size: 12pt; line-height: 1.6;">
+            <div>├─ 总销售额: ¥752,480，上月 ¥1,293,708，环比 📉 -41.8%</div>
+            <div>├─ 单价: ¥1,256，上月 ¥1,146，变化 📈 9.6%</div>
+            <div style="margin-top: 10px; color: #ff6b35; font-weight: bold;">🔄 分销数据:</div>
+            <div>└─ 分销销售额: ¥3,208，上月 ¥5,198，环比 📉 -38.3%</div>
+        </div>
+    </div>
+    
+
+    
+    <div class="section left-align">
+        <!-- 销售趋势图 -->
+        <h2>📈 【销售趋势图】</h2>
+        
+        <div class="sales-trend-container" style="margin: 20px 0; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 20px;">
+            <h3 style="margin: 0 0 20px 0; color: #333; font-size: 18px; font-weight: bold;">📈 销售趋势图（近31天）</h3>
+            
+            <!-- 筛选器 -->
+            <div class="filter-container" style="margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label style="font-weight: bold; color: #555;">品类:</label>
+                    <select id="trendCategorySelect" style="padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; min-width: 120px;">
+                        <option value="">全部品类</option>
+                        <option value="家用空调">❄️ 家用空调</option>
+<option value="冰箱">🧊 冰箱</option>
+<option value="洗衣机">🧺 洗衣机</option>
+<option value="商用空调">❄️ 商用空调</option>
+<option value="洗碗机">🍽️ 洗碗机</option>
+<option value="其他">📦 其他</option>
+<option value="厨电">🍽️ 厨电</option>
+<option value="冷柜">📦 冷柜</option>
+<option value="电热水器">📦 电热水器</option>
+<option value="多能源热水器">📦 多能源热水器</option>
+                    </select>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label style="font-weight: bold; color: #555;">店铺:</label>
+                    <select id="trendShopSelect" style="padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; min-width: 120px;">
+                        <option value="">全部店铺</option>
+                        <option value="天猫-海尔空调套装旗舰店">天猫-海尔空调套装旗舰店</option>
+<option value="拼多多-海尔虹图专卖店">拼多多-海尔虹图专卖店</option>
+<option value="万慧">万慧</option>
+<option value="京东-海尔净省电空调旗舰店">京东-海尔净省电空调旗舰店</option>
+<option value="分销">分销</option>
+<option value="京东-海尔空调店大愉供销">京东-海尔空调店大愉供销</option>
+<option value="空气场景">空气场景</option>
+<option value="淘宝-众汇企业店">淘宝-众汇企业店</option>
+<option value="松江小微">松江小微</option>
+<option value="公司平台">公司平台</option>
+<option value="天猫-海尔厨房场景旗舰店">天猫-海尔厨房场景旗舰店</option>
+<option value="天猫-海尔洗嵌旗舰店">天猫-海尔洗嵌旗舰店</option>
+<option value="抖音-海尔家居用品旗舰店">抖音-海尔家居用品旗舰店</option>
+<option value="工程">工程</option>
+<option value="京东-海尔洗嵌旗舰店">京东-海尔洗嵌旗舰店</option>
+<option value="浦东">浦东</option>
+<option value="浦江新渠道">浦江新渠道</option>
+<option value="京东-虹图全品类店">京东-虹图全品类店</option>
+<option value="天猫-海尔空调店">天猫-海尔空调店</option>
+<option value="青浦小微">青浦小微</option>
+                    </select>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label style="font-weight: bold; color: #555;">单品:</label>
+                    <select id="trendProductSelect" style="padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; min-width: 120px;">
+                        <option value="">全部单品</option>
+                        <option value="KFR-35G/MCC83室内机">KFR-35G/MCC83室内机</option>
+<option value="BCD-501WLHTD58B9U1">BCD-501WLHTD58B9U1</option>
+<option value="KFR-35G/LKG81TU1室内机">KFR-35G/LKG81TU1室内机</option>
+<option value="KFR-72G/PAA81U1室内机">KFR-72G/PAA81U1室内机</option>
+<option value="KFR-35G/E1-1Plus室内机">KFR-35G/E1-1Plus室内机</option>
+<option value="KFR-35G/E1-1室内机">KFR-35G/E1-1室内机</option>
+<option value="KFR-35G/LPA1-1室内机">KFR-35G/LPA1-1室内机</option>
+<option value="KFR-72G/MEA81U1室内机总成">KFR-72G/MEA81U1室内机总成</option>
+<option value="KFR-72L/XDB82U1室内机">KFR-72L/XDB82U1室内机</option>
+<option value="BCD-550WGCFDM4WHU1">BCD-550WGCFDM4WHU1</option>
+<option value="KFR-48G/MDA81TU1室内机">KFR-48G/MDA81TU1室内机</option>
+<option value="KFR-72L/LPA1-1室内机">KFR-72L/LPA1-1室内机</option>
+<option value="BC-93LTMPA">BC-93LTMPA</option>
+<option value="KFR-48G/E1-1室内机">KFR-48G/E1-1室内机</option>
+<option value="BCD-510WGHFD1BNXU1">BCD-510WGHFD1BNXU1</option>
+<option value="虚拟赠品">虚拟赠品</option>
+<option value="BCD-88GHTMZ0WV">BCD-88GHTMZ0WV</option>
+<option value="G100578BD14LS">G100578BD14LS</option>
+<option value="KFRd-120L/TF82T室内机">KFRd-120L/TF82T室内机</option>
+<option value="KFR-72L/LKB81TU1室内机">KFR-72L/LKB81TU1室内机</option>
+<option value="KFR-72L/PGC83室内机总成">KFR-72L/PGC83室内机总成</option>
+<option value="KFR-35G/KHA81U1室内机">KFR-35G/KHA81U1室内机</option>
+<option value="KFR-35G/MCA81室内机">KFR-35G/MCA81室内机</option>
+<option value="BCD-570WGCFDM4ZHU1">BCD-570WGCFDM4ZHU1</option>
+<option value="KFR-26G/LA1-1室内机">KFR-26G/LA1-1室内机</option>
+<option value="EBW12227BKU1">EBW12227BKU1</option>
+<option value="KFRd-120L/AF82内机">KFRd-120L/AF82内机</option>
+<option value="KFR-35G/KJA81U1室内机">KFR-35G/KJA81U1室内机</option>
+<option value="KFRd-72N/ECA81U1室内机">KFRd-72N/ECA81U1室内机</option>
+<option value="BCD-601WGCTDA4DLU1">BCD-601WGCTDA4DLU1</option>
+                    </select>
+                </div>
+                <button onclick="resetTrendChart()" style="padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">重置</button>
+            </div>
+            
+            <!-- 图表容器 -->
+            <div style="position: relative; height: 400px; margin-bottom: 20px;">
+                <canvas id="salesTrendChart" style="max-height: 400px;"></canvas>
+            </div>
+            
+            <!-- 数据表格 -->
+            <div class="trend-table-section">
+                <h4 style="margin: 20px 0 10px 0; color: #333; font-size: 16px;">📊 近31天销售明细</h4>
+                
+        <style>
+        .table-container {
+            overflow-x: auto;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+        .table-container table {
+            min-width: 100%;
+        }
+        .table-container td, .table-container th {
+            text-align: center !important;
+        }
+        .table-container td:first-child {
+            text-align: left !important;
+            position: sticky;
+            left: 0;
+            background: white;
+            z-index: 1;
+        }
+        .table-container th:first-child {
+            text-align: left !important;
+            position: sticky;
+            left: 0;
+            background: #f8f9fa;
+            z-index: 2;
+        }
+        .table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        </style>
+        <div class="table-container" style="margin-top: 20px; overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; font-size: 12px;"><thead><tr style="background: #f8f9fa;"><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">品类/店铺/单品</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-02</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-03</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-04</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-05</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-06</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-07</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-08</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-09</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-10</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-11</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-12</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-13</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-14</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-15</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-16</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-17</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-18</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-19</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-20</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-21</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-22</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-23</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-24</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-25</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-26</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-27</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-28</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-29</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-30</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">07-31</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">08-01</th><th style="border: 1px solid #ddd; padding: 8px; text-align: center; background: #e3f2fd;">31天总计</th></tr></thead><tbody><tr style="background: #f0f8ff;"><td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">❄️ 家用空调</td><td colspan="31" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: #666;">详细数据已优化，减少文件大小</td><td style="border: 1px solid #ddd; padding: 8px; text-align: center; font-weight: bold; background: #e3f2fd;">4188.7</td></tr><tr style="background: #f0f8ff;"><td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">🧊 冰箱</td><td colspan="31" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: #666;">详细数据已优化，减少文件大小</td><td style="border: 1px solid #ddd; padding: 8px; text-align: center; font-weight: bold; background: #e3f2fd;">1963.2</td></tr><tr style="background: #f0f8ff;"><td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">🧺 洗衣机</td><td colspan="31" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: #666;">详细数据已优化，减少文件大小</td><td style="border: 1px solid #ddd; padding: 8px; text-align: center; font-weight: bold; background: #e3f2fd;">1435.9</td></tr><tr style="background: #f0f8ff;"><td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">❄️ 商用空调</td><td colspan="31" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: #666;">详细数据已优化，减少文件大小</td><td style="border: 1px solid #ddd; padding: 8px; text-align: center; font-weight: bold; background: #e3f2fd;">525.3</td></tr><tr style="background: #f0f8ff;"><td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">🍽️ 洗碗机</td><td colspan="31" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: #666;">详细数据已优化，减少文件大小</td><td style="border: 1px solid #ddd; padding: 8px; text-align: center; font-weight: bold; background: #e3f2fd;">262.4</td></tr><tr style="background: #f0f8ff;"><td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">📦 其他</td><td colspan="31" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: #666;">详细数据已优化，减少文件大小</td><td style="border: 1px solid #ddd; padding: 8px; text-align: center; font-weight: bold; background: #e3f2fd;">213.0</td></tr><tr style="background: #f0f8ff;"><td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">🍽️ 厨电</td><td colspan="31" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: #666;">详细数据已优化，减少文件大小</td><td style="border: 1px solid #ddd; padding: 8px; text-align: center; font-weight: bold; background: #e3f2fd;">205.2</td></tr><tr style="background: #f0f8ff;"><td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">📦 冷柜</td><td colspan="31" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: #666;">详细数据已优化，减少文件大小</td><td style="border: 1px solid #ddd; padding: 8px; text-align: center; font-weight: bold; background: #e3f2fd;">99.4</td></tr><tr style="background: #f0f8ff;"><td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">📦 电热水器</td><td colspan="31" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: #666;">详细数据已优化，减少文件大小</td><td style="border: 1px solid #ddd; padding: 8px; text-align: center; font-weight: bold; background: #e3f2fd;">63.2</td></tr><tr style="background: #f0f8ff;"><td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">📦 多能源热水器</td><td colspan="31" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: #666;">详细数据已优化，减少文件大小</td><td style="border: 1px solid #ddd; padding: 8px; text-align: center; font-weight: bold; background: #e3f2fd;">56.6</td></tr></tbody></table></div>
+            </div>
+        </div>
+        
+        <script src="chart.js">
+        <script>
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const icon = document.getElementById(sectionId + '-icon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▼';
+            }
+        }
+        </script>
+        
+</script>
+        <script>
+        // 销售趋势图数据
+        const trendRawData = {json.dumps(js_data, ensure_ascii=False)};
+        const trendColors = {json.dumps(colors, ensure_ascii=False)};
+        
+        let salesTrendChart = null;
+        let currentTrendFilter = {
+            category: '',
+            shop: '',
+            product: ''
+        };
+        
+        // 格式化日期标签
+        function formatTrendDateLabel(dateStr) {
+            if (dateStr && dateStr.includes('-')) {
+                const parts = dateStr.split('-');
+                if (parts.length >= 3) {
+                    return parts[1] + '.' + parts[2];
+                }
+            }
+            return dateStr;
+        }
+        
+        // 初始化趋势图数据集
+        function initTrendChartData() {
+            if (currentTrendFilter.category || currentTrendFilter.shop || currentTrendFilter.product) {
+                // 筛选状态下显示单一数据
+                const filteredData = getTrendFilteredData();
+                let filterName = '';
+                if (currentTrendFilter.category) {
+                    const emoji = trendRawData.categoryIcons[currentTrendFilter.category] || '📦';
+                    filterName = emoji + ' ' + currentTrendFilter.category;
+                } else if (currentTrendFilter.shop) {
+                    filterName = '🏪 ' + currentTrendFilter.shop;
+                } else if (currentTrendFilter.product) {
+                    filterName = '📱 ' + currentTrendFilter.product;
+                }
+                
+                return [
+                    {
+                        label: filterName,
+                        data: filteredData.amounts,
+                        type: 'bar',
+                        backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: filterName + ' 数量',
+                        data: filteredData.quantities,
+                        type: 'line',
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        tension: 0.1,
+                        yAxisID: 'y1',
+                        borderWidth: 3
+                    }
+                ];
+            } else {
+                // 默认状态下显示堆积柱形图（销售额）+ 折线图（销售数量）
+                const datasets = [];
+                
+                // 添加堆积柱形图数据集（销售额）- 按销售额排序
+                trendRawData.categories.forEach(function(category, index) {
+                    var emoji = trendRawData.categoryIcons[category] || '📦';
+                    datasets.push({
+                        label: emoji + ' ' + category,
+                        data: trendRawData.categoryData[category],
+                        type: 'bar',
+                        backgroundColor: trendColors[index],
+                        borderColor: trendColors[index],
+                        borderWidth: 1,
+                        stack: 'sales',
+                        yAxisID: 'y'
+                    });
+                });
+                
+                // 添加总销售数量折线图
+                datasets.push({
+                    label: '📊 销售数量',
+                    data: trendRawData.quantities,
+                    type: 'line',
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    tension: 0.1,
+                    yAxisID: 'y1',
+                    borderWidth: 3
+                });
+                
+                return datasets;
+            }
+        }
+        
+        // 获取筛选后的数据
+        function getTrendFilteredData() {
+            let amounts = [];
+            let quantities = [];
+            
+            for (let i = 0; i < trendRawData.dates.length; i++) {
+                let dayAmount = 0;
+                let dayQty = 0;
+                
+                // 组合筛选逻辑：支持品类、店铺、单品同时筛选
+                if (currentTrendFilter.category || currentTrendFilter.shop || currentTrendFilter.product) {
+                    // 如果有任何筛选条件，则进行组合筛选
+                    let categoryAmount = currentTrendFilter.category ? (trendRawData.categoryData[currentTrendFilter.category][i] || 0) : null;
+                    let shopAmount = currentTrendFilter.shop ? (trendRawData.shopData[currentTrendFilter.shop][i] || 0) : null;
+                    let productAmount = currentTrendFilter.product ? (trendRawData.productData[currentTrendFilter.product][i] || 0) : null;
+                    
+                    // 正确的组合筛选逻辑
+                    if (currentTrendFilter.category && currentTrendFilter.shop && currentTrendFilter.product) {
+                        // 三个筛选条件都有：显示该单品在该店铺的数据
+                        dayAmount = productAmount || 0;
+                    } else if (currentTrendFilter.category && currentTrendFilter.shop) {
+                        // 品类+店铺：显示该品类在该店铺的数据（取较小值作为近似）
+                        dayAmount = Math.min(categoryAmount || 0, shopAmount || 0);
+                    } else if (currentTrendFilter.category && currentTrendFilter.product) {
+                        // 品类+单品：显示该单品的数据
+                        dayAmount = productAmount || 0;
+                    } else if (currentTrendFilter.shop && currentTrendFilter.product) {
+                        // 店铺+单品：显示该单品在该店铺的数据
+                        dayAmount = productAmount || 0;
+                    } else if (currentTrendFilter.product) {
+                        // 只有单品筛选
+                        dayAmount = productAmount || 0;
+                    } else if (currentTrendFilter.shop) {
+                        // 只有店铺筛选
+                        dayAmount = shopAmount || 0;
+                    } else if (currentTrendFilter.category) {
+                        // 只有品类筛选
+                        dayAmount = categoryAmount || 0;
+                    }
+                    
+                    // 计算对应的数量（按比例分配）
+                    let totalDayAmount = trendRawData.amounts[i] || 0;
+                    if (totalDayAmount > 0) {
+                        dayQty = Math.round((trendRawData.quantities[i] || 0) * (dayAmount / totalDayAmount));
+                    } else {
+                        dayQty = 0;
+                    }
+                } else {
+                    // 没有筛选条件，显示全部数据
+                    dayAmount = trendRawData.amounts[i] || 0;
+                    dayQty = trendRawData.quantities[i] || 0;
+                }
+                
+                amounts.push(dayAmount);
+                quantities.push(dayQty);
+            }
+            
+            return { amounts, quantities };
+        } else if (shopAmount !== null) {
+                        dayAmount = shopAmount;
+                    } else if (categoryAmount !== null) {
+                        dayAmount = categoryAmount;
+                    }
+                    
+                    // 计算对应的数量（按比例分配）
+                    let totalDayAmount = trendRawData.amounts[i] || 0;
+                    if (totalDayAmount > 0) {
+                        dayQty = Math.round((trendRawData.quantities[i] || 0) * (dayAmount / totalDayAmount));
+                    } else {
+                        dayQty = 0;
+                    }
+                } else {
+                    // 没有筛选条件，显示全部数据
+                    dayAmount = trendRawData.amounts[i] || 0;
+                    dayQty = trendRawData.quantities[i] || 0;
+                }
+                
+                amounts.push(dayAmount);
+                quantities.push(dayQty);
+            }
+            
+            return { amounts, quantities };
+        }
+        
+        // 趋势图配置
+        const trendChartConfig = {
+            type: 'bar',
+            data: {
+                labels: trendRawData.dates.map(date => formatTrendDateLabel(date)),
+                datasets: initTrendChartData()
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                devicePixelRatio: window.devicePixelRatio || 2,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: {
+                                size: 12,
+                                family: 'Microsoft YaHei, Arial, sans-serif'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                const dateIndex = context[0].dataIndex;
+                                return trendRawData.dates[dateIndex];
+                            },
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.dataset.yAxisID === 'y1') {
+                                    label += context.parsed.y.toLocaleString() + '件';
+                                } else {
+                                    label += Math.round(context.parsed.y / 10000) + 'w';
+                                }
+                                return label;
+                            }
+                        },
+                        titleFont: {
+                            family: 'Microsoft YaHei, Arial, sans-serif'
+                        },
+                        bodyFont: {
+                            family: 'Microsoft YaHei, Arial, sans-serif'
+                        },
+                        bodyFont: {
+                            family: 'Microsoft YaHei, Arial, sans-serif'
+                        }
+                    },
+                    zoom: {
+                        zoom: {
+                            wheel: {
+                                enabled: true,
+                            },
+                            pinch: {
+                                enabled: true
+                            },
+                            mode: 'x',
+                        },
+                        pan: {
+                            enabled: true,
+                            mode: 'x',
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: '日期',
+                            font: {
+                                family: 'Microsoft YaHei, Arial, sans-serif',
+                                size: 14
+                            }
+                        },
+                        min: 0,  // 显示全部31天数据
+                        max: trendRawData.dates.length - 1,
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 0,
+                            font: {
+                                family: 'Microsoft YaHei, Arial, sans-serif',
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            display: true,
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: '销售额 (元)',
+                            font: {
+                                family: 'Microsoft YaHei, Arial, sans-serif',
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + '元';
+                            },
+                            font: {
+                                family: 'Microsoft YaHei, Arial, sans-serif',
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            display: true,
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: '销量 (件)',
+                            font: {
+                                family: 'Microsoft YaHei, Arial, sans-serif',
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + '件';
+                            },
+                            font: {
+                                family: 'Microsoft YaHei, Arial, sans-serif',
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                }
+            }
+        };
+        
+        // 更新趋势图
+        function updateTrendChart() {
+            if (salesTrendChart) {
+                salesTrendChart.data.datasets = initTrendChartData();
+                salesTrendChart.update('none');
+            }
+        }
+        
+        // 更新筛选器选项（联动）
+        function updateTrendFilterOptions() {
+            const categorySelect = document.getElementById('trendCategorySelect');
+            const shopSelect = document.getElementById('trendShopSelect');
+            const productSelect = document.getElementById('trendProductSelect');
+            
+            // 根据当前筛选条件更新可选项
+            if (currentTrendFilter.category) {
+                // 品类已选，更新店铺和单品选项
+                updateTrendShopOptions(currentTrendFilter.category);
+                updateTrendProductOptions(currentTrendFilter.category, currentTrendFilter.shop);
+            } else if (currentTrendFilter.shop) {
+                // 店铺已选，更新品类和单品选项
+                updateTrendCategoryOptions(currentTrendFilter.shop);
+                updateTrendProductOptions('', currentTrendFilter.shop);
+            } else if (currentTrendFilter.product) {
+                // 单品已选，更新品类和店铺选项
+                updateTrendCategoryOptions('', currentTrendFilter.product);
+                updateTrendShopOptions('', currentTrendFilter.product);
+            } else {
+                // 没有筛选条件，重置所有选项
+                updateTrendCategoryOptions();
+                updateTrendShopOptions();
+                updateTrendProductOptions();
+            }
+        }
+        
+        // 更新店铺选项
+        function updateTrendShopOptions(selectedCategory = '', selectedProduct = '') {
+            const shopSelect = document.getElementById('trendShopSelect');
+            shopSelect.innerHTML = '<option value="">全部店铺</option>';
+            
+            let availableShops = [];
+            
+            if (selectedCategory && trendRawData.categoryShops && trendRawData.categoryShops[selectedCategory]) {
+                // 如果选择了品类，只显示有该品类销售的店铺（按销售额排序）
+                availableShops = [...trendRawData.categoryShops[selectedCategory]];
+            } else if (selectedProduct && trendRawData.productShops && trendRawData.productShops[selectedProduct]) {
+                // 如果选择了单品，只显示有该单品销售的店铺（按销售额排序）
+                availableShops = [...trendRawData.productShops[selectedProduct]];
+            } else {
+                // 没有筛选条件，显示所有店铺
+                availableShops = [...trendRawData.shops];
+            }
+            
+            availableShops.forEach(shop => {
+                shopSelect.innerHTML += `<option value="${shop}">${shop}</option>`;
+            });
+            
+            shopSelect.value = currentTrendFilter.shop;
+        }
+        
+        // 更新单品选项
+        function updateTrendProductOptions(selectedCategory = '', selectedShop = '') {
+            const productSelect = document.getElementById('trendProductSelect');
+            productSelect.innerHTML = '<option value="">全部单品</option>';
+            
+            let availableProducts = [];
+            
+            if (selectedCategory && trendRawData.categoryProducts && trendRawData.categoryProducts[selectedCategory]) {
+                // 如果选择了品类，只显示该品类的单品（按销售额排序）
+                availableProducts = [...trendRawData.categoryProducts[selectedCategory]];
+            } else if (selectedShop && trendRawData.shopProducts && trendRawData.shopProducts[selectedShop]) {
+                // 如果选择了店铺，只显示该店铺的单品（按销售额排序）
+                availableProducts = [...trendRawData.shopProducts[selectedShop]];
+            } else {
+                // 没有筛选条件，显示所有单品
+                availableProducts = [...trendRawData.products];
+            }
+            
+            availableProducts.forEach(product => {
+                productSelect.innerHTML += `<option value="${product}">${product}</option>`;
+            });
+            
+            productSelect.value = currentTrendFilter.product;
+        }
+        
+        // 更新品类选项
+        function updateTrendCategoryOptions(selectedShop = '', selectedProduct = '') {
+            const categorySelect = document.getElementById('trendCategorySelect');
+            categorySelect.innerHTML = '<option value="">全部品类</option>';
+            
+            let availableCategories = [];
+            
+            if (selectedShop && trendRawData.shopCategories && trendRawData.shopCategories[selectedShop]) {
+                // 如果选择了店铺，只显示该店铺有销售的品类（按销售额排序）
+                availableCategories = [...trendRawData.shopCategories[selectedShop]];
+            } else if (selectedProduct && trendRawData.productCategories && trendRawData.productCategories[selectedProduct]) {
+                // 如果选择了单品，只显示该单品对应的品类
+                availableCategories = [...trendRawData.productCategories[selectedProduct]];
+            } else {
+                // 没有筛选条件，显示所有品类
+                availableCategories = [...trendRawData.categories];
+            }
+            
+            availableCategories.forEach(category => {
+                const emoji = trendRawData.categoryIcons[category] || '📦';
+                categorySelect.innerHTML += `<option value="${category}">${emoji} ${category}</option>`;
+            });
+            
+            categorySelect.value = currentTrendFilter.category;
+        }
+        
+        // 更新筛选器
+        function updateTrendFilters() {
+            const categorySelect = document.getElementById('trendCategorySelect');
+            const shopSelect = document.getElementById('trendShopSelect');
+            const productSelect = document.getElementById('trendProductSelect');
+            
+            currentTrendFilter.category = categorySelect.value;
+            currentTrendFilter.shop = shopSelect.value;
+            currentTrendFilter.product = productSelect.value;
+            
+            // 联动更新其他筛选器选项
+            updateTrendFilterOptions();
+            
+            // 更新图表
+            updateTrendChart();
+        }
+        
+        // 重置趋势图
+        function resetTrendChart() {
+            currentTrendFilter = {
+                category: '',
+                shop: '',
+                product: ''
+            };
+            
+            document.getElementById('trendCategorySelect').value = '';
+            document.getElementById('trendShopSelect').value = '';
+            document.getElementById('trendProductSelect').value = '';
+            
+            updateTrendFilterOptions();
+            updateTrendChart();
+            
+            if (salesTrendChart) {
+                salesTrendChart.resetZoom();
+            }
+        }
+        
+        // 初始化趋势图
+        function initTrendChart() {
+            const trendCtx = document.getElementById('salesTrendChart');
+            if (trendCtx) {
+                // 设置高DPI支持
+                const dpr = window.devicePixelRatio || 1;
+                trendCtx.style.width = trendCtx.offsetWidth + 'px';
+                trendCtx.style.height = trendCtx.offsetHeight + 'px';
+                trendCtx.width = trendCtx.offsetWidth * dpr;
+                trendCtx.height = trendCtx.offsetHeight * dpr;
+                
+                const ctx = trendCtx.getContext('2d');
+                ctx.scale(dpr, dpr);
+                
+                salesTrendChart = new Chart(ctx, trendChartConfig);
+                
+                // 绑定筛选器事件
+                document.getElementById('trendCategorySelect').addEventListener('change', updateTrendFilters);
+                document.getElementById('trendShopSelect').addEventListener('change', updateTrendFilters);
+                document.getElementById('trendProductSelect').addEventListener('change', updateTrendFilters);
+            }
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 延迟初始化，确保Chart.js加载完成
+            setTimeout(initTrendChart, 100);
+        });
+        
+        <script>
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const icon = document.getElementById(sectionId + '-icon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▼';
+            }
+        }
+        </script>
+        
+</script>
+        
+        
+        <!-- 品类变化趋势 -->
+        <h2>🔍 【品类变化趋势】</h2>
+        
+            <div class="collapsible-section" style="margin-bottom: 20px;">
+                <div class="section-header" onclick="toggleSection('category-trend')" style="cursor: pointer; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #dee2e6;">
+                    <h3 style="margin: 0; display: flex; align-items: center; justify-content: space-between;">
+                        📊 品类变化趋势
+                        <span id="category-trend-icon" style="font-size: 18px;">▼</span>
+                    </h3>
+                </div>
+                <div id="category-trend-content" class="section-content" style="display: none; padding: 15px; background: white; border: 1px solid #dee2e6; border-top: none; border-radius: 0 0 5px 5px;">
+                    <div style="margin-bottom: 8px; padding: 6px; background: #fff0f0; border-radius: 4px;"><strong>❄️ 家用空调: 📉 -60.2%</strong><br>销售额变化: ¥827,399 → ¥329,476<br></div><div style="margin-bottom: 8px; padding: 6px; background: #f0f8ff; border-radius: 4px;"><strong>🧺 洗衣机: 📈 +51.9%</strong><br>销售额变化: ¥96,526 → ¥146,643<br>其中分销: ¥719（1件），环比 📊 0%</div><div style="margin-bottom: 8px; padding: 6px; background: #fff0f0; border-radius: 4px;"><strong>🧊 冰箱: 📉 -15.7%</strong><br>销售额变化: ¥157,631 → ¥132,905<br></div><div style="margin-bottom: 8px; padding: 6px; background: #f0f8ff; border-radius: 4px;"><strong>🍽️ 洗碗机: 📈 +103.4%</strong><br>销售额变化: ¥29,245 → ¥59,471<br></div><div style="margin-bottom: 8px; padding: 6px; background: #fff0f0; border-radius: 4px;"><strong>❄️ 商用空调: 📉 -80.4%</strong><br>销售额变化: ¥166,503 → ¥32,657<br></div><div style="margin-bottom: 8px; padding: 6px; background: #f0f8ff; border-radius: 4px;"><strong>♨️ 热水器: 📈 +212.2%</strong><br>销售额变化: ¥9,985 → ¥31,169<br></div><div style="margin-bottom: 8px; padding: 6px; background: #f0f8ff; border-radius: 4px;"><strong>🍽️ 厨电: 📈 +822.9%</strong><br>销售额变化: ¥1,632 → ¥15,061<br>其中分销: ¥2,489（1件），环比 📊 0%</div><div style="margin-bottom: 8px; padding: 6px; background: #f0f8ff; border-radius: 4px;"><strong>📦 冷柜: 📈 +8.3%</strong><br>销售额变化: ¥3,876 → ¥4,196<br></div>
+                </div>
+            </div>
+            <h3>⚠️ 店铺环比监控</h3><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 高速增长店铺 (>20%)</strong><br>🏪 京东-海尔洗嵌旗舰店: +102.2% (¥28,197→¥57,024)<br>🏪 天猫-海尔厨房场景旗舰店: +126.4% (¥18,951→¥42,898)<br>🏪 京东-卡萨帝洗烘套装旗舰店: +62.6% (¥25,095→¥40,798)<br>🏪 天猫-海尔洗嵌旗舰店: +67.3% (¥11,516→¥19,263)<br>🏪 京东-卡萨帝大愉专卖店: +74.4% (¥8,599→¥14,999)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #fff0f0; border-radius: 4px;"><strong>📉 严重下滑店铺 (>20%)</strong><br>🏪 拼多多-海尔虹图专卖店: -35.6% (¥273,958→¥176,335)<br>🏪 京东-海尔净省电空调旗舰店: -39.6% (¥236,903→¥143,000)<br>🏪 京东-海尔空调店大愉供销: -72.4% (¥247,558→¥68,300)<br>🏪 天猫-海尔空调套装旗舰店: -70.3% (¥170,385→¥50,629)<br>🏪 京东-虹图全品类店: -37.2% (¥49,391→¥31,039)<br></div><h3>⚠️ 单品环比监控</h3><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 🧺 洗衣机 - 高速增长单品 (>20%)</strong><br>🔸 XQB80-M308: +1650.0% (2→35件)<br>🔸 XQG100-LD58E: +120.0% (5→11件)<br>🔸 EG100BD176PRO: +33.3% (3→4件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 ❄️ 家用空调 - 高速增长单品 (>20%)</strong><br>🔸 KFR-35G/E1-1Plus室内机: +114.3% (7→15件)<br>🔸 KFR-72G/MEA81U1室内机总成: +50.0% (4→6件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #fff0f0; border-radius: 4px;"><strong>📉 ❄️ 家用空调 - 严重下滑单品 (>20%)</strong><br>🔸 KFR-35G/LKG81TU1室内机: -46.9% (49→26件)<br>🔸 KFR-35G/LPA1-1室内机: -40.0% (40→24件)<br>🔸 KFR-35G/E1-1室内机: -40.0% (20→12件)<br>🔸 KFR-72L/LPA1-1室内机: -38.5% (13→8件)<br>🔸 KFR-48G/MDA81TU1室内机: -57.1% (14→6件)<br>🔸 KFR-35G/LAA81U1室内机总成: -37.5% (8→5件)<br>🔸 KFR-72L/XDB82U1室内机: -33.3% (6→4件)<br>🔸 KFR-72G/PAA81U1室内机: -84.2% (19→3件)<br>🔸 KFR-35G/MTB81TU1(高光白)室内机: -60.0% (5→2件)<br>🔸 KFR-48G/E1-1室内机: -85.7% (14→2件)<br>🔸 KFR-72L/LKB81TU1室内机: -75.0% (8→2件)<br>🔸 KFR-50G/PAA81U1室内机总成: -50.0% (2→1件)<br>🔸 KFR-50L/WDB81TU1室内机总成: -66.7% (3→1件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 ♨️ 热水器 - 高速增长单品 (>20%)</strong><br>🔸 EC6002-PT5U1: +300.0% (1→4件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 🍽️ 洗碗机 - 高速增长单品 (>20%)</strong><br>🔸 EBW12227BKU1: +50.0% (6→9件)<br>🔸 EYBW16328GHU1: +200.0% (1→3件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #fff0f0; border-radius: 4px;"><strong>📉 🍽️ 洗碗机 - 严重下滑单品 (>20%)</strong><br>🔸 EYBW152266BKU1: -66.7% (3→1件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f0fff0; border-radius: 4px;"><strong>📈 🧊 冰箱 - 高速增长单品 (>20%)</strong><br>🔸 BCD-501WLHTD58B9U1: +360.0% (5→23件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #fff0f0; border-radius: 4px;"><strong>📉 🧊 冰箱 - 严重下滑单品 (>20%)</strong><br>🔸 BCD-88GHTMZ0WV: -70.7% (99→29件)<br>🔸 BC-93LTMPA: -76.4% (89→21件)<br></div><div style="margin-bottom: 10px; padding: 8px; background: #fff0f0; border-radius: 4px;"><strong>📉 ❄️ 商用空调 - 严重下滑单品 (>20%)</strong><br>🔸 KFRd-72N/ECA81U1室内机: -75.0% (4→1件)<br></div>
+        
+        <!-- 品类销售排行榜 -->
+        <h2>【品类销售排行榜】</h2>
+        
+
+        
+    <div style="margin: 10px 0; padding: 10px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+        <button onclick="showAllShopRanking()" id="btn_all_shop" style="margin-right: 10px; padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">店铺排行</button>
+        <button onclick="showAllProductRanking()" id="btn_all_product" style="padding: 8px 15px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">单品排行</button>
+
+    </div>
+    
+    <script>
+    function showAllShopRanking() {
+        // 切换所有品类显示店铺排行
+        const shopDivs = document.querySelectorAll('[id^="shop_ranking_"]');
+        const productDivs = document.querySelectorAll('[id^="product_ranking_"]');
+        
+        shopDivs.forEach(div => div.style.display = 'block');
+        productDivs.forEach(div => div.style.display = 'none');
+        
+        // 更新按钮样式
+        document.getElementById('btn_all_shop').style.background = '#007bff';
+        document.getElementById('btn_all_product').style.background = '#6c757d';
+    }
+    
+    function showAllProductRanking() {
+        // 切换所有品类显示单品排行
+        const shopDivs = document.querySelectorAll('[id^="shop_ranking_"]');
+        const productDivs = document.querySelectorAll('[id^="product_ranking_"]');
+        
+        shopDivs.forEach(div => div.style.display = 'none');
+        productDivs.forEach(div => div.style.display = 'block');
+        
+        // 更新按钮样式
+        document.getElementById('btn_all_shop').style.background = '#6c757d';
+        document.getElementById('btn_all_product').style.background = '#007bff';
+    }
+    
+        <script>
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const icon = document.getElementById(sectionId + '-icon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▼';
+            }
+        }
+        </script>
+        
+</script>
+    <details><summary>❄️ 1. 家用空调 ─ 销售额: ¥329,476 (📉 -60.2%) ─ 销量: 248件 | 单价: ¥1,328</summary>
+
+        
+        <div id="shop_ranking_category_1_家用空调" style="display: block;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP1 京东-海尔净省电空调旗舰店<br>本期: ¥142,950（100件），对比期: ¥212,157（192件），环比 📉 -47.9%</li><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP2 京东-海尔空调店大愉供销<br>本期: ¥59,530（40件），对比期: ¥141,094（112件），环比 📉 -64.3%</li><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP3 天猫-海尔空调套装旗舰店<br>本期: ¥44,680（40件），对比期: ¥139,139（118件），环比 📉 -66.1%</li><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP4 京东-统帅空调旗舰店<br>本期: ¥18,991（18件），对比期: ¥40,282（36件），环比 📉 -50.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP5 拼多多-海尔虹图专卖店<br>本期: ¥18,845（10件），对比期: ¥184,497（170件），环比 📉 -94.1%</li><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP6 淘宝-众汇企业店<br>本期: ¥17,093（14件），对比期: ¥63,616（52件），环比 📉 -73.1%</li><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP7 京东-虹图全品类店<br>本期: ¥13,792（16件），对比期: ¥9,944（12件），环比 📈 33.3%</li><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP8 天猫-海尔空调店<br>本期: ¥5,097（6件），对比期: ¥23,877（26件），环比 📉 -76.9%</li><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP9 天猫-线上分销<br>本期: ¥4,399（2件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; ">🏪 TOP10 天猫-喵速达电器旗舰店<br>本期: ¥4,099（2件），对比期: ¥1,599（2件），环比 📊 0%</li></ul>
+        </div>
+        <div id="product_ranking_category_1_家用空调" style="display: none;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/LKG81TU1室内机<br>本期: ¥44,273（26件），对比期: ¥78,351（49件），环比 📉 -46.9%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-35G/E1-1Plus室内机<br>本期: ¥41,984（15件），对比期: ¥17,496（7件），环比 📈 114.3%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/LPA1-1室内机<br>本期: ¥40,875（24件），对比期: ¥66,659（40件），环比 📉 -40.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/LPA1-1室内机<br>本期: ¥33,191（8件），对比期: ¥51,386（13件），环比 📉 -38.5%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/E1-1室内机<br>本期: ¥28,587（12件），对比期: ¥39,919（20件），环比 📉 -40.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-72G/MEA81U1室内机总成<br>本期: ¥23,343（6件），对比期: ¥17,085（4件），环比 📈 50.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/XDB82U1室内机<br>本期: ¥17,395（4件），对比期: ¥24,890（6件），环比 📉 -33.3%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-72L/E1-1室内机<br>本期: ¥16,396（3件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-48G/MDA81TU1室内机<br>本期: ¥14,843（6件），对比期: ¥34,125（14件），环比 📉 -57.1%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72G/PAA81U1室内机<br>本期: ¥14,096（3件），对比期: ¥73,491（19件），环比 📉 -84.2%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-50L/LA1-1室内机<br>本期: ¥11,996（3件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/LAA81U1室内机总成<br>本期: ¥10,094（5件），对比期: ¥15,895（8件），环比 📉 -37.5%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/LKB81TU1室内机<br>本期: ¥8,097（2件），对比期: ¥31,391（8件），环比 📉 -75.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-48G/E1-1室内机<br>本期: ¥7,397（2件），对比期: ¥41,989（14件），环比 📉 -85.7%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-72L/E1-1Plus室内机<br>本期: ¥6,298（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-50L/WDB81TU1室内机总成<br>本期: ¥3,598（1件），对比期: ¥10,796（3件），环比 📉 -66.7%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/MTB81TU1(高光白)室内机<br>本期: ¥3,597（2件），对比期: ¥8,494（5件），环比 📉 -60.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-50G/PAA81U1室内机总成<br>本期: ¥3,398（1件），对比期: ¥6,997（2件），环比 📉 -50.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-22G/PAA81U1室内机<br>本期: ¥0（0件），对比期: ¥5,499（3件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-26G/LA1-1室内机<br>本期: ¥0（0件），对比期: ¥11,192（7件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/MCC83室内机<br>本期: ¥0（0件），对比期: ¥138,120（88件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72W/0382室外机<br>本期: ¥0（4件），对比期: ¥2,232（6件），环比 📉 -33.3%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KF-26G/MCA75室内机<br>本期: ¥0（0件），对比期: ¥1,298（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/PGC83室内机总成<br>本期: ¥0（0件），对比期: ¥43,990（11件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/KPB81U1室内机<br>本期: ¥0（0件），对比期: ¥1,898（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/KJA81U1室内机<br>本期: ¥0（0件），对比期: ¥39,679（20件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/VEA81TU1室内机总成<br>本期: ¥0（0件），对比期: ¥16,495（4件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/PCA81U1室内机<br>本期: ¥0（0件），对比期: ¥4,898（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/WDB81TU1室内机<br>本期: ¥0（0件），对比期: ¥3,898（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/LGA81U1室内机<br>本期: ¥0（0件），对比期: ¥4,897（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72G/MDA83TU1室内机总成<br>本期: ¥0（0件），对比期: ¥14,395（4件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72W/2481室外机<br>本期: ¥0（3件），对比期: ¥3,829（19件），环比 📉 -84.2%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KF-35G/MCA75室内机<br>本期: ¥0（0件），对比期: ¥15,290（11件），环比 📉 -100.0%</li></ul>
+        </div>
+        </details><details><summary>🧺 2. 洗衣机 ─ 销售额: ¥146,643 (📈 51.9%) ─ 销量: 130件 | 单价: ¥1,128<br>其中分销: ¥719（1件）</summary>
+
+        
+        <div id="shop_ranking_category_2_洗衣机" style="display: block;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP1 拼多多-海尔虹图专卖店<br>本期: ¥80,696（114件），对比期: ¥39,472（19件），环比 📈 500.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP2 京东-卡萨帝洗烘套装旗舰店<br>本期: ¥40,798（6件），对比期: ¥25,095（8件），环比 📉 -25.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP3 天猫-海尔洗嵌旗舰店<br>本期: ¥19,263（7件），对比期: ¥12,215（5件），环比 📈 40.0%<br>其中分销: ¥0（0件），前一天 ¥699（1件）</li><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP4 京东-海尔空调店大愉供销<br>本期: ¥3,598（2件），对比期: ¥6,396（4件），环比 📉 -50.0%</li><li style="margin-bottom: 5px; ">🏪 TOP5 京东-海尔大愉晾衣架旗舰店<br>本期: ¥2,288（1件），对比期: ¥2,200（1件），环比 📊 0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP6 天猫-虹图全品类店<br>本期: ¥719（1件），对比期: ¥0（0件），环比 📈 100%<br>其中分销: ¥719（1件），前一天 ¥0（0件）</li></ul>
+        </div>
+        <div id="product_ranking_category_2_洗衣机" style="display: none;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 XQB80-M10X0<br>本期: ¥39,248（69件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 XQB80-M308<br>本期: ¥21,876（35件），对比期: ¥1,479（2件），环比 📈 1650.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 C1 HD10LZ6ELU1<br>本期: ¥21,400（4件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 XQG100-LD58E<br>本期: ¥20,321（11件），对比期: ¥9,996（5件），环比 📈 120.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 CS HB22LWTLBU1<br>本期: ¥14,999（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 G100578BD14LS<br>本期: ¥11,547（3件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EG100BD176PRO<br>本期: ¥8,085（4件），对比期: ¥5,457（3件），环比 📈 33.3%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 C1 D10LJ7ELU1<br>本期: ¥4,399（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 XQS100-BZ558SH<br>本期: ¥3,269（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 XQG100-H507S<br>本期: ¥1,499（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 EG100BD39S<br>本期: ¥0（0件），对比期: ¥2,798（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 C1 D10L5ELU1<br>本期: ¥0（0件），对比期: ¥5,499（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 XQB100-BZ6088<br>本期: ¥0（0件），对比期: ¥1,499（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 XQG100-HBD1266<br>本期: ¥0（0件），对比期: ¥28,887（13件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 C1 10W2ELU1<br>本期: ¥0（0件），对比期: ¥7,048（3件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 ECGS10FW2EU1<br>本期: ¥0（0件），对比期: ¥7,048（3件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 C8 DN14L5EU1<br>本期: ¥0（0件），对比期: ¥8,599（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 EG100HBD176PRO<br>本期: ¥0（0件），对比期: ¥2,699（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 G100578HBD14LS<br>本期: ¥0（0件），对比期: ¥3,999（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 CGY 10FL5EU1<br>本期: ¥0（0件），对比期: ¥5,499（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 XQG100-BSDE598WU1<br>本期: ¥0（0件），对比期: ¥4,519（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 EG100MAX29S<br>本期: ¥0（0件），对比期: ¥1,499（1件），环比 📉 -100.0%</li></ul>
+        </div>
+        </details><details><summary>🧊 3. 冰箱 ─ 销售额: ¥132,905 (📉 -15.7%) ─ 销量: 82件 | 单价: ¥1,620</summary>
+
+        
+        <div id="shop_ranking_category_3_冰箱" style="display: block;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP1 拼多多-海尔虹图专卖店<br>本期: ¥56,150（27件），对比期: ¥28,757（31件），环比 📉 -12.9%</li><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP2 京东-卡萨帝大愉专卖店<br>本期: ¥14,999（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP3 京东-海尔洗嵌旗舰店<br>本期: ¥14,830（9件），对比期: ¥8,509（12件），环比 📉 -25.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP4 天猫-海尔厨房场景旗舰店<br>本期: ¥12,602（13件），对比期: ¥14,561（12件），环比 📈 8.3%<br>其中分销: ¥0（0件），前一天 ¥3,800（1件）</li><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP5 京东-虹图全品类店<br>本期: ¥10,228（16件），对比期: ¥38,698（60件），环比 📉 -73.3%</li><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP6 抖音-海尔家居用品旗舰店<br>本期: ¥6,600（2件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP7 京东-海尔空调店大愉供销<br>本期: ¥5,052（8件），对比期: ¥43,777（63件），环比 📉 -87.3%</li><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP8 天猫-虹图全品类店喵住分销<br>本期: ¥4,299（1件），对比期: ¥14,410（20件），环比 📉 -95.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP9 京东-家商用电器经营部<br>本期: ¥4,197（3件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; ">🏪 TOP10 天猫-海尔空调店<br>本期: ¥3,199（1件），对比期: ¥720（1件），环比 📊 0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP11 天猫-喵速达电器旗舰店<br>本期: ¥749（1件），对比期: ¥0（0件），环比 📈 100%</li></ul>
+        </div>
+        <div id="product_ranking_category_3_冰箱" style="display: none;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BCD-501WLHTD58B9U1<br>本期: ¥55,524（23件），对比期: ¥12,715（5件），环比 📈 360.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BCD-88GHTMZ0WV<br>本期: ¥21,239（29件），对比期: ¥73,046（99件），环比 📉 -70.7%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BCD-600WGCFDM4DBU1<br>本期: ¥14,999（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BC-93LTMPA<br>本期: ¥12,889（21件），对比期: ¥53,496（89件），环比 📉 -76.4%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BCD-486WGHFD1BG9U1<br>本期: ¥6,600（2件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BCD-510WGHFD1BNXU1<br>本期: ¥6,599（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BCD-620WGHSSEDWV<br>本期: ¥4,658（2件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BCD-509WGHFD7DS9U1<br>本期: ¥4,299（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; ">🔸 BCD-539WGHTDEDSDU1<br>本期: ¥3,199（1件），对比期: ¥2,999（1件），环比 📊 0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 LTD-435WL9U1<br>本期: ¥2,899（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BCD-123GHTMZ0WV<br>本期: ¥0（0件），对比期: ¥3,376（4件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BCD-550WGCFDM4WHU1(棕)<br>本期: ¥0（0件），对比期: ¥11,999（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BCD-501WGHTDB5X8U1<br>本期: ¥0（0件），对比期: ¥3,800（1件），环比 📉 -100.0%<br>其中分销: ¥0，前一天 ¥3,800</li></ul>
+        </div>
+        </details><details><summary>🍽️ 4. 洗碗机 ─ 销售额: ¥59,471 (📈 103.4%) ─ 销量: 18件 | 单价: ¥3,303</summary>
+
+        
+        <div id="shop_ranking_category_4_洗碗机" style="display: block;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP1 京东-海尔洗嵌旗舰店<br>本期: ¥42,194（12件），对比期: ¥17,189（7件），环比 📈 71.4%</li><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP2 天猫-海尔厨房场景旗舰店<br>本期: ¥15,235（5件），对比期: ¥6,558（2件），环比 📈 150.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP3 拼多多-海尔虹图专卖店<br>本期: ¥2,042（1件），对比期: ¥0（0件），环比 📈 100%</li></ul>
+        </div>
+        <div id="product_ranking_category_4_洗碗机" style="display: none;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EBW12227BKU1<br>本期: ¥22,641（9件），对比期: ¥14,293（6件），环比 📈 50.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EYSW1858GHU1<br>本期: ¥14,237（3件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EYBW16328GHU1<br>本期: ¥10,797（3件），对比期: ¥2,959（1件），环比 📈 200.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EYBW18566JHU1<br>本期: ¥4,999（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EYBW16586GHU1<br>本期: ¥3,599（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 EYBW152266BKU1<br>本期: ¥3,198（1件），对比期: ¥8,394（3件），环比 📉 -66.7%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 EYBW17586GHU1<br>本期: ¥0（0件），对比期: ¥3,599（1件），环比 📉 -100.0%</li></ul>
+        </div>
+        </details><details><summary>❄️ 5. 商用空调 ─ 销售额: ¥32,657 (📉 -80.4%) ─ 销量: 13件 | 单价: ¥2,512</summary>
+
+        
+        <div id="shop_ranking_category_5_商用空调" style="display: block;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP1 京东-海尔空调店<br>本期: ¥13,940（5件），对比期: ¥27,336（8件），环比 📉 -37.5%</li><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP2 京东-虹图全品类店<br>本期: ¥6,969（3件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🏪 TOP3 天猫-海尔空调套装旗舰店<br>本期: ¥5,949（2件），对比期: ¥31,196（10件），环比 📉 -80.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP4 京东-中央空调旗舰店<br>本期: ¥5,799（3件），对比期: ¥6,799（2件），环比 📈 50.0%</li></ul>
+        </div>
+        <div id="product_ranking_category_5_商用空调" style="display: none;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFRd-120Q/BBH13ST室内机<br>本期: ¥12,767（2件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFRd-120L/AF82内机<br>本期: ¥7,041（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFRd-120Q/TD82T室内机<br>本期: ¥6,898（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-72N/ECA81U1室内机<br>本期: ¥5,948（1件），对比期: ¥25,335（4件），环比 📉 -75.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-75Q/TB82T室内机<br>本期: ¥0（0件），对比期: ¥5,338（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-120Q/AC82内机<br>本期: ¥0（0件），对比期: ¥14,797（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-35N/EB81U1室内机<br>本期: ¥0（0件），对比期: ¥5,198（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-120Q/AC81内机<br>本期: ¥0（0件），对比期: ¥18,197（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-72N/ED81TU1内机<br>本期: ¥0（0件），对比期: ¥11,267（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-120L/AF81室内机<br>本期: ¥0（0件），对比期: ¥24,596（3件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-120L/TF82T室内机<br>本期: ¥0（0件），对比期: ¥61,768（9件），环比 📉 -100.0%</li></ul>
+        </div>
+        </details><details><summary>♨️ 6. 热水器 ─ 销售额: ¥31,169 (📈 212.2%) ─ 销量: 24件 | 单价: ¥1,298</summary>
+
+        
+        <div id="shop_ranking_category_6_热水器" style="display: block;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP1 拼多多-海尔虹图专卖店<br>本期: ¥14,406（12件），对比期: ¥5,599（2件），环比 📈 500.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP2 京东-海尔全屋用水旗舰店<br>本期: ¥12,465（9件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP3 天猫-海尔热水器专卖店<br>本期: ¥4,298（3件），对比期: ¥0（0件），环比 📈 100%</li></ul>
+        </div>
+        <div id="product_ranking_category_6_热水器" style="display: none;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EC8002H-PT5U1<br>本期: ¥9,590（8件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 L1PB26-LC5(T)U1单机<br>本期: ¥5,997（2件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EC6002-PT5U1<br>本期: ¥4,497（4件），对比期: ¥1,228（1件），环比 📈 300.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KF75/200-NE7-U1(内机)<br>本期: ¥3,279（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; ">🔸 JSLQ27-16ECO(12T)U1<br>本期: ¥3,067（2件），对比期: ¥3,158（2件），环比 📊 0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 L1PB20-LC5(T)U1单机<br>本期: ¥2,698（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 L1PB20-LC1(T)U1<br>本期: ¥2,038（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KF110/300-AFE7U1(N)内机<br>本期: ¥0（0件），对比期: ¥5,598（1件），环比 📉 -100.0%</li></ul>
+        </div>
+        </details><details><summary>🍽️ 7. 厨电 ─ 销售额: ¥15,061 (📈 822.9%) ─ 销量: 9件 | 单价: ¥1,673<br>其中分销: ¥2,489（1件）</summary>
+
+        
+        <div id="shop_ranking_category_7_厨电" style="display: block;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP1 天猫-海尔厨房场景旗舰店<br>本期: ¥17,550（10件），对比期: ¥2,331（3件），环比 📈 233.3%<br>其中分销: ¥2,489（1件），前一天 ¥699（1件）</li></ul>
+        </div>
+        <div id="product_ranking_category_7_厨电" style="display: none;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 CXW-358-ET935UD<br>本期: ¥5,567（3件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 JZT-Q2BE53(12T)<br>本期: ¥2,808（2件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 CXW-358-EC739UD（分销）<br>本期: ¥2,489（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 CXW-358-ET937UD<br>本期: ¥2,289（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 CXW-298-PL9FQ61<br>本期: ¥1,589（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 CXW-258-EC729UD<br>本期: ¥1,419（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; ">🔸 CXW-298-IQ92DPRO<br>本期: ¥1,389（1件），对比期: ¥1,073（1件），环比 📊 0%</li></ul>
+        </div>
+        </details><details><summary>📦 8. 冷柜 ─ 销售额: ¥4,196 (📈 8.3%) ─ 销量: 4件 | 单价: ¥1,049</summary>
+
+        
+        <div id="shop_ranking_category_8_冷柜" style="display: block;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🏪 TOP1 拼多多-海尔虹图专卖店<br>本期: ¥4,196（4件），对比期: ¥2,997（3件），环比 📈 33.3%</li></ul>
+        </div>
+        <div id="product_ranking_category_8_冷柜" style="display: none;">
+            <ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; ">🔸 LC-98H<br>本期: ¥2,997（3件），对比期: ¥2,997（3件），环比 📊 0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BC/BD-142HER<br>本期: ¥1,199（1件），对比期: ¥0（0件），环比 📈 100%</li></ul>
+        </div>
+        </details>
+        
+        <!-- 渠道销售分析 -->
+        <h2>📊 【渠道销售分析】</h2>
+        <details><summary>🏪 1. 京东渠道: ¥357,044 (📉 -45.1%) | 248件 | ¥1,439/件</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🏪 京东-海尔净省电空调旗舰店<br>销售额: ¥143,000 | 单价: ¥1,415，环比 📉 -39.6%</li><li style="margin-bottom: 5px;">🏪 京东-海尔空调店大愉供销<br>销售额: ¥68,300 | 单价: ¥1,339，环比 📉 -72.4%</li><li style="margin-bottom: 5px;">🏪 京东-海尔洗嵌旗舰店<br>销售额: ¥57,024 | 单价: ¥2,715，环比 📈 102.2%</li><li style="margin-bottom: 5px;">🏪 京东-虹图全品类店<br>销售额: ¥31,039 | 单价: ¥862，环比 📉 -37.2%</li><li style="margin-bottom: 5px;">🏪 京东-统帅空调旗舰店<br>销售额: ¥18,991 | 单价: ¥1,055，环比 📉 -52.9%</li><li style="margin-bottom: 5px;">🏪 京东-海尔空调店<br>销售额: ¥13,940 | 单价: ¥2,788，环比 📉 -63.8%</li><li style="margin-bottom: 5px;">🏪 京东-海尔全屋用水旗舰店<br>销售额: ¥12,465 | 单价: ¥1,385，环比 📈 100%</li><li style="margin-bottom: 5px;">🏪 京东-中央空调旗舰店<br>销售额: ¥5,799 | 单价: ¥1,933，环比 📉 -14.7%</li><li style="margin-bottom: 5px;">🏪 京东-家商用电器经营部<br>销售额: ¥4,197 | 单价: ¥1,399，环比 📈 100%</li><li style="margin-bottom: 5px;">🏪 京东-海尔大愉晾衣架旗舰店<br>销售额: ¥2,288 | 单价: ¥2,288，环比 📈 4.0%</li></ul></details><details><summary>🏪 2. 拼多多渠道: ¥176,335 (📉 -36.6%) | 168件 | ¥1,049/件</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🏪 拼多多-海尔虹图专卖店<br>销售额: ¥176,335 | 单价: ¥1,049，环比 📉 -35.6%</li></ul></details><details><summary>🏪 3. 天猫渠道: ¥156,023 (📉 -50.9%) | 106件 | ¥1,471/件</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🏪 天猫-海尔空调套装旗舰店<br>销售额: ¥50,629 | 单价: ¥1,205，环比 📉 -70.3%</li><li style="margin-bottom: 5px;">🏪 天猫-海尔厨房场景旗舰店<br>销售额: ¥45,387 | 单价: ¥1,620，环比 📈 93.5%</li><li style="margin-bottom: 5px;">🏪 天猫-海尔洗嵌旗舰店<br>销售额: ¥19,263 | 单价: ¥2,751，环比 📈 57.7%</li><li style="margin-bottom: 5px;">🏪 淘宝-众汇企业店<br>销售额: ¥17,093 | 单价: ¥1,220，环比 📉 -77.7%</li><li style="margin-bottom: 5px;">🏪 天猫-海尔空调店<br>销售额: ¥8,296 | 单价: ¥1,185，环比 📉 -66.3%</li><li style="margin-bottom: 5px;">🏪 天猫-喵速达电器旗舰店<br>销售额: ¥4,848 | 单价: ¥1,616，环比 📈 203.2%</li><li style="margin-bottom: 5px;">🏪 天猫-线上分销<br>销售额: ¥4,399 | 单价: ¥2,199，环比 📈 100%</li><li style="margin-bottom: 5px;">🏪 天猫-虹图全品类店喵住分销<br>销售额: ¥4,299 | 单价: ¥4,299，环比 📉 -70.2%</li><li style="margin-bottom: 5px;">🏪 天猫-海尔热水器专卖店<br>销售额: ¥4,298 | 单价: ¥1,432，环比 📈 100%</li><li style="margin-bottom: 5px;">🏪 天猫-虹图全品类店<br>销售额: ¥719 | 单价: ¥719，环比 📈 100%</li></ul></details><details><summary>🏪 4. 卡萨帝渠道: ¥55,797 (📈 22.1%) | 7件 | ¥7,971/件</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🏪 京东-卡萨帝洗烘套装旗舰店<br>销售额: ¥40,798 | 单价: ¥6,799，环比 📈 62.6%</li><li style="margin-bottom: 5px;">🏪 京东-卡萨帝大愉专卖店<br>销售额: ¥14,999 | 单价: ¥14,999，环比 📈 74.4%</li></ul></details><details><summary>🏪 5. 抖音渠道: ¥7,280 (📈 798.8%) | 70件 | ¥104/件</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🏪 抖音-海尔家居用品旗舰店<br>销售额: ¥7,280 | 单价: ¥104，环比 📈 798.8%</li></ul></details>
+        
+        <!-- TOP店铺排行 -->
+        <h2>【TOP店铺排行】</h2>
+        <details><summary>🏪 TOP1 拼多多-海尔虹图专卖店 ─ 销售额: ¥176,335 (📉 -35.6%) ─ 销量: 168件 | 单价: ¥1,049</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BCD-501WLHTD58B9U1<br>本期: ¥52,475（22件），对比期: ¥9,716（4件），环比 📈 450.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 XQB80-M10X0<br>本期: ¥39,248（69件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 XQB80-M308<br>本期: ¥21,127（34件），对比期: ¥730（1件），环比 📈 3300.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 XQG100-LD58E<br>本期: ¥20,321（11件），对比期: ¥7,796（4件），环比 📈 175.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-72G/MEA81U1室内机总成<br>本期: ¥18,844（5件），对比期: ¥11,486（3件），环比 📈 66.7%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EC8002H-PT5U1<br>本期: ¥8,141（7件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BCD-88GHTMZ0WV<br>本期: ¥3,675（5件），对比期: ¥15,387（21件），环比 📉 -76.2%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EC6002-PT5U1<br>本期: ¥3,198（3件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 JSLQ27-16ECO(12T)U1<br>本期: ¥3,067（2件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; ">🔸 LC-98H<br>本期: ¥2,997（3件），对比期: ¥2,997（3件），环比 📊 0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EBW12227BKU1<br>本期: ¥2,042（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BC/BD-142HER<br>本期: ¥1,199（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 EG100HBD176PRO<br>本期: ¥0（0件），对比期: ¥2,699（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-72N/ECA81U1室内机<br>本期: ¥0（0件），对比期: ¥5,938（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/VEA81TU1室内机总成<br>本期: ¥0（0件），对比期: ¥3,898（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BC-93LTMPA<br>本期: ¥0（0件），对比期: ¥3,654（6件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-120L/TF82T室内机<br>本期: ¥0（0件），对比期: ¥6,696（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KF110/300-AFE7U1(N)内机<br>本期: ¥0（0件），对比期: ¥5,598（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/MCC83室内机<br>本期: ¥0（0件），对比期: ¥69,363（45件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/XDB82U1室内机<br>本期: ¥0（0件），对比期: ¥6,696（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 XQG100-HBD1266<br>本期: ¥0（0件），对比期: ¥26,388（12件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-48G/E1-1室内机<br>本期: ¥0（0件），对比期: ¥28,989（10件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72W/0382室外机<br>本期: ¥0（0件），对比期: ¥2,232（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KF-26G/MCA75室内机<br>本期: ¥0（0件），对比期: ¥1,298（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72W/2481室外机<br>本期: ¥0（0件），对比期: ¥3,829（12件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72G/PAA81U1室内机<br>本期: ¥0（0件），对比期: ¥41,409（12件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KF-35G/MCA75室内机<br>本期: ¥0（0件），对比期: ¥15,290（11件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 EG100BD176PRO<br>本期: ¥0（0件），对比期: ¥1,859（1件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP2 京东-海尔净省电空调旗舰店 ─ 销售额: ¥143,000 (📉 -39.6%) ─ 销量: 101件 | 单价: ¥1,415</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-35G/E1-1Plus室内机<br>本期: ¥39,185（14件），对比期: ¥9,999（4件），环比 📈 250.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-35G/E1-1室内机<br>本期: ¥23,989（10件），对比期: ¥7,945（4件），环比 📈 150.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-72L/LPA1-1室内机<br>本期: ¥17,195（4件），对比期: ¥11,696（3件），环比 📈 33.3%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-72L/E1-1室内机<br>本期: ¥16,396（3件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/LPA1-1室内机<br>本期: ¥10,293（6件），对比期: ¥17,588（11件），环比 📉 -45.5%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-35G/LKG81TU1室内机<br>本期: ¥8,494（5件），对比期: ¥3,997（3件），环比 📈 66.7%</li><li style="margin-bottom: 5px; ">🔸 KFR-48G/E1-1室内机<br>本期: ¥7,397（2件），对比期: ¥6,001（2件），环比 📊 0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-72G/MEA81U1室内机总成<br>本期: ¥4,498（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72G/PAA81U1室内机<br>本期: ¥4,298（1件），对比期: ¥17,384（4件），环比 📉 -75.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/LAA81U1室内机总成<br>本期: ¥4,097（2件），对比期: ¥11,897（6件），环比 📉 -66.7%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-50L/LA1-1室内机<br>本期: ¥3,698（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; ">🔸 KFR-50G/PAA81U1室内机总成<br>本期: ¥3,398（1件），对比期: ¥3,698（1件），环比 📊 0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-22G/PAA81U1室内机<br>本期: ¥0（0件），对比期: ¥1,801（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-50L/WDB81TU1室内机总成<br>本期: ¥0（0件），对比期: ¥3,598（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-120L/TF82T室内机<br>本期: ¥0（0件），对比期: ¥13,937（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/MCC83室内机<br>本期: ¥0（0件），对比期: ¥65,558（41件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-75Q/TB82T室内机<br>本期: ¥0（0件），对比期: ¥5,338（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/LKB81TU1室内机<br>本期: ¥0（0件），对比期: ¥15,595（4件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-72N/ED81TU1内机<br>本期: ¥0（0件），对比期: ¥5,468（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/KPB81U1室内机<br>本期: ¥0（0件），对比期: ¥1,898（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/KJA81U1室内机<br>本期: ¥0（0件），对比期: ¥5,896（3件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/VEA81TU1室内机总成<br>本期: ¥0（0件），对比期: ¥12,596（3件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/XDB82U1室内机<br>本期: ¥0（0件），对比期: ¥9,397（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/LGA81U1室内机<br>本期: ¥0（0件），对比期: ¥2,398（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-48G/MDA81TU1室内机<br>本期: ¥0（0件），对比期: ¥2,398（1件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP3 京东-海尔空调店大愉供销 ─ 销售额: ¥68,300 (📉 -72.4%) ─ 销量: 51件 | 单价: ¥1,339</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/LPA1-1室内机<br>本期: ¥15,995（4件），对比期: ¥19,994（5件），环比 📉 -20.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72G/PAA81U1室内机<br>本期: ¥9,797（2件），对比期: ¥14,696（3件），环比 📉 -33.3%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-35G/LKG81TU1室内机<br>本期: ¥8,494（5件），对比期: ¥5,096（3件），环比 📈 66.7%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-48G/MDA81TU1室内机<br>本期: ¥7,346（3件），对比期: ¥4,897（2件），环比 📈 50.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-50L/LA1-1室内机<br>本期: ¥4,598（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/LKB81TU1室内机<br>本期: ¥3,998（1件），对比期: ¥7,997（2件），环比 📉 -50.0%</li><li style="margin-bottom: 5px; ">🔸 KFR-35G/LAA81U1室内机总成<br>本期: ¥3,997（2件），对比期: ¥3,997（2件），环比 📊 0%</li><li style="margin-bottom: 5px; ">🔸 KFR-50L/WDB81TU1室内机总成<br>本期: ¥3,598（1件），对比期: ¥3,598（1件），环比 📊 0%</li><li style="margin-bottom: 5px; ">🔸 EG100BD176PRO<br>本期: ¥3,598（2件），对比期: ¥3,598（2件），环比 📊 0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BC-93LTMPA<br>本期: ¥3,594（6件），对比期: ¥20,366（34件），环比 📉 -82.4%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/LPA1-1室内机<br>本期: ¥1,698（1件），对比期: ¥16,989（10件），环比 📉 -90.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BCD-88GHTMZ0WV<br>本期: ¥1,458（2件），对比期: ¥20,412（28件），环比 📉 -92.9%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 EBW12227BKU1<br>本期: ¥0（0件），对比期: ¥5,498（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-22G/PAA81U1室内机<br>本期: ¥0（0件），对比期: ¥1,848（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-72N/ECA81U1室内机<br>本期: ¥0（0件），对比期: ¥14,597（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-35N/EB81U1室内机<br>本期: ¥0（0件），对比期: ¥5,198（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-120Q/AC81内机<br>本期: ¥0（0件），对比期: ¥18,197（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-120L/TF82T室内机<br>本期: ¥0（0件），对比期: ¥6,998（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BCD-501WLHTD58B9U1<br>本期: ¥0（0件），对比期: ¥2,999（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 EG100BD39S<br>本期: ¥0（0件），对比期: ¥2,798（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/E1-1室内机<br>本期: ¥0（0件），对比期: ¥17,990（9件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/MTB81TU1(高光白)室内机<br>本期: ¥0（0件），对比期: ¥3,397（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-72N/ED81TU1内机<br>本期: ¥0（0件），对比期: ¥5,798（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/E1-1Plus室内机<br>本期: ¥0（0件），对比期: ¥7,496（3件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/KJA81U1室内机<br>本期: ¥0（0件），对比期: ¥17,990（9件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72G/MEA81U1室内机总成<br>本期: ¥0（0件），对比期: ¥5,598（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-48G/E1-1室内机<br>本期: ¥0（0件），对比期: ¥6,997（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/LGA81U1室内机<br>本期: ¥0（0件），对比期: ¥2,498（1件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP4 京东-海尔洗嵌旗舰店 ─ 销售额: ¥57,024 (📈 102.2%) ─ 销量: 21件 | 单价: ¥2,715</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EYSW1858GHU1<br>本期: ¥14,237（3件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EBW12227BKU1<br>本期: ¥12,662（5件），对比期: ¥8,795（4件），环比 📈 25.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BCD-510WGHFD1BNXU1<br>本期: ¥6,599（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EYBW18566JHU1<br>本期: ¥4,999（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BCD-88GHTMZ0WV<br>本期: ¥4,533（6件），对比期: ¥5,134（7件），环比 📉 -14.3%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EYBW16586GHU1<br>本期: ¥3,599（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EYBW16328GHU1<br>本期: ¥3,499（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 EYBW152266BKU1<br>本期: ¥3,198（1件），对比期: ¥8,394（3件），环比 📉 -66.7%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BCD-501WLHTD58B9U1<br>本期: ¥3,049（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BC-93LTMPA<br>本期: ¥649（1件），对比期: ¥2,546（4件），环比 📉 -75.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 XQG100-HBD1266<br>本期: ¥0（0件），对比期: ¥2,499（1件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP5 天猫-海尔空调套装旗舰店 ─ 销售额: ¥50,629 (📉 -70.3%) ─ 销量: 42件 | 单价: ¥1,205</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-35G/LPA1-1室内机<br>本期: ¥11,892（7件），对比期: ¥10,193（6件），环比 📈 16.7%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/LKG81TU1室内机<br>本期: ¥10,193（6件），对比期: ¥36,776（23件），环比 📉 -73.9%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-72L/E1-1Plus室内机<br>本期: ¥6,298（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFRd-72N/ECA81U1室内机<br>本期: ¥5,948（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/E1-1室内机<br>本期: ¥4,597（2件），对比期: ¥9,994（5件），环比 📉 -60.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/XDB82U1室内机<br>本期: ¥4,398（1件），对比期: ¥8,795（2件），环比 📉 -50.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-35G/E1-1Plus室内机<br>本期: ¥2,798（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-48G/MDA81TU1室内机<br>本期: ¥2,498（1件），对比期: ¥7,296（3件），环比 📉 -66.7%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-35G/LAA81U1室内机总成<br>本期: ¥1,998（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-120Q/AC82内机<br>本期: ¥0（0件），对比期: ¥14,797（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-50L/WDB81TU1室内机总成<br>本期: ¥0（0件），对比期: ¥3,598（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-120L/AF81室内机<br>本期: ¥0（0件），对比期: ¥16,397（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/PCA81U1室内机<br>本期: ¥0（0件），对比期: ¥4,898（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-26G/LA1-1室内机<br>本期: ¥0（0件），对比期: ¥6,395（4件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/LPA1-1室内机<br>本期: ¥0（0件），对比期: ¥7,997（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/PGC83室内机总成<br>本期: ¥0（0件），对比期: ¥35,890（9件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/MTB81TU1(高光白)室内机<br>本期: ¥0（0件），对比期: ¥3,397（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/LKB81TU1室内机<br>本期: ¥0（0件），对比期: ¥3,898（1件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP6 天猫-海尔厨房场景旗舰店 ─ 销售额: ¥42,898 (📈 126.4%) ─ 销量: 27件 | 单价: ¥1,588<br>其中分销: ¥2,489（1件）</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BCD-88GHTMZ0WV<br>本期: ¥7,944（11件），对比期: ¥7,762（10件），环比 📈 10.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EBW12227BKU1<br>本期: ¥7,937（3件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EYBW16328GHU1<br>本期: ¥7,298（2件），对比期: ¥2,959（1件），环比 📈 100.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 CXW-358-ET935UD<br>本期: ¥5,567（3件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BCD-620WGHSSEDWV<br>本期: ¥4,658（2件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 JZT-Q2BE53(12T)<br>本期: ¥2,808（2件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 CXW-358-EC739UD（分销）<br>本期: ¥2,489（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 CXW-358-ET937UD<br>本期: ¥2,289（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 CXW-298-PL9FQ61<br>本期: ¥1,589（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 CXW-258-EC729UD<br>本期: ¥1,419（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; ">🔸 CXW-298-IQ92DPRO<br>本期: ¥1,389（1件），对比期: ¥1,073（1件），环比 📊 0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 EYBW17586GHU1<br>本期: ¥0（0件），对比期: ¥3,599（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BCD-501WGHTDB5X8U1<br>本期: ¥0（0件），对比期: ¥3,800（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BCD-539WGHTDEDSDU1<br>本期: ¥0（0件），对比期: ¥2,999（1件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP7 京东-卡萨帝洗烘套装旗舰店 ─ 销售额: ¥40,798 (📈 62.6%) ─ 销量: 6件 | 单价: ¥6,799</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 C1 HD10LZ6ELU1<br>本期: ¥21,400（4件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 CS HB22LWTLBU1<br>本期: ¥14,999（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 C1 D10LJ7ELU1<br>本期: ¥4,399（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 C1 10W2ELU1<br>本期: ¥0（0件），对比期: ¥7,048（3件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 ECGS10FW2EU1<br>本期: ¥0（0件），对比期: ¥7,048（3件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 C1 D10L5ELU1<br>本期: ¥0（0件），对比期: ¥5,499（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 CGY 10FL5EU1<br>本期: ¥0（0件），对比期: ¥5,499（1件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP8 京东-虹图全品类店 ─ 销售额: ¥31,039 (📉 -37.2%) ─ 销量: 36件 | 单价: ¥862</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-35G/LKG81TU1室内机<br>本期: ¥8,494（5件），对比期: ¥6,495（4件），环比 📈 25.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BC-93LTMPA<br>本期: ¥8,047（13件），对比期: ¥23,810（40件），环比 📉 -67.5%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFRd-120Q/BBH13ST室内机<br>本期: ¥6,968（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-35G/MTB81TU1(高光白)室内机<br>本期: ¥3,597（2件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BCD-88GHTMZ0WV<br>本期: ¥2,181（3件），对比期: ¥12,341（17件），环比 📉 -82.4%</li><li style="margin-bottom: 5px; ">🔸 KFR-35G/LPA1-1室内机<br>本期: ¥1,698（1件），对比期: ¥1,598（1件），环比 📊 0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-22G/PAA81U1室内机<br>本期: ¥0（0件），对比期: ¥1,848（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BCD-123GHTMZ0WV<br>本期: ¥0（0件），对比期: ¥2,547（3件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP9 天猫-海尔洗嵌旗舰店 ─ 销售额: ¥19,263 (📈 67.3%) ─ 销量: 7件 | 单价: ¥2,751</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 G100578BD14LS<br>本期: ¥11,547（3件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 XQS100-BZ558SH<br>本期: ¥3,269（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EG100BD176PRO<br>本期: ¥2,199（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 XQG100-H507S<br>本期: ¥1,499（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 G100578HBD14LS<br>本期: ¥0（0件），对比期: ¥3,999（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 XQB100-BZ6088<br>本期: ¥0（0件），对比期: ¥1,499（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 XQG100-BSDE598WU1<br>本期: ¥0（0件），对比期: ¥4,519（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 EG100MAX29S<br>本期: ¥0（0件），对比期: ¥1,499（1件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP10 京东-统帅空调旗舰店 ─ 销售额: ¥18,991 (📉 -52.9%) ─ 销量: 18件 | 单价: ¥1,055</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/LKG81TU1室内机<br>本期: ¥8,594（5件），对比期: ¥16,289（10件），环比 📉 -50.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-48G/MDA81TU1室内机<br>本期: ¥4,997（2件），对比期: ¥2,398（1件），环比 📈 100.0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-50L/LA1-1室内机<br>本期: ¥3,698（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; ">🔸 KFR-35G/LPA1-1室内机<br>本期: ¥1,698（1件），对比期: ¥1,598（1件），环比 📊 0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72G/MDA83TU1室内机总成<br>本期: ¥0（0件），对比期: ¥14,395（4件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/MTB81TU1(高光白)室内机<br>本期: ¥0（0件），对比期: ¥1,698（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/LKB81TU1室内机<br>本期: ¥0（0件），对比期: ¥3,898（1件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP11 淘宝-众汇企业店 ─ 销售额: ¥17,093 (📉 -77.7%) ─ 销量: 14件 | 单价: ¥1,220</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-72L/XDB82U1室内机<br>本期: ¥8,597（2件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/LPA1-1室内机<br>本期: ¥8,494（5件），对比期: ¥13,591（8件），环比 📉 -37.5%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-26G/LA1-1室内机<br>本期: ¥0（0件），对比期: ¥3,197（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/LKG81TU1室内机<br>本期: ¥0（0件），对比期: ¥3,197（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/LPA1-1室内机<br>本期: ¥0（0件），对比期: ¥11,696（3件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/E1-1室内机<br>本期: ¥0（0件），对比期: ¥1,998（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-50G/PAA81U1室内机总成<br>本期: ¥0（0件），对比期: ¥3,298（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-72N/ECA81U1室内机<br>本期: ¥0（0件），对比期: ¥4,798（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/WDB81TU1室内机<br>本期: ¥0（0件），对比期: ¥3,898（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-72L/PGC83室内机总成<br>本期: ¥0（0件），对比期: ¥8,099（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-48G/MDA81TU1室内机<br>本期: ¥0（0件），对比期: ¥14,633（6件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-120L/AF81室内机<br>本期: ¥0（0件），对比期: ¥8,198（1件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP12 京东-卡萨帝大愉专卖店 ─ 销售额: ¥14,999 (📈 74.4%) ─ 销量: 1件 | 单价: ¥14,999</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BCD-600WGCFDM4DBU1<br>本期: ¥14,999（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 C8 DN14L5EU1<br>本期: ¥0（0件），对比期: ¥8,599（1件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP13 京东-海尔空调店 ─ 销售额: ¥13,940 (📉 -63.8%) ─ 销量: 5件 | 单价: ¥2,788</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFRd-120L/AF82内机<br>本期: ¥7,041（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFRd-120Q/TD82T室内机<br>本期: ¥6,898（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/KJA81U1室内机<br>本期: ¥0（0件），对比期: ¥7,995（4件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/MCC83室内机<br>本期: ¥0（0件），对比期: ¥3,197（2件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-120L/TF82T室内机<br>本期: ¥0（0件），对比期: ¥27,335（4件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP14 京东-海尔全屋用水旗舰店 ─ 销售额: ¥12,465 (📈 100%) ─ 销量: 9件 | 单价: ¥1,385</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KF75/200-NE7-U1(内机)<br>本期: ¥3,279（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 L1PB26-LC5(T)U1单机<br>本期: ¥2,998（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 L1PB20-LC5(T)U1单机<br>本期: ¥2,698（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 L1PB20-LC1(T)U1<br>本期: ¥2,038（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EC8002H-PT5U1<br>本期: ¥1,449（1件），对比期: ¥0（0件），环比 📈 100%</li></ul></details><details><summary>🏪 TOP15 天猫-海尔空调店 ─ 销售额: ¥8,296 (📉 -66.3%) ─ 销量: 7件 | 单价: ¥1,185</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; ">🔸 KFR-35G/LPA1-1室内机<br>本期: ¥5,096（3件），对比期: ¥5,096（3件），环比 📊 0%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BCD-539WGHTDEDSDU1<br>本期: ¥3,199（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/KJA81U1室内机<br>本期: ¥0（0件），对比期: ¥7,795（4件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/LKG81TU1室内机<br>本期: ¥0（0件），对比期: ¥6,495（4件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-48G/MDA81TU1室内机<br>本期: ¥0（0件），对比期: ¥2,498（1件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-35G/E1-1室内机<br>本期: ¥0（0件），对比期: ¥1,988（1件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP16 抖音-海尔家居用品旗舰店 ─ 销售额: ¥7,280 (📈 798.8%) ─ 销量: 70件 | 单价: ¥104</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BCD-486WGHFD1BG9U1<br>本期: ¥6,600（2件），对比期: ¥0（0件），环比 📈 100%</li></ul></details><details><summary>🏪 TOP17 京东-中央空调旗舰店 ─ 销售额: ¥5,799 (📉 -14.7%) ─ 销量: 3件 | 单价: ¥1,933</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFRd-120Q/BBH13ST室内机<br>本期: ¥5,798（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFRd-120L/TF82T室内机<br>本期: ¥0（0件），对比期: ¥6,798（1件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP18 天猫-喵速达电器旗舰店 ─ 销售额: ¥4,848 (📈 203.2%) ─ 销量: 3件 | 单价: ¥1,616</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-72L/LKB81TU1室内机<br>本期: ¥4,098（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 KFR-26G/LA1-1室内机<br>本期: ¥0（0件），对比期: ¥1,598（1件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP19 天猫-线上分销 ─ 销售额: ¥4,399 (📈 100%) ─ 销量: 2件 | 单价: ¥2,199</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 KFR-72L/XDB82U1室内机<br>本期: ¥4,398（1件），对比期: ¥0（0件），环比 📈 100%</li></ul></details><details><summary>🏪 TOP20 天猫-虹图全品类店喵住分销 ─ 销售额: ¥4,299 (📉 -70.2%) ─ 销量: 1件 | 单价: ¥4,299</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 BCD-509WGHFD7DS9U1<br>本期: ¥4,299（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BCD-88GHTMZ0WV<br>本期: ¥0（0件），对比期: ¥11,290（15件），环比 📉 -100.0%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 BC-93LTMPA<br>本期: ¥0（0件），对比期: ¥3,120（5件），环比 📉 -100.0%</li></ul></details><details><summary>🏪 TOP21 天猫-海尔热水器专卖店 ─ 销售额: ¥4,298 (📈 100%) ─ 销量: 3件 | 单价: ¥1,432</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 L1PB26-LC5(T)U1单机<br>本期: ¥2,998（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EC6002-PT5U1<br>本期: ¥1,299（1件），对比期: ¥0（0件），环比 📈 100%</li></ul></details><details><summary>🏪 TOP22 京东-家商用电器经营部 ─ 销售额: ¥4,197 (📈 100%) ─ 销量: 3件 | 单价: ¥1,399</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 LTD-435WL9U1<br>本期: ¥2,899（1件），对比期: ¥0（0件），环比 📈 100%</li></ul></details><details><summary>🏪 TOP23 京东-海尔大愉晾衣架旗舰店 ─ 销售额: ¥2,288 (📈 4.0%) ─ 销量: 1件 | 单价: ¥2,288</summary><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px; background: #f0fff0;">🔸 EG100BD176PRO<br>本期: ¥2,288（1件），对比期: ¥0（0件），环比 📈 100%</li><li style="margin-bottom: 5px; background: #fff0f0;">🔸 XQG100-LD58E<br>本期: ¥0（0件），对比期: ¥2,200（1件），环比 📉 -100.0%</li></ul></details>
+        
+        <!-- TOP单品数据 -->
+        <h2>【TOP单品数据】</h2>
+        <div style="margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><strong>🧺 洗衣机 TOP单品</strong><br>🔸 TOP1 XQB80-M10X0<br>销售额: ¥39,248 | 销量: 69件 | 单价: ¥568<br>🔸 TOP2 XQB80-M308<br>销售额: ¥21,876 | 销量: 35件 | 单价: ¥625<br>🔸 TOP3 C1 HD10LZ6ELU1<br>销售额: ¥21,400 | 销量: 4件 | 单价: ¥5,350<br>🔸 TOP4 XQG100-LD58E<br>销售额: ¥20,321 | 销量: 11件 | 单价: ¥1,847<br>🔸 TOP5 CS HB22LWTLBU1<br>销售额: ¥14,999 | 销量: 1件 | 单价: ¥14,999<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><strong>❄️ 家用空调 TOP单品</strong><br>🔸 TOP1 KFR-35G/LKG81TU1室内机<br>销售额: ¥44,273 | 销量: 26件 | 单价: ¥1,702<br>🔸 TOP2 KFR-35G/E1-1Plus室内机<br>销售额: ¥41,984 | 销量: 15件 | 单价: ¥2,798<br>🔸 TOP3 KFR-35G/LPA1-1室内机<br>销售额: ¥40,875 | 销量: 24件 | 单价: ¥1,703<br>🔸 TOP4 KFR-72L/LPA1-1室内机<br>销售额: ¥33,191 | 销量: 8件 | 单价: ¥4,148<br>🔸 TOP5 KFR-35G/E1-1室内机<br>销售额: ¥28,587 | 销量: 12件 | 单价: ¥2,382<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><strong>♨️ 热水器 TOP单品</strong><br>🔸 TOP1 EC8002H-PT5U1<br>销售额: ¥9,590 | 销量: 8件 | 单价: ¥1,198<br>🔸 TOP2 L1PB26-LC5(T)U1单机<br>销售额: ¥5,997 | 销量: 2件 | 单价: ¥2,998<br>🔸 TOP3 EC6002-PT5U1<br>销售额: ¥4,497 | 销量: 4件 | 单价: ¥1,124<br>🔸 TOP4 KF75/200-NE7-U1(内机)<br>销售额: ¥3,279 | 销量: 1件 | 单价: ¥3,279<br>🔸 TOP5 JSLQ27-16ECO(12T)U1<br>销售额: ¥3,067 | 销量: 2件 | 单价: ¥1,533<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><strong>🍽️ 洗碗机 TOP单品</strong><br>🔸 TOP1 EBW12227BKU1<br>销售额: ¥22,641 | 销量: 9件 | 单价: ¥2,515<br>🔸 TOP2 EYSW1858GHU1<br>销售额: ¥14,237 | 销量: 3件 | 单价: ¥4,745<br>🔸 TOP3 EYBW16328GHU1<br>销售额: ¥10,797 | 销量: 3件 | 单价: ¥3,599<br>🔸 TOP4 EYBW18566JHU1<br>销售额: ¥4,999 | 销量: 1件 | 单价: ¥4,999<br>🔸 TOP5 EYBW16586GHU1<br>销售额: ¥3,599 | 销量: 1件 | 单价: ¥3,599<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><strong>🧊 冰箱 TOP单品</strong><br>🔸 TOP1 BCD-501WLHTD58B9U1<br>销售额: ¥55,524 | 销量: 23件 | 单价: ¥2,414<br>🔸 TOP2 BCD-88GHTMZ0WV<br>销售额: ¥21,239 | 销量: 29件 | 单价: ¥732<br>🔸 TOP3 BCD-600WGCFDM4DBU1<br>销售额: ¥14,999 | 销量: 1件 | 单价: ¥14,999<br>🔸 TOP4 BC-93LTMPA<br>销售额: ¥12,889 | 销量: 21件 | 单价: ¥613<br>🔸 TOP5 BCD-486WGHFD1BG9U1<br>销售额: ¥6,600 | 销量: 2件 | 单价: ¥3,300<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><strong>🍽️ 厨电 TOP单品</strong><br>🔸 TOP1 CXW-358-ET935UD<br>销售额: ¥5,567 | 销量: 3件 | 单价: ¥1,855<br>🔸 TOP2 JZT-Q2BE53(12T)<br>销售额: ¥2,808 | 销量: 2件 | 单价: ¥1,404<br>🔸 TOP3 CXW-358-EC739UD<br>销售额: ¥2,489 | 销量: 1件 | 单价: ¥2,489<br>🔸 TOP4 CXW-358-ET937UD<br>销售额: ¥2,289 | 销量: 1件 | 单价: ¥2,289<br>🔸 TOP5 CXW-298-PL9FQ61<br>销售额: ¥1,589 | 销量: 1件 | 单价: ¥1,589<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><strong>📦 冷柜 TOP单品</strong><br>🔸 TOP1 LC-98H<br>销售额: ¥2,997 | 销量: 3件 | 单价: ¥999<br>🔸 TOP2 BC/BD-142HER<br>销售额: ¥1,199 | 销量: 1件 | 单价: ¥1,199<br></div><div style="margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><strong>❄️ 商用空调 TOP单品</strong><br>🔸 TOP1 KFRd-120Q/BBH13ST室内机<br>销售额: ¥12,767 | 销量: 2件 | 单价: ¥6,383<br>🔸 TOP2 KFRd-120L/AF82内机<br>销售额: ¥7,041 | 销量: 1件 | 单价: ¥7,041<br>🔸 TOP3 KFRd-120Q/TD82T室内机<br>销售额: ¥6,898 | 销量: 1件 | 单价: ¥6,898<br>🔸 TOP4 KFRd-72N/ECA81U1室内机<br>销售额: ¥5,948 | 销量: 1件 | 单价: ¥5,948<br></div>
+        
+        <!-- 店铺单品数据 -->
+        <h2>【店铺单品数据】</h2>
+        <div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 拼多多-海尔虹图专卖店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 BCD-501WLHTD58B9U1<br>销售额: ¥52,475 | 单价: ¥2,385</li><li style="margin-bottom: 5px;">🔸 XQB80-M10X0<br>销售额: ¥39,248 | 单价: ¥568</li><li style="margin-bottom: 5px;">🔸 XQB80-M308<br>销售额: ¥21,127 | 单价: ¥621</li><li style="margin-bottom: 5px;">🔸 XQG100-LD58E<br>销售额: ¥20,321 | 单价: ¥1,847</li><li style="margin-bottom: 5px;">🔸 KFR-72G/MEA81U1室内机总成<br>销售额: ¥18,844 | 单价: ¥3,768</li><li style="margin-bottom: 5px;">🔸 EC8002H-PT5U1<br>销售额: ¥8,141 | 单价: ¥1,163</li><li style="margin-bottom: 5px;">🔸 BCD-88GHTMZ0WV<br>销售额: ¥3,675 | 单价: ¥735</li><li style="margin-bottom: 5px;">🔸 EC6002-PT5U1<br>销售额: ¥3,198 | 单价: ¥1,066</li><li style="margin-bottom: 5px;">🔸 JSLQ27-16ECO(12T)U1<br>销售额: ¥3,067 | 单价: ¥1,533</li><li style="margin-bottom: 5px;">🔸 LC-98H<br>销售额: ¥2,997 | 单价: ¥999</li><li style="margin-bottom: 5px;">🔸 EBW12227BKU1<br>销售额: ¥2,042 | 单价: ¥2,042</li><li style="margin-bottom: 5px;">🔸 BC/BD-142HER<br>销售额: ¥1,199 | 单价: ¥1,199</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 京东-海尔净省电空调旗舰店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 KFR-35G/E1-1Plus室内机<br>销售额: ¥39,185 | 单价: ¥2,798</li><li style="margin-bottom: 5px;">🔸 KFR-35G/E1-1室内机<br>销售额: ¥23,989 | 单价: ¥2,398</li><li style="margin-bottom: 5px;">🔸 KFR-72L/LPA1-1室内机<br>销售额: ¥17,195 | 单价: ¥4,298</li><li style="margin-bottom: 5px;">🔸 KFR-72L/E1-1室内机<br>销售额: ¥16,396 | 单价: ¥5,465</li><li style="margin-bottom: 5px;">🔸 KFR-35G/LPA1-1室内机<br>销售额: ¥10,293 | 单价: ¥1,715</li><li style="margin-bottom: 5px;">🔸 KFR-35G/LKG81TU1室内机<br>销售额: ¥8,494 | 单价: ¥1,698</li><li style="margin-bottom: 5px;">🔸 KFR-48G/E1-1室内机<br>销售额: ¥7,397 | 单价: ¥3,698</li><li style="margin-bottom: 5px;">🔸 KFR-72G/MEA81U1室内机总成<br>销售额: ¥4,498 | 单价: ¥4,498</li><li style="margin-bottom: 5px;">🔸 KFR-72G/PAA81U1室内机<br>销售额: ¥4,298 | 单价: ¥4,298</li><li style="margin-bottom: 5px;">🔸 KFR-35G/LAA81U1室内机总成<br>销售额: ¥4,097 | 单价: ¥2,048</li><li style="margin-bottom: 5px;">🔸 KFR-50L/LA1-1室内机<br>销售额: ¥3,698 | 单价: ¥3,698</li><li style="margin-bottom: 5px;">🔸 KFR-50G/PAA81U1室内机总成<br>销售额: ¥3,398 | 单价: ¥3,398</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 京东-海尔空调店大愉供销</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 KFR-72L/LPA1-1室内机<br>销售额: ¥15,995 | 单价: ¥3,998</li><li style="margin-bottom: 5px;">🔸 KFR-72G/PAA81U1室内机<br>销售额: ¥9,797 | 单价: ¥4,898</li><li style="margin-bottom: 5px;">🔸 KFR-35G/LKG81TU1室内机<br>销售额: ¥8,494 | 单价: ¥1,698</li><li style="margin-bottom: 5px;">🔸 KFR-48G/MDA81TU1室内机<br>销售额: ¥7,346 | 单价: ¥2,448</li><li style="margin-bottom: 5px;">🔸 KFR-50L/LA1-1室内机<br>销售额: ¥4,598 | 单价: ¥4,598</li><li style="margin-bottom: 5px;">🔸 KFR-72L/LKB81TU1室内机<br>销售额: ¥3,998 | 单价: ¥3,998</li><li style="margin-bottom: 5px;">🔸 KFR-35G/LAA81U1室内机总成<br>销售额: ¥3,997 | 单价: ¥1,998</li><li style="margin-bottom: 5px;">🔸 KFR-50L/WDB81TU1室内机总成<br>销售额: ¥3,598 | 单价: ¥3,598</li><li style="margin-bottom: 5px;">🔸 EG100BD176PRO<br>销售额: ¥3,598 | 单价: ¥1,799</li><li style="margin-bottom: 5px;">🔸 BC-93LTMPA<br>销售额: ¥3,594 | 单价: ¥599</li><li style="margin-bottom: 5px;">🔸 KFR-35G/LPA1-1室内机<br>销售额: ¥1,698 | 单价: ¥1,698</li><li style="margin-bottom: 5px;">🔸 BCD-88GHTMZ0WV<br>销售额: ¥1,458 | 单价: ¥729</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 京东-海尔洗嵌旗舰店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 EYSW1858GHU1<br>销售额: ¥14,237 | 单价: ¥4,745</li><li style="margin-bottom: 5px;">🔸 EBW12227BKU1<br>销售额: ¥12,662 | 单价: ¥2,532</li><li style="margin-bottom: 5px;">🔸 BCD-510WGHFD1BNXU1<br>销售额: ¥6,599 | 单价: ¥6,599</li><li style="margin-bottom: 5px;">🔸 EYBW18566JHU1<br>销售额: ¥4,999 | 单价: ¥4,999</li><li style="margin-bottom: 5px;">🔸 BCD-88GHTMZ0WV<br>销售额: ¥4,533 | 单价: ¥755</li><li style="margin-bottom: 5px;">🔸 EYBW16586GHU1<br>销售额: ¥3,599 | 单价: ¥3,599</li><li style="margin-bottom: 5px;">🔸 EYBW16328GHU1<br>销售额: ¥3,499 | 单价: ¥3,499</li><li style="margin-bottom: 5px;">🔸 EYBW152266BKU1<br>销售额: ¥3,198 | 单价: ¥3,198</li><li style="margin-bottom: 5px;">🔸 BCD-501WLHTD58B9U1<br>销售额: ¥3,049 | 单价: ¥3,049</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 天猫-海尔空调套装旗舰店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 KFR-35G/LPA1-1室内机<br>销售额: ¥11,892 | 单价: ¥1,698</li><li style="margin-bottom: 5px;">🔸 KFR-35G/LKG81TU1室内机<br>销售额: ¥10,193 | 单价: ¥1,698</li><li style="margin-bottom: 5px;">🔸 KFR-72L/E1-1Plus室内机<br>销售额: ¥6,298 | 单价: ¥6,298</li><li style="margin-bottom: 5px;">🔸 KFRd-72N/ECA81U1室内机<br>销售额: ¥5,948 | 单价: ¥5,948</li><li style="margin-bottom: 5px;">🔸 KFR-35G/E1-1室内机<br>销售额: ¥4,597 | 单价: ¥2,298</li><li style="margin-bottom: 5px;">🔸 KFR-72L/XDB82U1室内机<br>销售额: ¥4,398 | 单价: ¥4,398</li><li style="margin-bottom: 5px;">🔸 KFR-35G/E1-1Plus室内机<br>销售额: ¥2,798 | 单价: ¥2,798</li><li style="margin-bottom: 5px;">🔸 KFR-48G/MDA81TU1室内机<br>销售额: ¥2,498 | 单价: ¥2,498</li><li style="margin-bottom: 5px;">🔸 KFR-35G/LAA81U1室内机总成<br>销售额: ¥1,998 | 单价: ¥1,998</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 天猫-海尔厨房场景旗舰店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 BCD-88GHTMZ0WV<br>销售额: ¥7,944 | 单价: ¥722</li><li style="margin-bottom: 5px;">🔸 EBW12227BKU1<br>销售额: ¥7,937 | 单价: ¥2,645</li><li style="margin-bottom: 5px;">🔸 EYBW16328GHU1<br>销售额: ¥7,298 | 单价: ¥3,649</li><li style="margin-bottom: 5px;">🔸 CXW-358-ET935UD<br>销售额: ¥5,567 | 单价: ¥1,855</li><li style="margin-bottom: 5px;">🔸 BCD-620WGHSSEDWV<br>销售额: ¥4,658 | 单价: ¥2,329</li><li style="margin-bottom: 5px;">🔸 JZT-Q2BE53(12T)<br>销售额: ¥2,808 | 单价: ¥1,404</li><li style="margin-bottom: 5px;">🔸 CXW-358-EC739UD<br>销售额: ¥2,489 | 单价: ¥2,489</li><li style="margin-bottom: 5px;">🔸 CXW-358-ET937UD<br>销售额: ¥2,289 | 单价: ¥2,289</li><li style="margin-bottom: 5px;">🔸 CXW-298-PL9FQ61<br>销售额: ¥1,589 | 单价: ¥1,589</li><li style="margin-bottom: 5px;">🔸 CXW-258-EC729UD<br>销售额: ¥1,419 | 单价: ¥1,419</li><li style="margin-bottom: 5px;">🔸 CXW-298-IQ92DPRO<br>销售额: ¥1,389 | 单价: ¥1,389</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 京东-卡萨帝洗烘套装旗舰店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 C1 HD10LZ6ELU1<br>销售额: ¥21,400 | 单价: ¥5,350</li><li style="margin-bottom: 5px;">🔸 CS HB22LWTLBU1<br>销售额: ¥14,999 | 单价: ¥14,999</li><li style="margin-bottom: 5px;">🔸 C1 D10LJ7ELU1<br>销售额: ¥4,399 | 单价: ¥4,399</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 京东-虹图全品类店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 KFR-35G/LKG81TU1室内机<br>销售额: ¥8,494 | 单价: ¥1,698</li><li style="margin-bottom: 5px;">🔸 BC-93LTMPA<br>销售额: ¥8,047 | 单价: ¥619</li><li style="margin-bottom: 5px;">🔸 KFRd-120Q/BBH13ST室内机<br>销售额: ¥6,968 | 单价: ¥6,968</li><li style="margin-bottom: 5px;">🔸 KFR-35G/MTB81TU1(高光白)室内机<br>销售额: ¥3,597 | 单价: ¥1,798</li><li style="margin-bottom: 5px;">🔸 BCD-88GHTMZ0WV<br>销售额: ¥2,181 | 单价: ¥727</li><li style="margin-bottom: 5px;">🔸 KFR-35G/LPA1-1室内机<br>销售额: ¥1,698 | 单价: ¥1,698</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 天猫-海尔洗嵌旗舰店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 G100578BD14LS<br>销售额: ¥11,547 | 单价: ¥3,849</li><li style="margin-bottom: 5px;">🔸 XQS100-BZ558SH<br>销售额: ¥3,269 | 单价: ¥3,269</li><li style="margin-bottom: 5px;">🔸 EG100BD176PRO<br>销售额: ¥2,199 | 单价: ¥2,199</li><li style="margin-bottom: 5px;">🔸 XQG100-H507S<br>销售额: ¥1,499 | 单价: ¥1,499</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 京东-统帅空调旗舰店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 KFR-35G/LKG81TU1室内机<br>销售额: ¥8,594 | 单价: ¥1,718</li><li style="margin-bottom: 5px;">🔸 KFR-48G/MDA81TU1室内机<br>销售额: ¥4,997 | 单价: ¥2,498</li><li style="margin-bottom: 5px;">🔸 KFR-50L/LA1-1室内机<br>销售额: ¥3,698 | 单价: ¥3,698</li><li style="margin-bottom: 5px;">🔸 KFR-35G/LPA1-1室内机<br>销售额: ¥1,698 | 单价: ¥1,698</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 淘宝-众汇企业店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 KFR-72L/XDB82U1室内机<br>销售额: ¥8,597 | 单价: ¥4,298</li><li style="margin-bottom: 5px;">🔸 KFR-35G/LPA1-1室内机<br>销售额: ¥8,494 | 单价: ¥1,698</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 京东-卡萨帝大愉专卖店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 BCD-600WGCFDM4DBU1<br>销售额: ¥14,999 | 单价: ¥14,999</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 京东-海尔空调店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 KFRd-120L/AF82内机<br>销售额: ¥7,041 | 单价: ¥7,041</li><li style="margin-bottom: 5px;">🔸 KFRd-120Q/TD82T室内机<br>销售额: ¥6,898 | 单价: ¥6,898</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 京东-海尔全屋用水旗舰店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 KF75/200-NE7-U1(内机)<br>销售额: ¥3,279 | 单价: ¥3,279</li><li style="margin-bottom: 5px;">🔸 L1PB26-LC5(T)U1单机<br>销售额: ¥2,998 | 单价: ¥2,998</li><li style="margin-bottom: 5px;">🔸 L1PB20-LC5(T)U1单机<br>销售额: ¥2,698 | 单价: ¥2,698</li><li style="margin-bottom: 5px;">🔸 L1PB20-LC1(T)U1<br>销售额: ¥2,038 | 单价: ¥2,038</li><li style="margin-bottom: 5px;">🔸 EC8002H-PT5U1<br>销售额: ¥1,449 | 单价: ¥1,449</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 天猫-海尔空调店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 KFR-35G/LPA1-1室内机<br>销售额: ¥5,096 | 单价: ¥1,698</li><li style="margin-bottom: 5px;">🔸 BCD-539WGHTDEDSDU1<br>销售额: ¥3,199 | 单价: ¥3,199</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 抖音-海尔家居用品旗舰店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 BCD-486WGHFD1BG9U1<br>销售额: ¥6,600 | 单价: ¥3,300</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 京东-中央空调旗舰店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 KFRd-120Q/BBH13ST室内机<br>销售额: ¥5,798 | 单价: ¥5,798</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 天猫-喵速达电器旗舰店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 KFR-72L/LKB81TU1室内机<br>销售额: ¥4,098 | 单价: ¥4,098</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 天猫-线上分销</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 KFR-72L/XDB82U1室内机<br>销售额: ¥4,398 | 单价: ¥4,398</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 天猫-虹图全品类店喵住分销</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 BCD-509WGHFD7DS9U1<br>销售额: ¥4,299 | 单价: ¥4,299</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 天猫-海尔热水器专卖店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 L1PB26-LC5(T)U1单机<br>销售额: ¥2,998 | 单价: ¥2,998</li><li style="margin-bottom: 5px;">🔸 EC6002-PT5U1<br>销售额: ¥1,299 | 单价: ¥1,299</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 京东-家商用电器经营部</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 LTD-435WL9U1<br>销售额: ¥2,899 | 单价: ¥2,899</li></ul></div><div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><h4 style="margin-top: 0; color: #0056b3;">🏪 京东-海尔大愉晾衣架旗舰店</h4><ul style="margin-left: 20px; padding-left: 10px;"><li style="margin-bottom: 5px;">🔸 EG100BD176PRO<br>销售额: ¥2,288 | 单价: ¥2,288</li></ul></div>
+    </div>
+    <footer style="margin-top:2em;color:#888;font-size:0.9em;">自动生成 | Powered by EdgeOne Pages & 企业微信机器人</footer>
+</body>
+</html>
+    </div>
+</body>
+</html>
