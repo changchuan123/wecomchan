@@ -271,7 +271,7 @@ EDGEONE_PROJECT = "sales-report"  # EdgeOne Pages 项目名
 EDGEONE_TOKEN = "YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc="  # EdgeOne Pages API Token
 
 # Git部署配置
-GIT_REMOTE_URL = "https://github.com/weixiaogang/wecomchan.git"  # Git远程仓库URL
+GIT_REMOTE_URL = "https://github.com/changchuan123/wecomchan.git"  # Git远程仓库URL
 GIT_BRANCH = "master"  # Git分支名称
 GIT_USERNAME = "weixiaogang"  # Git用户名
 GIT_EMAIL = "weixiaogang@haierht.com"  # Git邮箱
