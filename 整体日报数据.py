@@ -32,6 +32,7 @@ import io
 import subprocess
 import pymysql
 import base64
+import threading
 
 # ========== Git部署相关函数定义 ==========
 def create_gitignore():
@@ -541,14 +542,15 @@ def send_wecomchan_segment(result):
         return False
 
 def _simple_verify_url(public_url):
-    """严格验证URL是否可访问"""
+    """智能验证URL是否可访问，包含CDN同步等待"""
     print(f"🔍 正在验证URL: {public_url}")
     
-    # 等待CDN同步，最多重试5次
-    for attempt in range(5):
+    # 第一阶段：快速检查（3次，每次等待5秒）
+    print("📡 第一阶段：快速检查CDN同步状态...")
+    for attempt in range(3):
         try:
-            time.sleep(3)  # 等待CDN同步
-            response = requests.head(public_url, timeout=15)
+            time.sleep(5)  # 等待CDN同步
+            response = requests.head(public_url, timeout=10)
             
             if response.status_code == 200:
                 print(f"✅ URL验证成功，文件可正常访问: {public_url}")
@@ -561,8 +563,101 @@ def _simple_verify_url(public_url):
         except Exception as verify_e:
             print(f"⚠️ 第{attempt+1}次验证异常: {verify_e}")
     
-    print(f"❌ URL验证失败，经过5次重试仍无法访问，不返回URL")
+    # 第二阶段：延长等待（5次，每次等待10秒）
+    print("⏳ 第二阶段：延长等待CDN同步...")
+    for attempt in range(5):
+        try:
+            time.sleep(10)  # 延长等待时间
+            response = requests.head(public_url, timeout=15)
+            
+            if response.status_code == 200:
+                print(f"✅ URL验证成功，文件可正常访问: {public_url}")
+                return public_url
+            elif response.status_code == 404:
+                print(f"⚠️ 第{attempt+1}次验证失败，文件不存在 (404)，继续等待...")
+            else:
+                print(f"⚠️ 第{attempt+1}次验证失败，状态码: {response.status_code}")
+                
+        except Exception as verify_e:
+            print(f"⚠️ 第{attempt+1}次验证异常: {verify_e}")
+    
+    # 第三阶段：最终检查（3次，每次等待15秒）
+    print("🔄 第三阶段：最终检查CDN同步...")
+    for attempt in range(3):
+        try:
+            time.sleep(15)  # 最长等待时间
+            response = requests.head(public_url, timeout=20)
+            
+            if response.status_code == 200:
+                print(f"✅ URL验证成功，文件可正常访问: {public_url}")
+                return public_url
+            elif response.status_code == 404:
+                print(f"⚠️ 第{attempt+1}次验证失败，文件不存在 (404)，最终等待...")
+            else:
+                print(f"⚠️ 第{attempt+1}次验证失败，状态码: {response.status_code}")
+                
+        except Exception as verify_e:
+            print(f"⚠️ 第{attempt+1}次验证异常: {verify_e}")
+    
+    print(f"❌ URL验证失败，经过11次重试仍无法访问")
+    print(f"💡 提示：CDN同步可能需要更长时间，请稍后手动访问: {public_url}")
     return None
+
+def send_realtime_url_notification(public_url, filename):
+    """发送实时URL推送通知"""
+    try:
+        # 构建通知消息
+        notification_msg = f"""🌐 实时URL推送通知
+
+📊 销售报告已生成并部署
+📁 文件名: {filename}
+🔗 访问地址: {public_url}
+
+⏰ 部署时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+💡 如果链接暂时无法访问，请稍后重试（CDN同步需要时间）
+
+📱 企业微信推送已完成
+🌐 Web报告已发布到云端"""
+        
+        print("\n" + "="*60)
+        print("🚀 实时URL推送通知")
+        print("="*60)
+        print(notification_msg)
+        print("="*60)
+        
+        # 发送到企业微信
+        _send_single_message(notification_msg)
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ 实时URL推送失败: {e}")
+        return False
+
+def monitor_url_availability(public_url, max_attempts=30):
+    """监控URL可用性，实时推送状态"""
+    print(f"🔍 开始监控URL可用性: {public_url}")
+    
+    for attempt in range(max_attempts):
+        try:
+            time.sleep(10)  # 每10秒检查一次
+            response = requests.head(public_url, timeout=10)
+            
+            if response.status_code == 200:
+                success_msg = f"✅ URL已可用！访问地址: {public_url}"
+                print(success_msg)
+                _send_single_message(success_msg)
+                return True
+            else:
+                print(f"⏳ 第{attempt+1}次检查: 状态码 {response.status_code}，继续等待...")
+                
+        except Exception as e:
+            print(f"⏳ 第{attempt+1}次检查: 连接异常，继续等待... ({e})")
+    
+    timeout_msg = f"⏰ URL监控超时，请手动访问: {public_url}"
+    print(timeout_msg)
+    _send_single_message(timeout_msg)
+    return False
 
 def upload_html_and_get_url(filename, html_content):
     """通过EdgeOne Pages部署HTML内容（影刀环境优化版）"""
@@ -606,7 +701,16 @@ def upload_html_and_get_url(filename, html_content):
             print(f"🔗 构建URL: {public_url}")
             
             # 验证URL是否可访问
-            return _simple_verify_url(public_url)
+            verified_url = _simple_verify_url(public_url)
+            
+            if verified_url:
+                print(f"✅ URL验证成功，立即可用: {verified_url}")
+                return verified_url
+            else:
+                # 即使CDN验证失败，也返回URL（可能稍后可用）
+                print(f"⚠️ CDN同步可能延迟，但URL已构建: {public_url}")
+                print(f"💡 建议稍后手动访问: {public_url}")
+                return public_url
         else:
             print("❌ 部署失败，不返回URL")
             return None
@@ -2537,6 +2641,19 @@ try:
 
     if public_url:
         print(f"✅ Web报告已发布: {public_url}")
+        
+        # 发送实时URL推送通知
+        send_realtime_url_notification(public_url, filename)
+        
+        # 启动URL可用性监控（后台运行）
+        monitor_thread = threading.Thread(
+            target=monitor_url_availability, 
+            args=(public_url, 30),
+            daemon=True
+        )
+        monitor_thread.start()
+        print("🔍 URL可用性监控已启动（后台运行）")
+        
     else:
         print("⚠️ Web报告未能成功发布")
     print("✅ 微信版本发送完成（精简版）！")
