@@ -1,0 +1,6 @@
+{
+  "preserve_uploads": true,
+  "merge_strategy": "keep_both",
+  "backup_before_deploy": true,
+  "restore_after_deploy": true
+}

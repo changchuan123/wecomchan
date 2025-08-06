@@ -1,0 +1,393 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>销售分析报告</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        /* 报告标题 */
+        .report-title {
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0 0 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(255, 154, 158, 0.3);
+        }
+        
+        /* 数据来源 */
+        .data-source {
+            text-align: center;
+            font-size: 1.2em;
+            color: #7f8c8d;
+            margin: 0 0 30px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        /* 章节标题 */
+        .section-title {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 25px;
+            margin: 30px 0 20px 0;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 6px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* 主要数据项 */
+        .main-data-item {
+            font-size: 1.3em;
+            padding: 15px 25px;
+            margin: 12px 0;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-left: 6px solid #2ecc71;
+            border-radius: 0 10px 10px 0;
+            font-weight: 600;
+            color: #2c3e50;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        /* 最后数据项 */
+        .last-data-item {
+            font-size: 1.3em;
+            padding: 15px 25px;
+            margin: 12px 0 30px 0;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-left: 6px solid #e74c3c;
+            border-radius: 0 10px 10px 0;
+            font-weight: 600;
+            color: #2c3e50;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        /* 排行榜类别 */
+        .ranking-category {
+            font-size: 1.4em;
+            font-weight: bold;
+            padding: 18px 25px;
+            margin: 20px 0 10px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* 销售信息 */
+        .sales-info {
+            font-size: 1.2em;
+            padding: 12px 25px;
+            margin: 8px 0;
+            background: #e8f5e8;
+            border-left: 4px solid #27ae60;
+            border-radius: 0 8px 8px 0;
+            color: #2c3e50;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        }
+        
+        /* 渠道销售 */
+        .channel-sales {
+            font-size: 1.1em;
+            padding: 12px 25px;
+            margin: 8px 0 20px 0;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 0 8px 8px 0;
+            color: #856404;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        }
+        
+        /* 普通数据项 */
+        .data-item {
+            font-size: 1.1em;
+            padding: 10px 25px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-left: 3px solid #6c757d;
+            border-radius: 0 6px 6px 0;
+            color: #495057;
+        }
+        
+        /* 文本行 */
+        .text-line {
+            padding: 8px 25px;
+            margin: 5px 0;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+        
+        /* 换行 */
+        .line-break {
+            height: 15px;
+        }
+        
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 2px solid #ecf0f1;
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+            .report-title {
+                font-size: 2em;
+                padding: 15px;
+            }
+            .section-title {
+                font-size: 1.3em;
+                padding: 15px 20px;
+            }
+            .ranking-category {
+                font-size: 1.2em;
+                padding: 15px 20px;
+            }
+        }
+        
+        /* 数字高亮 */
+        .main-data-item, .sales-info, .channel-sales {
+            font-weight: 600;
+        }
+        
+        /* 表情符号增强 */
+        .report-title, .section-title, .ranking-category {
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+    <!DOCTYPE html>
+    <html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>销售分析报告</title>
+        
+    <style>
+        body {
+            font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+            font-size: 14px;
+            line-height: 1.4;
+            margin: 0;
+            padding: 20px;
+            background: #fff;
+            color: #333;
+        }
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin: 0 0 20px 0;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .section {
+            font-weight: bold;
+            margin: 15px 0 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .line {
+            margin: 3px 0;
+            white-space: pre-wrap;
+        }
+        @media (max-width: 600px) {
+            body { padding: 10px; font-size: 13px; }
+        }
+    </style>
+    
+    </head>
+    <body>
+        <div class="line">2025年7月销售分析报告</div>
+<br>
+<div class="line">本期时间：2025-07-01 至 2025-07-10</div>
+<div class="line">对比日期：2025-06-01 至 2025-06-10</div>
+<br>
+<div class="line">📊 2025-7月度销售分析报告</div>
+<div class="line">本期时间：2025-07-01至2025-07-10</div>
+<div class="line">对比日期：2025-06-01至2025-06-10</div>
+<br>
+<div class="section">💰 【整体销售概况】</div>
+<div class="line">├─ 总销售额: ¥4,177,730</div>
+<div class="line">├─ 总销量: 3,694件</div>
+<div class="line">├─ 单价: ¥1131</div>
+<div class="line">└─ 环比: 📈 100%</div>
+<br>
+<div class="line">==================================================</div>
+<br>
+<br>
+<div class="section">🏆 【品类销售排行榜】</div>
+<div class="line">├─ 📦 1. 空调</div>
+<div class="line">├─ 销售额: ¥3,528,404 (📈 100%)</div>
+<div class="line">├─ 销量: 3,168件 | 单价: ¥1114</div>
+<div class="line">└─ 京东¥1,321,815(📈 100%) | 拼多多¥1,212,185(📈 100%) | 天猫¥808,424(📈 100%) | 其他¥185,980(📈 100%)</div>
+<div class="line">├─ 🧊 2. 冰箱</div>
+<div class="line">├─ 销售额: ¥402,549 (📈 100%)</div>
+<div class="line">├─ 销量: 426件 | 单价: ¥945</div>
+<div class="line">└─ 京东¥226,046(📈 100%) | 天猫¥98,149(📈 100%) | 抖音¥49,990(📈 100%) | 拼多多¥28,364(📈 100%)</div>
+<div class="line">├─ 🧺 3. 洗衣机</div>
+<div class="line">├─ 销售额: ¥151,640 (📈 100%)</div>
+<div class="line">├─ 销量: 62件 | 单价: ¥2446</div>
+<div class="line">└─  | 天猫¥77,874(📈 100%)京东¥39,312(📈 100%) | 拼多多¥34,454(📈 100%)</div>
+<div class="line">├─ 🍽️ 4. 洗碗机</div>
+<div class="line">├─ 销售额: ¥79,966 (📈 100%)</div>
+<div class="line">├─ 销量: 26件 | 单价: ¥3076</div>
+<div class="line">└─ 京东¥47,734(📈 100%) | 天猫¥32,232(📈 100%)</div>
+<div class="line">├─ 🔥 5. 热水器</div>
+<div class="line">├─ 销售额: ¥10,176 (📈 100%)</div>
+<div class="line">├─ 销量: 8件 | 单价: ¥1272</div>
+<div class="line">└─ 京东¥8,100(📈 100%) | 天猫¥1,198(📈 100%) | 拼多多¥878(📈 100%)</div>
+<div class="line">├─ 🍽️ 6. 厨电</div>
+<div class="line">├─ 销售额: ¥4,318 (📈 100%)</div>
+<div class="line">├─ 销量: 2件 | 单价: ¥2159</div>
+<div class="line">└─ 天猫¥4,318(📈 100%)</div>
+<br>
+<div class="line">==================================================</div>
+<br>
+<br>
+<br>
+<div class="section">📊 【渠道销售分析】</div>
+<div class="line">🏪 1. 京东渠道: ¥1,643,007 (📈 100%) | 1,424件 | ¥1154/件</div>
+<div class="line">🏪 2. 拼多多渠道: ¥1,275,881 (📈 100%) | 1,356件 | ¥941/件</div>
+<div class="line">🏪 3. 天猫渠道: ¥1,022,872 (📈 100%) | 736件 | ¥1390/件</div>
+<div class="line">🏪 4. 其他渠道: ¥185,980 (📈 100%) | 168件 | ¥1107/件</div>
+<div class="line">🏪 5. 抖音渠道: ¥49,990 (📈 100%) | 10件 | ¥4999/件</div>
+<br>
+<div class="line">==================================================</div>
+<br>
+<br>
+<br>
+<div class="section">🏆 【TOP店铺排行】</div>
+<div class="line">🏪 1. 拼多多-海尔虹图专卖店: ¥1,275,881 (📈 100%) | 1,356件 | ¥941/件</div>
+<div class="line">🏪 2. 天猫-海尔空调套装旗舰店: ¥658,000 (📈 100%) | 502件 | ¥1311/件</div>
+<div class="line">🏪 3. 京东-海尔空调店大愉供销: ¥565,468 (📈 100%) | 456件 | ¥1240/件</div>
+<div class="line">🏪 4. 京东-海尔净省电空调旗舰店: ¥460,089 (📈 100%) | 334件 | ¥1378/件</div>
+<div class="line">🏪 5. 京东-统帅空调旗舰店: ¥217,724 (📈 100%) | 192件 | ¥1134/件</div>
+<div class="line">🏪 6. 淘宝-众汇企业店: ¥185,980 (📈 100%) | 168件 | ¥1107/件</div>
+<div class="line">🏪 7. 京东-海尔空调店: ¥150,988 (📈 100%) | 164件 | ¥921/件</div>
+<div class="line">🏪 8. 京东-虹图全品类店: ¥116,082 (📈 100%) | 172件 | ¥675/件</div>
+<div class="line">🏪 9. 天猫-海尔空调店: ¥101,450 (📈 100%) | 98件 | ¥1035/件</div>
+<div class="line">🏪 10. 京东-海尔洗嵌旗舰店: ¥95,438 (📈 100%) | 94件 | ¥1015/件</div>
+<br>
+<div class="line">==================================================</div>
+<br>
+<br>
+<div class="section">📦 【品类单品分析】</div>
+<div class="line">❄️ 空调单品TOP5：</div>
+<div class="line">1. KFR-35G/MCC83室内机: ¥973,243 (626台, 均价¥1555)</div>
+<div class="line">2. KFR-35G/LKG81TU1室内机: ¥435,484 (260台, 均价¥1675)</div>
+<div class="line">3. KFR-72G/PAA81U1室内机: ¥318,001 (98台, 均价¥3245)</div>
+<div class="line">4. KFR-35G/KJA81U1室内机: ¥135,531 (68台, 均价¥1993)</div>
+<div class="line">5. KFR-48G/E1-1室内机: ¥134,358 (44台, 均价¥3054)</div>
+<div class="line">🧊 冰箱单品TOP5：</div>
+<div class="line">1. BC-93LTMPA: ¥132,856 (222台, 均价¥598)</div>
+<div class="line">2. BCD-88GHTMZ0WV: ¥110,878 (154台, 均价¥720)</div>
+<div class="line">3. BCD-485WGHFD1BWLU1: ¥41,592 (8台, 均价¥5199)</div>
+<div class="line">4. BCD-600WGCFDM4DBU1: ¥27,200 (2台, 均价¥13600)</div>
+<div class="line">5. BCD-501WLHTD58B9U1: ¥24,392 (8台, 均价¥3049)</div>
+<div class="line">🧺 洗衣机单品TOP5：</div>
+<div class="line">1. EG100BD176PRO: ¥26,904 (12台, 均价¥2242)</div>
+<div class="line">2. XQG100-HBD1266: ¥21,590 (10台, 均价¥2159)</div>
+<div class="line">3. XQG100-BSDE598WU1: ¥15,996 (4台, 均价¥3999)</div>
+<div class="line">4. XQG100-LD58E: ¥15,592 (8台, 均价¥1949)</div>
+<div class="line">5. XQG100-HBSEG78A9U1: ¥11,198 (2台, 均价¥5599)</div>
+<div class="line">🍽️ 洗碗机单品TOP5：</div>
+<div class="line">1. EYBW152266BKU1: ¥28,388 (8台, 均价¥3548)</div>
+<div class="line">2. EYBW16586GHU1: ¥20,436 (6台, 均价¥3406)</div>
+<div class="line">3. EBW12227BKU1: ¥18,426 (8台, 均价¥2303)</div>
+<div class="line">4. EYBW16328GHU1: ¥12,716 (4台, 均价¥3179)</div>
+<div class="line">📦 热水器单品TOP5：</div>
+<div class="line">1. KF75/200-NE7-U1(内机): ¥8,100 (2台, 均价¥4050)</div>
+<div class="line">2. ES11U: ¥1,198 (2台, 均价¥599)</div>
+<div class="line">3. LES40H-LK5(1): ¥878 (2台, 均价¥439)</div>
+<div class="line">4. KF75/200-NE7(外机): ¥0 (2台, 均价¥0)</div>
+<div class="line">🍽️ 厨电单品TOP5：</div>
+<div class="line">1. CXW-358-EC759UD: ¥4,318 (2台, 均价¥2159)</div>
+<br>
+<div class="line">==================================================</div>
+<br>
+<br>
+<br>
+<div class="section">⚠️ 【重点关注：同比增长与下滑分析】</div>
+<br>
+<div class="section">📈 【高速增长表现】</div>
+<div class="line">🌟 渠道增长排行：</div>
+<div class="line">🛍️ 京东: +100.0% (¥0→¥1,643,007)</div>
+<div class="line">🛒 拼多多: +100.0% (¥0→¥1,275,881)</div>
+<div class="line">🐱 天猫: +100.0% (¥0→¥1,022,872)</div>
+<div class="line">🏪 其他: +100.0% (¥0→¥185,980)</div>
+<div class="line">🎵 抖音: +100.0% (¥0→¥49,990)</div>
+<br>
+<div class="line">🏆 店铺增长排行：</div>
+<div class="line">🚀 京东-卡萨帝原石冰箱旗舰店</div>
+<div class="line">增长率: +100.0% (¥0→¥17,998)</div>
+<div class="line">🚀 京东-海尔净省电空调旗舰店</div>
+<div class="line">增长率: +100.0% (¥0→¥460,089)</div>
+<div class="line">🚀 京东-海尔大愉晾衣架旗舰店</div>
+<div class="line">增长率: +100.0% (¥0→¥16,220)</div>
+<div class="line">🚀 京东-海尔洗嵌旗舰店</div>
+<div class="line">增长率: +100.0% (¥0→¥95,438)</div>
+<div class="line">🚀 京东-海尔空调店</div>
+<div class="line">增长率: +100.0% (¥0→¥150,988)</div>
+<br>
+<div class="section">📉 【需要关注的下滑情况】</div>
+<div class="line">⚠️ 渠道下滑警报：</div>
+<div class="line">暂无下滑渠道</div>
+<br>
+<div class="line">🔻 店铺下滑预警：</div>
+<div class="line">暂无显著下滑店铺</div>
+<br>
+<div class="section">🔍 【品类变化趋势】</div>
+<div class="line">❄️ 空调: 📈 +100.0% (¥0→¥3,528,404)</div>
+<div class="line">🧊 冰箱: 📈 +100.0% (¥0→¥402,549)</div>
+<div class="line">🧺 洗衣机: 📈 +100.0% (¥0→¥151,640)</div>
+<div class="line">🍽️ 洗碗机: 📈 +100.0% (¥0→¥79,966)</div>
+<div class="line">📦 热水器: 📈 +100.0% (¥0→¥10,176)</div>
+<div class="line">🍽️ 厨电: 📈 +100.0% (¥0→¥4,318)</div>
+<br>
+<div class="line">生成时间：2025-07-10 13:21:38</div>
+<br>
+    </body>
+    </html>
+    </div>
+        <div class="footer">
+            <p>📅 报告生成时间: 2025年07月10日 13:21:38</p>
+            <p>🔧 系统版本: WecomChan销售分析系统 v2.0</p>
+        </div>
+    </div>
+</body>
+</html>

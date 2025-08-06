@@ -68,5 +68,10 @@
     }
   ],
   "trailingSlash": true,
-  "cleanUrls": true
+  "cleanUrls": true,
+  "deployment": {
+    "strategy": "merge",
+    "preserveUploads": true,
+    "conflictResolution": "keep-both"
+  }
 }
