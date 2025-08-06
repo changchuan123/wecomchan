@@ -13,7 +13,7 @@
 本项目使用Git推送方式自动部署到EdgeOne Pages。
 
 ### 配置要求
-- Git远程仓库: https://github.com/weixiaogang/wecomchan.git
+- Git远程仓库: https://github.com/changchuan123/wecomchan.git
 - 分支: master
 - 用户名: weixiaogang
 - 邮箱: weixiaogang@haierht.com
