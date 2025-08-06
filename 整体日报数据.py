@@ -86,9 +86,9 @@ logs/
 *.xls
 data/
 
-# Keep only HTML reports
-reports/*.html
-!reports/index.html
+# Allow HTML reports to be tracked
+# reports/*.html
+# !reports/index.html
 """
         
         with open('.gitignore', 'w', encoding='utf-8') as f:
@@ -98,7 +98,7 @@ reports/*.html
         return True
         
     except Exception as e:
-        print(f"❌ 创建.gitignore失败: {e}")
+        print(f"❌ 创建.gitignore文件失败: {e}")
         return False
 
 def create_readme():
