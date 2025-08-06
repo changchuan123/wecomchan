@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>卡萨帝渠道日报（2025-07-28）</title>
+    <style>
+        body { 
+            font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; 
+            background: #f8f9fa; 
+            color: #222; 
+            margin: 0; 
+            padding: 0.5em; 
+            max-width: 900px; 
+            margin-left:auto; 
+            margin-right:auto; 
+            text-align: left; 
+            font-size: 10.5pt; 
+        }
+        h1, h2, h3 { 
+            color: #0056b3; 
+            text-align: left; 
+            font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; 
+            font-size: 14pt; 
+            font-weight: bold; 
+            margin: 0.3em 0; 
+        }
+        pre, code { 
+            background: #f3f3f3; 
+            padding: 0.5em; 
+            border-radius: 4px; 
+            white-space: pre-wrap; 
+            word-break: break-all; 
+            text-align: left; 
+            font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; 
+            margin: 0.3em 0; 
+        }
+        .growth-positive { 
+            background-color: #e6f4ea !important; 
+        }
+        .growth-negative { 
+            background-color: #fbeaea !important; 
+        }
+        .section { 
+            margin-bottom: 2em; 
+            text-align: left; 
+        }
+        .highlight { 
+            color: #d63384; 
+            font-weight: bold; 
+        }
+        .emoji { 
+            font-size: 1.2em; 
+        }
+        .shop-item {
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .shop-item.growth-row {
+            background: #d4edda;
+            border-left: 3px solid #28a745;
+        }
+        .shop-item.decline-row {
+            background: #f8d7da;
+            border-left: 3px solid #dc3545;
+        }
+        .shop-item.neutral-row {
+            background: #e2e3e5;
+            border-left: 3px solid #6c757d;
+        }
+        .product-name {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        .product-stats {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .category-item {
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .category-item.growth-row {
+            background: #d4edda;
+            border-left: 3px solid #28a745;
+        }
+        .category-item.decline-row {
+            background: #f8d7da;
+            border-left: 3px solid #dc3545;
+        }
+        .category-item.neutral-row {
+            background: #e2e3e5;
+            border-left: 3px solid #6c757d;
+        }
+        .metric-value {
+            font-weight: bold;
+            color: #0056b3;
+        }
+        .metric-change {
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .change-positive {
+            background: #d4edda;
+            color: #155724;
+        }
+        .change-negative {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .change-neutral {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        @media (max-width: 600px) {
+            body { padding: 0.5em; font-size: 10.5pt; }
+            h1 { font-size: 14pt; }
+        }
+        .left-align { text-align: left !important; }
+        .report-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .report-date {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            color: #0056b3;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .metric-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+        .metric-label {
+            font-weight: bold;
+            color: #495057;
+            min-width: 120px;
+        }
+        .metric-value {
+            font-weight: bold;
+            color: #0056b3;
+            margin: 0 15px;
+        }
+        .metric-change {
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            margin-left: auto;
+        }
+        .fenxiao-info {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            margin-top: 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #6c757d;
+            border-left: 3px solid #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+    <h1>🏢 卡萨帝渠道日报</h1>
+    <p class="report-date">📅 数据日期: 2025-07-28</p>
+    
+    <div class="section">
+        <h2>📊 整体数据</h2>
+        <div class="metric-row">
+            <span class="metric-label">总销售额:</span>
+            <span class="metric-value">¥13,800</span>
+            <span class="metric-change change-positive">+100%</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">总销量:</span>
+            <span class="metric-value">3件</span>
+            <span class="metric-change change-positive">+200%</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">平均单价:</span>
+            <span class="metric-value">¥4,600</span>
+            <span class="metric-change change-negative">-33%</span>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>📋 品类明细</h2>
+        <div class="category-item growth-row">
+            <div class="product-name">洗衣机</div>
+            <div class="product-stats">¥8,000 | 2件 | ¥4,000/件（对比:¥6,900，环比:+15%）</div>
+        </div>
+        <div class="category-item growth-row">
+            <div class="product-name">冷柜</div>
+            <div class="product-stats">¥5,800 | 1件 | ¥5,800/件（对比:¥0，环比:+100%）</div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🏪 店铺数据</h2>
+        <div class="shop-item growth-row">
+            <div class="product-name">京东-卡萨帝洗烘套装旗舰店</div>
+            <div class="product-stats">¥8,000 | 2件（对比:¥6,900，环比:+15%）</div>
+        </div>
+        <div class="shop-item growth-row">
+            <div class="product-name">京东-卡萨帝原石冰箱旗舰店</div>
+            <div class="product-stats">¥5,800 | 1件（对比:¥0，环比:+100%）</div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🏆 TOP 单品</h2>
+        <div class="shop-item growth-row">
+            <div class="product-name">JC-450WGHU1</div>
+            <div class="product-stats">¥5,800 | 1件 | ¥5,800/件（对比:¥0，环比:+100%）</div>
+        </div>
+        <div class="shop-item growth-row">
+            <div class="product-name">CE B10LWDWAU1</div>
+            <div class="product-stats">¥4,000 | 1件 | ¥4,000/件（对比:¥0，环比:+100%）</div>
+        </div>
+        <div class="shop-item growth-row">
+            <div class="product-name">CG S10TGWAU1</div>
+            <div class="product-stats">¥4,000 | 1件 | ¥4,000/件（对比:¥0，环比:+100%）</div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🏪 店铺单品明细</h2>
+        <div class="shop-item">
+            <h3 style="color: #0056b3; margin-bottom: 15px;">📍 京东-卡萨帝洗烘套装旗舰店</h3>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">CE B10LWDWAU1</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥4,000 <span class="metric-change change-positive">+100%</span> | 
+                    销量: 1件 <span class="metric-change change-positive">+100%</span> | 
+                    单价: ¥4,000/件
+                </div>
+            </div>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">CG S10TGWAU1</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥4,000 <span class="metric-change change-positive">+100%</span> | 
+                    销量: 1件 <span class="metric-change change-positive">+100%</span> | 
+                    单价: ¥4,000/件
+                </div>
+            </div>
+        </div>
+        <div class="shop-item">
+            <h3 style="color: #0056b3; margin-bottom: 15px;">📍 京东-卡萨帝原石冰箱旗舰店</h3>
+            <div class="growth-row" style="margin: 8px 0; padding: 10px; border-radius: 5px; border-left: 3px solid #ccc;">
+                <div style="font-weight: bold; color: #495057;">JC-450WGHU1</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                    销售额: ¥5,800 <span class="metric-change change-positive">+100%</span> | 
+                    销量: 1件 <span class="metric-change change-positive">+100%</span> | 
+                    单价: ¥5,800/件
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <footer style="margin-top:2em;color:#888;font-size:0.9em;">自动生成 | Powered by EdgeOne Pages & 企业微信机器人</footer>
+</body>
+</html>

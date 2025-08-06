@@ -48,3 +48,10 @@ data/
 # Allow HTML reports to be tracked
 # reports/*.html
 # !reports/index.html
+
+# Tencent Cloud EdgeOne
+.env
+.edgeone/*
+!.edgeone/project.json
+.tef_dist/*
+  
