@@ -1,0 +1,239 @@
+
+        <div style="margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+            <h3 style="margin-bottom: 15px; color: #333;">📈 本月销售走势</h3>
+            
+            <!-- 筛选控件 -->
+            <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <label style="font-weight: bold; color: #555;">品类:</label>
+                    <select id="categoryFilter" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px; background: white;">
+                        <option value="">全部品类</option>
+                        <option value="测试品类0">📦 测试品类0</option>
+<option value="测试品类1">🏠 测试品类1</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <label style="font-weight: bold; color: #555;">店铺:</label>
+                    <select id="shopFilter" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px; background: white;">
+                        <option value="">全部店铺</option>
+                        <option value="测试店铺0">测试店铺0</option>
+<option value="测试店铺1">测试店铺1</option>
+<option value="测试店铺2">测试店铺2</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <label style="font-weight: bold; color: #555;">单品:</label>
+                    <select id="productFilter" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px; background: white;">
+                        <option value="">全部单品</option>
+                        <option value="测试单品0">测试单品0</option>
+<option value="测试单品1">测试单品1</option>
+<option value="测试单品2">测试单品2</option>
+<option value="测试单品3">测试单品3</option>
+<option value="测试单品4">测试单品4</option>
+<option value="测试单品5">测试单品5</option>
+<option value="测试单品6">测试单品6</option>
+<option value="测试单品7">测试单品7</option>
+<option value="测试单品8">测试单品8</option>
+<option value="测试单品9">测试单品9</option>
+                    </select>
+                </div>
+                
+                <button onclick="resetFilters()" style="padding: 5px 10px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">重置筛选</button>
+            </div>
+            
+            <!-- 图表容器 -->
+            <div style="position: relative; height: 400px; margin-bottom: 20px;">
+                <canvas id="salesTrendChart" style="width: 100%; height: 100%;"></canvas>
+            </div>
+            
+            <!-- 数据表格 -->
+            <div style="margin-top: 20px;">
+                <h4 style="margin-bottom: 10px; color: #333;">📊 详细数据</h4>
+                <div id="dataTable" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px;">
+                    <table id="trendDataTable" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                        <thead style="background: #f8f9fa; position: sticky; top: 0;">
+                            <tr>
+                                <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">日期</th>
+                                <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">销售额 (¥)</th>
+                                <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">销售数量</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trendDataTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+        // 销售趋势图数据
+        const trendData = {
+            dates: ['2025-08-01', '2025-08-02', '2025-08-03', '2025-08-04', '2025-08-05'],
+            amounts: [0.0, 52945.0, 48094.0, 59279.0, 37679.0],
+            quantities: [0.0, 45.0, 43.0, 57.0, 38.0],
+            categories: ['测试品类0', '测试品类1'],
+            shops: ['测试店铺0', '测试店铺1', '测试店铺2'],
+            products: ['测试单品0', '测试单品1', '测试单品2', '测试单品3', '测试单品4', '测试单品5', '测试单品6', '测试单品7', '测试单品8', '测试单品9']
+        };
+        
+        // 图表配置
+        let salesTrendChart;
+        
+        function initTrendChart() {
+            const trendCtx = document.getElementById('salesTrendChart');
+            if (trendCtx) {
+                // 销毁现有图表
+                if (salesTrendChart) {
+                    salesTrendChart.destroy();
+                }
+                
+                // 获取筛选条件
+                const selectedCategory = document.getElementById('categoryFilter').value;
+                const selectedShop = document.getElementById('shopFilter').value;
+                const selectedProduct = document.getElementById('productFilter').value;
+                
+                // 准备图表数据
+                let chartDates = trendData.dates;
+                let chartAmounts = trendData.amounts;
+                let chartQuantities = trendData.quantities;
+                
+                // 如果有筛选条件，需要重新计算数据
+                if (selectedCategory || selectedShop || selectedProduct) {
+                    // 这里可以添加筛选逻辑，暂时使用全部数据
+                    console.log('筛选条件:', {category: selectedCategory, shop: selectedShop, product: selectedProduct});
+                }
+                
+                // 更新数据表格
+                updateDataTable(chartDates, chartAmounts, chartQuantities);
+                
+                // 创建图表
+                salesTrendChart = new Chart(trendCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: chartDates,
+                        datasets: [
+                            {
+                                label: '销售额 (¥)',
+                                data: chartAmounts,
+                                type: 'bar',
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: '销售数量',
+                                data: chartQuantities,
+                                type: 'line',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderWidth: 2,
+                                fill: false,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '销售趋势分析'
+                            },
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        if (context.datasetIndex === 0) {
+                                            return context.dataset.label + ': ¥' + context.parsed.y.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                        } else {
+                                            return context.dataset.label + ': ' + context.parsed.y + '件';
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                display: true,
+                                title: {
+                                    display: true,
+                                    text: '日期'
+                                }
+                            },
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: '销售额 (¥)'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '¥' + value.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                    }
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: '销售数量'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        function updateDataTable(dates, amounts, quantities) {
+            const tbody = document.getElementById('trendDataTableBody');
+            tbody.innerHTML = '';
+            
+            for (let i = 0; i < dates.length; i++) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${dates[i]}</td>
+                    <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">¥${amounts[i].toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${quantities[i]}件</td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+        
+        function resetFilters() {
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('shopFilter').value = '';
+            document.getElementById('productFilter').value = '';
+            initTrendChart();
+        }
+        
+        // 事件监听器
+        document.getElementById('categoryFilter').addEventListener('change', initTrendChart);
+        document.getElementById('shopFilter').addEventListener('change', initTrendChart);
+        document.getElementById('productFilter').addEventListener('change', initTrendChart);
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initTrendChart, 100);
+        });
+        </script>
+        

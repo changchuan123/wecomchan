@@ -1,0 +1,937 @@
+{
+  "analysis_time": "2025-08-05 17:16:39",
+  "wdt_database": {
+    "table": "stock",
+    "columns": [
+      {
+        "name": "spec_id",
+        "type": "int",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "goods_no",
+        "type": "varchar(40)",
+        "null": "YES",
+        "key": "MUL",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "brand_no",
+        "type": "varchar(32)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "brand_name",
+        "type": "varchar(64)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "goods_name",
+        "type": "varchar(255)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "spec_no",
+        "type": "varchar(40)",
+        "null": "YES",
+        "key": "MUL",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "spec_name",
+        "type": "varchar(100)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "spec_code",
+        "type": "varchar(40)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "barcode",
+        "type": "varchar(50)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "warehouse_id",
+        "type": "int",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "warehouse_no",
+        "type": "varchar(40)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "warehouse_name",
+        "type": "varchar(64)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "warehouse_type",
+        "type": "tinyint",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "stock_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "lock_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "rec_id",
+        "type": "bigint",
+        "null": "NO",
+        "key": "PRI",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "created",
+        "type": "datetime",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "spec_wh_no2",
+        "type": "varchar(40)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "wms_reserve_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "status",
+        "type": "tinyint",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "stock_today_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "stock_diff",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "Unit",
+        "type": "int",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "safe_stock1",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "safe_stock2",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "safe_stock3",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "alarm_type",
+        "type": "tinyint",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "alarm_days",
+        "type": "int",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "alarm_days1",
+        "type": "int",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "sales_rate_type",
+        "type": "tinyint",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "sales_rate",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "sales_rate_cycle  ",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "sales_fixrate",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "flag_id",
+        "type": "int",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "default_position_id",
+        "type": "int",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "last_position_id",
+        "type": "int",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "last_pd_time",
+        "type": "varchar(255)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "last_inout_time",
+        "type": "varchar(255)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "last_sales_time",
+        "type": "varchar(255)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "Remark",
+        "type": "varchar(500)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "unpay_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "subscribe_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "order_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "sending_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "purchase_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "transfer_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "to_transfer_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "to_purchase_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "purchase_arrive_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "return_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "return_exch_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "return_onway_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "refund_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "process_onway_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "refund_onway_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "part_paid_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "neg_stockout_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "today_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "safe_stock",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "spec_wh_no",
+        "type": "varchar(40)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "wms_sync_stock",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "wms_preempty_stock",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "wms_stock_diff",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "wms_sync_time",
+        "type": "varchar(255)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "cost_price",
+        "type": "decimal(13,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "weight",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "img_url",
+        "type": "varchar(1024)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "modified",
+        "type": "datetime",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "sales_rate_cycle",
+        "type": "varchar(255)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      },
+      {
+        "name": "avaliable_num",
+        "type": "decimal(19,4)",
+        "null": "YES",
+        "key": "",
+        "default": null,
+        "extra": ""
+      }
+    ],
+    "sample_data": [
+      [
+        "其他",
+        "海尔",
+        "运费",
+        "-4649.0000",
+        "自流转"
+      ],
+      [
+        "其他",
+        "海尔",
+        "运费",
+        "460.0000",
+        "样品仓"
+      ],
+      [
+        "其他",
+        "海尔",
+        "运费",
+        "35.0000",
+        "不良品仓"
+      ],
+      [
+        "其他",
+        "海尔",
+        "运费",
+        "0.0000",
+        "礼品仓"
+      ],
+      [
+        "其他",
+        "海尔",
+        "运费",
+        "9751.0000",
+        "外部仓"
+      ]
+    ]
+  },
+  "date_database": null,
+  "specific_tables": {
+    "jinrongstore": {
+      "columns": [
+        "id",
+        "订单编号",
+        "收货地址",
+        "库位",
+        "是否套餐",
+        "套餐编号",
+        "型号",
+        "数量",
+        "已赎货",
+        "未赎货",
+        "价格",
+        "订单时间",
+        "订单金额",
+        "订单状态",
+        "账户ID",
+        "_filepath",
+        "import_time"
+      ],
+      "key_columns": [
+        "型号",
+        "数量"
+      ],
+      "samples": [
+        [
+          1,
+          "QFD666737012",
+          "上海大愉电器设备有限公司",
+          "上海",
+          "否",
+          null,
+          "EYBW152266BKU1",
+          "423",
+          "278",
+          "0",
+          "3300",
+          "2024-09-12",
+          "1395900",
+          "可赎货",
+          "8800018013",
+          null,
+          "2025-08-05 16:15:15"
+        ],
+        [
+          2,
+          "QFO686533878",
+          "上海虹图机电有限公司",
+          "上海",
+          "否",
+          null,
+          "CG S10BYTFBHKU1",
+          "20",
+          "0",
+          "0",
+          "7999.2",
+          "2025-08-05",
+          "159984",
+          "可赎货",
+          "8800138937",
+          null,
+          "2025-08-05 16:15:15"
+        ]
+      ]
+    },
+    "rrsstore": {
+      "columns": [
+        "id",
+        "仓库中心编码-名称",
+        "中心名称",
+        "商品编码",
+        "商品名称",
+        "海尔提货单号",
+        "巨商汇单号",
+        "工程版号",
+        "提单行号",
+        "可用库存数量",
+        "现有库存数量",
+        "计费数量",
+        "冻结数量",
+        "总体积",
+        "质量状态",
+        "品类描述",
+        "入库单号",
+        "入库行号",
+        "入库数量",
+        "入库类型",
+        "入库时间",
+        "库龄",
+        "原始库龄",
+        "货主编码",
+        "货主名称",
+        "套机编码",
+        "社会化物料编码",
+        "社会化物料名称",
+        "库存备注",
+        "工程地址",
+        "账户ID",
+        "_filepath",
+        "import_time"
+      ],
+      "key_columns": [
+        "商品名称",
+        "商品编码"
+      ],
+      "samples": [
+        [
+          1,
+          "C12103-石家庄",
+          "HBJW",
+          "CB0MU6000",
+          "JQB80-M296",
+          "8929026099",
+          null,
+          null,
+          "10",
+          null,
+          "1",
+          null,
+          null,
+          "0.34",
+          "正品",
+          "波轮",
+          "8929026099RK001",
+          null,
+          "1",
+          "1-事前",
+          "2023-02-13",
+          "904",
+          "904",
+          "8800018013",
+          "上海大愉电器设备有限公司",
+          null,
+          null,
+          null,
+          null,
+          null,
+          "8800018013",
+          null,
+          "2025-08-05 16:15:15"
+        ],
+        [
+          2,
+          "C12803-济宁",
+          "JNJW",
+          "AAC3PL000",
+          "KFR-35G/LKB81TU1室内机总成",
+          "8933938595",
+          null,
+          null,
+          "10",
+          "1",
+          "1",
+          "1",
+          null,
+          "0.1",
+          "正品",
+          "家用空调",
+          "8933938595RK001",
+          null,
+          "2",
+          "1-事前",
+          "2025-08-05",
+          "0",
+          "759",
+          "8800018013",
+          "上海大愉电器设备有限公司",
+          "AAC3PM000",
+          null,
+          null,
+          null,
+          null,
+          "8800018013",
+          null,
+          "2025-08-05 16:15:15"
+        ]
+      ]
+    },
+    "tongstore": {
+      "columns": [
+        "id",
+        "库存报表",
+        "__EMPTY",
+        "__EMPTY_1",
+        "__EMPTY_2",
+        "__EMPTY_3",
+        "__EMPTY_4",
+        "__EMPTY_5",
+        "__EMPTY_6",
+        "__EMPTY_7",
+        "__EMPTY_8",
+        "__EMPTY_9",
+        "__EMPTY_10",
+        "__EMPTY_11",
+        "__EMPTY_12",
+        "账户ID",
+        "_filepath",
+        "import_time"
+      ],
+      "key_columns": [],
+      "samples": [
+        [
+          1,
+          "商品编码",
+          "商品名称",
+          "总数量",
+          "总成本",
+          "总可销",
+          "零售可销",
+          "分销可销",
+          "单位成本",
+          "可出",
+          "正品",
+          "占用",
+          "在库条码",
+          "品牌",
+          "产品组",
+          "8800387808",
+          null,
+          "2025-08-05 16:15:15"
+        ],
+        [
+          2,
+          "合计",
+          "-",
+          "21935",
+          "31737950.72",
+          "21443",
+          "21443",
+          "18850",
+          "-",
+          "21911",
+          "21857",
+          "466",
+          "12881",
+          "-",
+          "-",
+          "8800387808",
+          null,
+          "2025-08-05 16:15:15"
+        ]
+      ]
+    },
+    "jdstore": {
+      "columns": [
+        "id",
+        "序号",
+        "仓库名称",
+        "仓库编码",
+        "事业部商品编码",
+        "事业部商品名称",
+        "商家商品编码",
+        "商家商品标识",
+        "库存状态",
+        "商品等级编码",
+        "库存类型",
+        "总库存",
+        "可用库存",
+        "事业部编码",
+        "事业部名称",
+        "计量单位",
+        "款号",
+        "颜色",
+        "尺寸",
+        "季节",
+        "年份",
+        "商家商品三级分类",
+        "商品状态",
+        "_filepath",
+        "import_time"
+      ],
+      "key_columns": [],
+      "samples": [
+        [
+          1,
+          "1",
+          "广州大件平台仓1号库-CHN",
+          "110009251",
+          "EMG4418725750627",
+          "海尔冰箱BCD-510WGHFD1BNXU1",
+          "250408011",
+          "B70VC6000",
+          "良品",
+          "100",
+          "可用",
+          "71",
+          "70",
+          "EBU4418046537777",
+          "上海虹图机电有限公司",
+          "提",
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "启用",
+          null,
+          "2025-08-05 16:15:14"
+        ],
+        [
+          2,
+          "2",
+          "上海大件平台仓1号库-CHN",
+          "110008908",
+          "EMG4418725750627",
+          "海尔冰箱BCD-510WGHFD1BNXU1",
+          "250408011",
+          "B70VC6000",
+          "良品",
+          "100",
+          "可用",
+          "62",
+          "59",
+          "EBU4418046537777",
+          "上海虹图机电有限公司",
+          "提",
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "启用",
+          null,
+          "2025-08-05 16:15:14"
+        ]
+      ]
+    }
+  }
+}

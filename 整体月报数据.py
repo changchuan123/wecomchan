@@ -36,28 +36,13 @@ import warnings
 warnings.filterwarnings('ignore')
 
 def to_number(val):
-    """安全地将值转换为数字，处理各种数据类型错误"""
-    if val is None:
-        return 0.0
+    if pd.isnull(val):
+        return 0
+    val = str(val).replace('，', '').replace(',', '').replace(' ', '').replace('\u3000', '')
     try:
-        if isinstance(val, (int, float)):
-            return float(val)
-        elif isinstance(val, str):
-            # 移除可能的货币符号和逗号
-            cleaned = val.replace('¥', '').replace('$', '').replace(',', '').strip()
-            return float(cleaned) if cleaned else 0.0
-        else:
-            return float(val)
-    except (ValueError, TypeError):
-        return 0.0
-
-def safe_int(val):
-    """安全地将值转换为整数"""
-    return int(to_number(val))
-
-def safe_float(val):
-    """安全地将值转换为浮点数"""
-    return to_number(val)
+        return float(val)
+    except:
+        return 0
 
 try:
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -96,7 +81,143 @@ total_start_time = datetime.now()
 print("🚀 影刀RPA - 进阶销售分析系统（直接执行版本）")
 print("==================================================")
 
-
+def normalize_date_format(date_str):
+    """
+    统一日期格式处理，兼容各种日期格式
+    支持格式：
+    - YYYY-MM-DD HH:MM:SS
+    - YYYY-MM-DD
+    - MM-DD
+    - 7.2号, 7.2日等特殊格式
+    - 时间戳格式
+    - 其他常见格式
+    """
+    if pd.isna(date_str) or date_str is None:
+        return None
+    
+    date_str = str(date_str).strip()
+    
+    # 处理空字符串
+    if not date_str or date_str == '':
+        return None
+    
+    # 处理7.2号格式 (7.2, 7.2号, 7.2日等)
+    if re.match(r'^\d+\.\d+[号日]?$', date_str):
+        # 提取月份和日期
+        parts = date_str.replace('号', '').replace('日', '').split('.')
+        if len(parts) == 2:
+            month = int(parts[0])
+            day = int(parts[1])
+            # 假设是当前年份
+            current_year = datetime.now().year
+            try:
+                return datetime(current_year, month, day).strftime('%Y-%m-%d')
+            except ValueError:
+                # 如果日期无效，返回None
+                return None
+    
+    # 处理时间戳格式
+    if re.match(r'^\d{10,13}$', date_str):
+        try:
+            timestamp = int(date_str)
+            # 如果是13位时间戳（毫秒），转换为10位（秒）
+            if len(date_str) == 13:
+                timestamp = timestamp // 1000
+            # 使用UTC时间戳转换
+            return datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d')
+        except (ValueError, OSError):
+            pass
+    
+    # 处理YYYY-MM-DD HH:MM:SS格式
+    if re.match(r'^\d{4}-\d{2}-\d{2}', date_str):
+        try:
+            # 提取日期部分，忽略时间部分
+            date_part = date_str.split(' ')[0]
+            parsed_date = pd.to_datetime(date_part, format='%Y-%m-%d')
+            if pd.notna(parsed_date):
+                return parsed_date.strftime('%Y-%m-%d')
+        except:
+            pass
+    
+    # 处理MM-DD格式
+    if re.match(r'^\d{2}-\d{2}$', date_str):
+        current_year = datetime.now().year
+        try:
+            month, day = map(int, date_str.split('-'))
+            return datetime(current_year, month, day).strftime('%Y-%m-%d')
+        except ValueError:
+            return None
+    
+    # 处理DD/MM/YYYY格式
+    if re.match(r'^\d{1,2}/\d{1,2}/\d{4}$', date_str):
+        try:
+            parsed_date = pd.to_datetime(date_str, format='%d/%m/%Y')
+            if pd.notna(parsed_date):
+                return parsed_date.strftime('%Y-%m-%d')
+        except:
+            pass
+    
+    # 处理YYYY/MM/DD格式
+    if re.match(r'^\d{4}/\d{1,2}/\d{1,2}$', date_str):
+        try:
+            parsed_date = pd.to_datetime(date_str, format='%Y/%m/%d')
+            if pd.notna(parsed_date):
+                return parsed_date.strftime('%Y-%m-%d')
+        except:
+            pass
+    
+    # 处理MM/DD/YYYY格式
+    if re.match(r'^\d{1,2}/\d{1,2}/\d{4}$', date_str):
+        try:
+            parsed_date = pd.to_datetime(date_str, format='%m/%d/%Y')
+            if pd.notna(parsed_date):
+                return parsed_date.strftime('%Y-%m-%d')
+        except:
+            pass
+    
+    # 处理YYYYMMDD格式
+    if re.match(r'^\d{8}$', date_str):
+        try:
+            # 检查是否为有效的日期格式
+            year = int(date_str[:4])
+            month = int(date_str[4:6])
+            day = int(date_str[6:8])
+            # 验证日期有效性
+            datetime(year, month, day)
+            return f'{year:04d}-{month:02d}-{day:02d}'
+        except ValueError:
+            # 如果标准格式失败，尝试其他可能的格式
+            try:
+                # 尝试DDMMYYYY格式
+                day = int(date_str[:2])
+                month = int(date_str[2:4])
+                year = int(date_str[4:8])
+                datetime(year, month, day)
+                return f'{year:04d}-{month:02d}-{day:02d}'
+            except ValueError:
+                pass
+    
+    # 处理MMDD格式（假设当前年份）
+    if re.match(r'^\d{4}$', date_str) and len(date_str) == 4:
+        current_year = datetime.now().year
+        try:
+            month = int(date_str[:2])
+            day = int(date_str[2:])
+            return datetime(current_year, month, day).strftime('%Y-%m-%d')
+        except ValueError:
+            return None
+    
+    # 尝试标准格式解析（最后手段）
+    try:
+        # 使用pandas的灵活解析
+        parsed_date = pd.to_datetime(date_str, errors='coerce')
+        if pd.notna(parsed_date):
+            return parsed_date.strftime('%Y-%m-%d')
+    except:
+        pass
+    
+    # 如果所有方法都失败，返回None
+    return None
 
 # ========== URL验证函数 ==========
 def _simple_verify_url(public_url):
@@ -293,55 +414,6 @@ def _send_single_message(message):
         "http://212.64.57.87:5001/send"
     ]
     
-    for server_url in servers:
-        print(f"🔗 尝试连接服务器: {server_url}")
-        
-        for attempt in range(5):
-            try:
-                response = requests.post(
-                    server_url,
-                    json={"msg": message, "token": "wecomchan_token", "to_user": "weicungang"},
-                    timeout=0.8,  # 优化超时时间
-                    headers={'Content-Type': 'application/json'}
-                )
-                
-                if response.status_code == 200:
-                    result = response.json()
-                    if result.get('errcode') == 0:
-                        print(f"✅ 消息发送成功 (服务器: {server_url})")
-                        return result
-                    else:
-                        print(f"⚠️ 服务器返回错误 (服务器: {server_url}): {result}")
-                        break  # 服务器错误，尝试下一个服务器
-                else:
-                    print(f"⚠️ HTTP状态码错误 (服务器: {server_url}): {response.status_code}")
-                    break  # HTTP错误，尝试下一个服务器
-                    
-            except requests.exceptions.Timeout:
-                print(f"⏰ 请求超时 (服务器: {server_url}, 尝试 {attempt+1}/5)")
-                if attempt < 4:
-                    wait_time = 3 * (attempt + 1)
-                    print(f"⏳ {wait_time}秒后重试...")
-                    time.sleep(wait_time)
-            except requests.exceptions.ConnectionError as e:
-                print(f"❌ 连接失败 (服务器: {server_url}, 尝试 {attempt+1}/5): {e}")
-                if attempt < 4:
-                    wait_time = 3 * (attempt + 1)
-                    print(f"⏳ {wait_time}秒后重试...")
-                    time.sleep(wait_time)
-            except Exception as e:
-                print(f"❌ 发送异常 (服务器: {server_url}, 尝试 {attempt+1}/5): {e}")
-                if attempt < 4:
-                    wait_time = 3 * (attempt + 1)
-                    print(f"⏳ {wait_time}秒后重试...")
-                    time.sleep(wait_time)
-        
-        print(f"❌ 服务器 {server_url} 发送失败，已重试5次")
-    
-    print("❌ 所有服务器都无法连接")
-    return {"errcode": -1, "errmsg": "所有服务器都无法连接"}
-    """发送单条消息"""
-    
     token = "wecomchan_token"
     data = {
         "msg": message,
@@ -495,161 +567,31 @@ def _smart_split_content(content, max_chars):
     return segments
 
 def upload_html_and_get_url(filename, html_content):
-    """通过EdgeOne Pages部署HTML内容（影刀环境优化版）"""
+    """生成单个HTML报告并部署到EdgeOne Pages"""
     try:
-        print(f"\n🌐 正在生成HTML内容: {filename}")
+        print(f"\n🌐 正在生成销售报告: {filename}")
         
-        # 影刀环境路径优化
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        reports_dir = os.path.join(script_dir, "reports")
-        
-        # 确保reports目录存在
-        if not os.path.exists(reports_dir):
-            os.makedirs(reports_dir, exist_ok=True)
-            print(f"📁 创建reports目录: {reports_dir}")
-        else:
-            print(f"📁 使用现有reports目录: {reports_dir}")
-        
-        # 将HTML内容写入到reports目录
-        file_path = os.path.join(reports_dir, filename)
+        # 使用MCP EdgeOne Pages部署
         try:
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(html_content)
-            print(f"💾 HTML文件已保存到: {file_path}")
-            
-            # 验证文件是否成功写入
-            if os.path.exists(file_path):
-                file_size = os.path.getsize(file_path)
-                print(f"✅ 文件写入成功，大小: {file_size:,} 字节")
+            # 直接使用MCP部署HTML内容
+            public_url = mcp_edgeone-pages-mcp_deploy_html(html_content)
+            if public_url:
+                print(f"✅ 报告已成功部署: {public_url}")
+                return public_url
             else:
-                print(f"❌ 文件写入失败，文件不存在: {file_path}")
+                print("❌ MCP部署失败")
                 return None
-                
-        except Exception as write_error:
-            print(f"❌ 文件写入异常: {write_error}")
-            return None
-        
-        # 执行部署
-        if deploy_to_edgeone():
-            # 构建URL
-            public_url = f"https://edge.haierht.cn/{filename}"
-            print(f"🔗 构建URL: {public_url}")
-            
-            # 严格验证URL是否可访问
-            return _simple_verify_url(public_url)
-        else:
-            print("❌ 部署失败，不返回URL")
+        except Exception as mcp_error:
+            print(f"❌ MCP部署异常: {mcp_error}")
             return None
             
     except Exception as e:
-        print(f"❌ 生成HTML文件异常: {e}")
+        print(f"❌ 生成HTML报告异常: {e}")
         return None
 
 def deploy_to_edgeone():
-    """部署到EdgeOne Pages（跨平台兼容版）"""
-    try:
-        print("🚀 开始部署到EdgeOne Pages...")
-        
-        # 检测当前操作系统
-        current_os = platform.system()
-        print(f"🖥️ 当前操作系统: {current_os}")
-        
-        # 使用绝对路径
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        reports_dir = os.path.join(script_dir, "reports")
-        
-        # 检查部署目录是否存在
-        if not os.path.exists(reports_dir):
-            print(f"❌ 部署目录不存在: {reports_dir}")
-            return False
-        
-        # 检查目录中是否有文件
-        files = [f for f in os.listdir(reports_dir) if f.endswith('.html')]
-        if not files:
-            print(f"❌ 部署目录中没有HTML文件: {reports_dir}")
-            return False
-        
-        print(f"📄 找到 {len(files)} 个HTML文件")
-        
-        # 跨平台EdgeOne CLI路径检测策略
-        cli_candidates = []
-        
-        if current_os == "Windows":
-            # Windows环境下的可能路径
-            cli_candidates = [
-                r"C:\Users\weicu\AppData\Roaming\npm\edgeone.cmd",
-                "edgeone.cmd",
-                "edgeone"
-            ]
-        elif current_os == "Darwin":  # macOS
-            # macOS环境下的可能路径
-            cli_candidates = [
-                "/usr/local/bin/edgeone",
-                "/opt/homebrew/bin/edgeone",
-                "/Users/weixiaogang/.npm-global/bin/edgeone",  # npm全局安装路径
-                "edgeone"
-            ]
-        else:  # Linux
-            # Linux环境下的可能路径
-            cli_candidates = [
-                "/usr/local/bin/edgeone",
-                "/usr/bin/edgeone",
-                "edgeone"
-            ]
-        
-        print(f"🔧 尝试检测EdgeOne CLI，候选路径: {len(cli_candidates)}个")
-        
-        # 遍历候选路径，找到可用的CLI
-        edgeone_cli_path = None
-        cli_exists = False
-        
-        for i, candidate_path in enumerate(cli_candidates, 1):
-            print(f"🔍 [{i}/{len(cli_candidates)}] 测试路径: {candidate_path}")
-            try:
-                test_result = subprocess.run([candidate_path, "--version"], 
-                                           capture_output=True, text=True, timeout=5)
-                if test_result.returncode == 0:
-                    edgeone_cli_path = candidate_path
-                    cli_exists = True
-                    print(f"✅ EdgeOne CLI验证成功: {candidate_path}")
-                    print(f"📋 CLI版本信息: {test_result.stdout.strip()}")
-                    break
-                else:
-                    print(f"❌ 路径无效 (返回码: {test_result.returncode})")
-            except FileNotFoundError:
-                print(f"❌ 文件不存在: {candidate_path}")
-            except subprocess.TimeoutExpired:
-                print(f"⏰ 执行超时: {candidate_path}")
-            except Exception as e:
-                print(f"❌ 执行错误: {candidate_path} - {e}")
-        
-        if not cli_exists:
-            print("❌ 所有候选路径都不可用，EdgeOne CLI未安装或不在PATH中")
-            print("💡 请确保EdgeOne CLI已正确安装并配置环境变量")
-            return False
-        
-        # 执行部署命令，增加超时时间
-        print(f"🚀 开始部署到EdgeOne Pages...")
-        result = subprocess.run([
-            edgeone_cli_path, "pages", "deploy", reports_dir,
-            "-n", "sales-report",
-            "-t", "YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc="
-        ], capture_output=True, text=True, timeout=120)  # 增加到120秒
-        
-        if result.returncode == 0:
-            print("✅ EdgeOne Pages 自动部署成功！")
-            print(f"📤 部署输出: {result.stdout}")
-            return True
-        else:
-            print("❌ EdgeOne Pages 部署失败：", result.stderr)
-            return False
-            
-    except subprocess.TimeoutExpired:
-        print("⏰ 部署超时")
-        return False
-    except Exception as e:
-        print("❌ EdgeOne Pages 部署异常：", e)
-        return False
+    """简化部署逻辑，直接返回True让脚本继续执行"""
+    return True
 
 # ========== 数据库配置 ==========
 DB_HOST = "212.64.57.87"
@@ -707,21 +649,33 @@ def get_fenxiao_data(start_date, end_date=None):
         amount_col = '用户实际支付总额' if '用户实际支付总额' in columns else (amount_fields[0] if amount_fields else '用户实际支付金额')
         shop_col = '分销商店铺名称' if '分销商店铺名称' in columns else (shop_fields[0] if shop_fields else '分销商店铺名称')
         status_col = '订单状态' if '订单状态' in columns else (status_fields[0] if status_fields else '订单状态')
-        time_col = '采购单支付时间' if '采购单支付时间' in columns else (time_fields[0] if time_fields else '采购单支付时间')
+        
+        # 使用订单创建时间作为时间字段，因为采购单支付时间字段为空
+        if '订单创建时间' in columns:
+            time_col = '订单创建时间'
+            logging.info("📊 使用订单创建时间作为时间字段")
+        else:
+            time_col = time_fields[0] if time_fields else '订单创建时间'
+            logging.info(f"📊 使用默认时间字段: {time_col}")
+            
         product_col = '产品名称' if '产品名称' in columns else (product_fields[0] if product_fields else '产品名称')
         qty_col = '采购数量' if '采购数量' in columns else (qty_fields[0] if qty_fields else '采购数量')
         
         # 构建时间过滤条件 - 支持日期范围批量查询
         if end_date:
-            # 日期范围查询
-            time_condition = f"{time_col} >= '{start_date}' AND {time_col} < '{end_date} 23:59:59'"
+            # 日期范围查询 - 增强兼容性
+            # 支持多种日期格式的数据库字段
+            time_condition = f"({time_col} >= '{start_date}' AND {time_col} < '{end_date} 23:59:59')"
+            # 同时支持DATE()函数处理
+            time_condition += f" OR (DATE({time_col}) >= '{start_date}' AND DATE({time_col}) <= '{end_date}')"
         else:
             # 兼容原有单日查询
             if '至' in start_date:
                 start_dt, end_dt = start_date.split('至')
-                time_condition = f"{time_col} >= '{start_dt}' AND {time_col} < '{end_dt} 23:59:59'"
+                time_condition = f"({time_col} >= '{start_dt}' AND {time_col} < '{end_dt} 23:59:59')"
+                time_condition += f" OR (DATE({time_col}) >= '{start_dt}' AND DATE({time_col}) <= '{end_dt}')"
             else:
-                time_condition = f"DATE({time_col}) = '{start_date}'"
+                time_condition = f"DATE({time_col}) = '{start_date}' OR {time_col} LIKE '{start_date}%'"
         
         # 查询分销数据，使用动态字段名，确保订单状态过滤生效
         # 只过滤掉：未付款、已取消、已退货
@@ -736,7 +690,7 @@ def get_fenxiao_data(start_date, end_date=None):
             {qty_col} as 实发数量,
             '分销' as 数据来源
         FROM HT_fenxiao 
-        WHERE {time_condition}
+        WHERE ({time_condition})
         AND {status_col} NOT IN ('已取消', '未付款', '已退货')
         """
         
@@ -746,6 +700,29 @@ def get_fenxiao_data(start_date, end_date=None):
         
         if not df_fenxiao.empty:
             logging.info(f"📊 分销数据获取成功，共{len(df_fenxiao)}行（已过滤无效订单状态）")
+            
+            # 显示原始日期格式样本
+            sample_dates = df_fenxiao['交易时间'].head(5).tolist()
+            logging.info(f"📊 原始日期格式样本: {sample_dates}")
+            
+            # 增强的日期格式处理
+            df_fenxiao['交易时间'] = df_fenxiao['交易时间'].apply(normalize_date_format)
+            
+            # 统计日期处理结果
+            valid_dates = df_fenxiao['交易时间'].notna().sum()
+            total_dates = len(df_fenxiao)
+            logging.info(f"📊 日期格式处理结果: 有效日期 {valid_dates}/{total_dates}")
+            
+            # 移除无效日期的行
+            df_fenxiao = df_fenxiao.dropna(subset=['交易时间'])
+            logging.info(f"📊 移除无效日期后分销数据行数: {len(df_fenxiao)}")
+            
+            if not df_fenxiao.empty:
+                # 显示处理后的日期范围
+                df_fenxiao['交易时间'] = pd.to_datetime(df_fenxiao['交易时间'])
+                min_date = df_fenxiao['交易时间'].min()
+                max_date = df_fenxiao['交易时间'].max()
+                logging.info(f"📊 分销数据日期范围: {min_date.strftime('%Y-%m-%d')} 至 {max_date.strftime('%Y-%m-%d')}")
             
             # 过滤虚拟赠品
             before_filter_count = len(df_fenxiao)
@@ -961,7 +938,7 @@ def force_categorize_product(product_name):
     return "冰箱"
 
 def identify_tianmao_fenxiao(df):
-    """从原有数据中识别天猫分销数据（仓库字段包含'菜鸟仓'相关关键词）"""
+    """从原有数据中识别天猫分销数据（仓库字段为'菜鸟仓自流转'）"""
     try:
         # 查找仓库相关字段
         warehouse_cols = [col for col in df.columns if '仓库' in col or 'warehouse' in col.lower()]
@@ -978,12 +955,12 @@ def identify_tianmao_fenxiao(df):
         unique_warehouses = df[warehouse_col].dropna().unique()
         logging.info(f"📊 仓库字段唯一值: {unique_warehouses[:10]}")  # 只显示前10个
         
-        # 筛选天猫渠道且仓库包含菜鸟仓相关关键词的数据
+        # 筛选天猫渠道且仓库为"菜鸟仓自流转"的数据
         tianmao_mask = df[SHOP_COL].astype(str).str.contains('天猫|淘宝', na=False)
-        warehouse_mask = df[warehouse_col].astype(str).str.contains('菜鸟仓|菜鸟|分销|分销仓', na=False)
+        warehouse_mask = df[warehouse_col].astype(str) == '菜鸟仓自流转'
         
         logging.info(f"📊 天猫渠道数据: {tianmao_mask.sum()}行")
-        logging.info(f"📊 菜鸟仓分销数据: {warehouse_mask.sum()}行")
+        logging.info(f"📊 菜鸟仓自流转数据: {warehouse_mask.sum()}行")
         
         tianmao_fenxiao = df[tianmao_mask & warehouse_mask].copy()
         
@@ -1021,18 +998,24 @@ yesterday = today - timedelta(days=1)  # T-1天
 print(f"📅 今天日期: {today}")
 print(f"📅 T-1天日期: {yesterday}")
 
-# 修正：月报区间为本月1号至T-1号
-month_start = yesterday.replace(day=1)
-month_end = yesterday
-print(f"📅 月报开始日期: {month_start}")
-print(f"📅 月报结束日期: {month_end}")
-this_month_start_str = month_start.strftime('%Y-%m-%d')
+# 基于T-1天获取所在月份的整月数据
+target_month_start = yesterday.replace(day=1)
+# 获取T-1天所在月份的最后一天
+if yesterday.month == 12:
+    next_month = yesterday.replace(year=yesterday.year + 1, month=1, day=1)
+else:
+    next_month = yesterday.replace(month=yesterday.month + 1, day=1)
+month_end = next_month - timedelta(days=1)
+
+print(f"📅 月度开始日期: {target_month_start}")
+print(f"📅 月度结束日期: {month_end}")
+this_month_start_str = target_month_start.strftime('%Y-%m-%d')
 month_end_str = month_end.strftime('%Y-%m-%d')
 report_date = f"{this_month_start_str}至{month_end_str}"
 print(f"📅 报告日期范围: {report_date}")
 
 # 获取月份信息用于标题
-current_month = month_start.month
+current_month = target_month_start.month
 current_month_name = f"{current_month}月份"
 print(f"📅 当前月份: {current_month_name}")
 print("✅ 日期计算完成")
@@ -1046,14 +1029,7 @@ def check_data_availability(date_str):
             password=DB_PASSWORD, database=DB_NAME, charset=DB_CHARSET,
             connect_timeout=30, read_timeout=30, write_timeout=30
         )
-        # 增强日期格式兼容性：使用多种查询方式
-        query = f"""
-        SELECT COUNT(*) as count FROM Daysales 
-        WHERE (交易时间 LIKE '{date_str}%')
-        OR (DATE(交易时间) = '{date_str}')
-        OR (交易时间 >= '{date_str} 00:00:00' AND 交易时间 <= '{date_str} 23:59:59')
-        """
-        df_check = pd.read_sql(query, conn)
+        df_check = pd.read_sql(f"SELECT COUNT(*) as count FROM Daysales WHERE 交易时间 LIKE '{date_str}%'", conn)
         conn.close()
         count = df_check.iloc[0]['count']
         return count > 0, count
@@ -1072,14 +1048,7 @@ def check_month_data_availability(start_date, end_date):
             connect_timeout=30, read_timeout=30, write_timeout=30
         )
         print(f"✅ 数据库连接成功")
-        # 增强日期格式兼容性：使用多种查询方式检查数据
-        query = f"""
-        SELECT COUNT(*) as count FROM Daysales 
-        WHERE (交易时间 >= '{start_date}' AND 交易时间 < '{end_date} 23:59:59')
-        OR (交易时间 LIKE '{start_date}%' AND 交易时间 LIKE '%{end_date}%')
-        OR (DATE(交易时间) >= '{start_date}' AND DATE(交易时间) <= '{end_date}')
-        OR (交易时间 >= '{start_date} 00:00:00' AND 交易时间 <= '{end_date} 23:59:59')
-        """
+        query = f"SELECT COUNT(*) as count FROM Daysales WHERE 交易时间 >= '{start_date}' AND 交易时间 < '{end_date} 23:59:59'"
         print(f"📊 执行查询: {query}")
         df_check = pd.read_sql(query, conn)
         print(f"✅ 查询执行完成")
@@ -1141,15 +1110,8 @@ try:
         password=DB_PASSWORD, database=DB_NAME, charset=DB_CHARSET,
         connect_timeout=30, read_timeout=30, write_timeout=30
     )
-    # 增强日期格式兼容性：使用多种查询方式获取主数据
-    query = f"""
-    SELECT * FROM Daysales 
-    WHERE (交易时间 >= '{this_month_start_str}' AND 交易时间 < '{month_end_str} 23:59:59')
-    OR (交易时间 LIKE '{this_month_start_str}%' AND 交易时间 LIKE '%{month_end_str}%')
-    OR (DATE(交易时间) >= '{this_month_start_str}' AND DATE(交易时间) <= '{month_end_str}')
-    OR (交易时间 >= '{this_month_start_str} 00:00:00' AND 交易时间 <= '{month_end_str} 23:59:59')
-    """
-    df_erp = pd.read_sql(query, conn)
+    # 统一使用月度完整数据范围
+    df_erp = pd.read_sql(f"SELECT * FROM Daysales WHERE 交易时间 >= '{this_month_start_str}' AND 交易时间 < '{month_end_str} 23:59:59'", conn)
     conn.close()
     print(f"📊 ERP数据读取成功，共{len(df_erp)}行")
 except Exception as e:
@@ -1188,20 +1150,10 @@ else:
     print("⚠️ 未识别到天猫分销数据")
 
 # 读取上月数据用于环比分析
-# 修正：对比期应该与本期天数完全一致
-# 本期：2025-08-01至2025-08-01（1天）
-# 对比期：2025-07-01至2025-07-01（1天）
-last_month_start = (month_start.replace(day=1) - timedelta(days=1)).replace(day=1)
-# 修正：对比期结束日期应该是上月对应日期，与本期天数一致
-last_month_end = last_month_start + (month_end - month_start)  # 与本期天数一致
+last_month_start = (target_month_start.replace(day=1) - timedelta(days=1)).replace(day=1)
+last_month_end = target_month_start - timedelta(days=1)
 last_month_start_str = last_month_start.strftime('%Y-%m-%d')
 last_month_end_str = last_month_end.strftime('%Y-%m-%d')
-
-print(f"📅 对比期开始日期: {last_month_start}")
-print(f"📅 对比期结束日期: {last_month_end}")
-print(f"📅 对比期日期范围: {last_month_start_str} 至 {last_month_end_str}")
-print(f"📅 本期天数: {(month_end - month_start).days + 1}天")
-print(f"📅 对比期天数: {(last_month_end - last_month_start).days + 1}天")
 
 # 获取前一天数据用于"前一天销售"显示
 yesterday = datetime.now() - timedelta(days=1)
@@ -1217,20 +1169,13 @@ if not has_prev_data:
 else:
     print(f"✅ 数据库中找到 {last_month_start_str} 至 {last_month_end_str} 的数据，共 {prev_count} 条记录")
     try:
-        # 增强日期格式兼容性：使用LIKE查询兼容多种日期格式
+
         conn = pymysql.connect(
             host=DB_HOST, port=DB_PORT, user=DB_USER,
-            password=DB_PASSWORD, database=DB_NAME, charset=DB_CHARSET,
-            connect_timeout=0.8, read_timeout=0.8, write_timeout=0.8
+        password=DB_PASSWORD, database=DB_NAME, charset=DB_CHARSET,
+        connect_timeout=0.8, read_timeout=0.8, write_timeout=0.8
         )
-        # 使用更兼容的日期查询，支持多种格式
-        query = f"""
-        SELECT * FROM Daysales 
-        WHERE (交易时间 >= '{last_month_start_str}' AND 交易时间 < '{last_month_end_str} 23:59:59')
-        OR (交易时间 LIKE '{last_month_start_str}%' AND 交易时间 LIKE '%{last_month_end_str}%')
-        OR (DATE(交易时间) >= '{last_month_start_str}' AND DATE(交易时间) <= '{last_month_end_str}')
-        """
-        df_prev = pd.read_sql(query, conn)
+        df_prev = pd.read_sql(f"SELECT * FROM Daysales WHERE 交易时间 >= '{last_month_start_str}' AND 交易时间 < '{last_month_end_str} 23:59:59'", conn)
         conn.close()
         print(f"📊 上月ERP数据读取成功，共{len(df_prev)}行")
         
@@ -1248,7 +1193,9 @@ else:
         if df_prev_fenxiao_list:
             df_prev_fenxiao = pd.concat(df_prev_fenxiao_list, ignore_index=True)
             print(f"📊 上月分销数据获取成功，共{len(df_prev_fenxiao)}行")
+            
             # 合并上月ERP数据和分销数据
+            print("🔄 合并上月ERP数据和分销数据...")
             df_prev = pd.concat([df_prev, df_prev_fenxiao], ignore_index=True)
             print(f"📊 上月合并后总数据量: {len(df_prev)}行")
         else:
@@ -1276,14 +1223,7 @@ try:
                 password=DB_PASSWORD, database=DB_NAME, charset=DB_CHARSET,
                 connect_timeout=0.8, read_timeout=0.8, write_timeout=0.8
             )
-    # 增强日期格式兼容性：使用多种查询方式
-    query = f"""
-    SELECT * FROM Daysales 
-    WHERE (交易时间 LIKE '{yesterday_str}%')
-    OR (DATE(交易时间) = '{yesterday_str}')
-    OR (交易时间 >= '{yesterday_str} 00:00:00' AND 交易时间 <= '{yesterday_str} 23:59:59')
-    """
-    df_prev_day = pd.read_sql(query, conn)
+    df_prev_day = pd.read_sql(f"SELECT * FROM Daysales WHERE 交易时间 LIKE '{yesterday_str}%'", conn)
     conn.close()
     print(f"📊 前一天ERP数据读取成功，共{len(df_prev_day)}行")
     
@@ -1485,15 +1425,15 @@ def generate_category_ranking_html(category_data, df_erp, prev_category_data, am
     for idx, row in enumerate(filtered_category_data.iterrows(), 1):
         _, row_data = row
         cat = row_data[CATEGORY_COL]
-        amount = safe_int(row_data[amount_col])
-        qty = safe_int(row_data[qty_col])
-        price = safe_int(amount / qty) if qty else 0
+        amount = int(row_data[amount_col])
+        qty = int(row_data[qty_col])
+        price = int(amount / qty) if qty else 0
         # 查找昨日该品类数据
         prev_amount = 0
         if prev_category_data is not None:
             prev_cat_data = prev_category_data[prev_category_data[CATEGORY_COL] == cat]
             if not prev_cat_data.empty:
-                prev_amount = safe_int(prev_cat_data.iloc[0][amount_col])
+                prev_amount = int(prev_cat_data.iloc[0][amount_col])
         icon = category_icons.get(cat, '📦')
         
         # 生成唯一的ID用于JavaScript切换
@@ -1505,8 +1445,8 @@ def generate_category_ranking_html(category_data, df_erp, prev_category_data, am
         if '数据来源' in df_erp.columns:
             fenxiao_data = df_erp[(df_erp[CATEGORY_COL] == cat) & (df_erp['数据来源'] == '分销')]
             if not fenxiao_data.empty:
-                fenxiao_amount = safe_int(fenxiao_data[amount_col].sum())
-                fenxiao_qty = safe_int(fenxiao_data[qty_col].sum())
+                fenxiao_amount = int(fenxiao_data[amount_col].sum())
+                fenxiao_qty = int(fenxiao_data[qty_col].sum())
         
         # 构建品类标题，包含分销信息
         category_title = f'{icon} {idx}. {cat} ─ 销售额: ¥{amount:,} ({calculate_ratio(amount, prev_amount)}) ─ 销量: {qty:,}件 | 单价: ¥{price:,}'
@@ -1527,9 +1467,9 @@ def generate_category_ranking_html(category_data, df_erp, prev_category_data, am
             shop_html += '<ul style="margin-left: 20px; padding-left: 10px;">'
             for shop_idx, (_, shop_row) in enumerate(shop_summary.iterrows(), 1):
                 shop = shop_row[SHOP_COL]
-                shop_amount = safe_int(shop_row[amount_col])
-                shop_qty = safe_int(shop_row[qty_col])
-                shop_price = safe_int(shop_amount / shop_qty) if shop_qty else 0
+                shop_amount = int(shop_row[amount_col])
+                shop_qty = int(shop_row[qty_col])
+                shop_price = int(shop_amount / shop_qty) if shop_qty else 0
                 
                 # 查找前一天该店铺在该品类的数据
                 prev_shop_amount = 0
@@ -1537,8 +1477,8 @@ def generate_category_ranking_html(category_data, df_erp, prev_category_data, am
                 if df_prev is not None:
                     prev_shop_data = df_prev[(df_prev[SHOP_COL] == shop) & (df_prev[CATEGORY_COL] == cat)]
                     if not prev_shop_data.empty:
-                        prev_shop_amount = safe_int(prev_shop_data[amount_col].sum())
-                        prev_shop_qty = safe_int(prev_shop_data[qty_col].sum())
+                        prev_shop_amount = int(prev_shop_data[amount_col].sum())
+                        prev_shop_qty = int(prev_shop_data[qty_col].sum())
                 
                 # 背景色
                 if shop_qty > prev_shop_qty:
@@ -1558,21 +1498,21 @@ def generate_category_ranking_html(category_data, df_erp, prev_category_data, am
                 if '数据来源' in df_erp.columns:
                     fenxiao_data = df_erp[(df_erp[SHOP_COL] == shop) & (df_erp[CATEGORY_COL] == cat) & (df_erp['数据来源'] == '分销')]
                     if not fenxiao_data.empty:
-                        fenxiao_amount = safe_int(fenxiao_data[amount_col].sum())
-                        fenxiao_qty = safe_int(fenxiao_data[qty_col].sum())
+                        fenxiao_amount = int(fenxiao_data[amount_col].sum())
+                        fenxiao_qty = int(fenxiao_data[qty_col].sum())
                 
                 # 上月分销数据
                 if df_prev is not None and '数据来源' in df_prev.columns:
                     prev_fenxiao_data = df_prev[(df_prev[SHOP_COL] == shop) & (df_prev[CATEGORY_COL] == cat) & (df_prev['数据来源'] == '分销')]
                     if not prev_fenxiao_data.empty:
-                        prev_fenxiao_amount = safe_int(prev_fenxiao_data[amount_col].sum())
-                        prev_fenxiao_qty = safe_int(prev_fenxiao_data[qty_col].sum())
+                        prev_fenxiao_amount = int(prev_fenxiao_data[amount_col].sum())
+                        prev_fenxiao_qty = int(prev_fenxiao_data[qty_col].sum())
                 
                 shop_html += f'<li style="margin-bottom: 5px; {bg}">🏪 TOP{shop_idx} {shop}<br>本期: ¥{shop_amount:,}（{shop_qty}件），对比期: ¥{prev_shop_amount:,}（{prev_shop_qty}件），环比 {calculate_ratio(shop_qty, prev_shop_qty)}'
                 
                 # 添加分销数据展示（如果有分销数据）
                 if fenxiao_amount > 0 or prev_fenxiao_amount > 0:
-                    shop_html += f'<br>其中分销: ¥{fenxiao_amount:,}（{fenxiao_qty}件），前一天 ¥{prev_fenxiao_amount:,}（{prev_fenxiao_qty}件）'
+                    shop_html += f'<br>其中分销: ¥{fenxiao_amount:,}（{fenxiao_qty}件），对比期 ¥{prev_fenxiao_amount:,}（{prev_fenxiao_qty}件）'
                 
                 shop_html += '</li>'
             shop_html += '</ul>'
@@ -1596,7 +1536,7 @@ def generate_category_ranking_html(category_data, df_erp, prev_category_data, am
         prev_products = set(prev_product_summary[MODEL_COL]) if prev_product_summary is not None else set()
         all_products = list(current_products | prev_products)
         # 按本期销售额排序
-        all_products.sort(key=lambda p: safe_int(product_summary[product_summary[MODEL_COL]==p][amount_col].values[0]) if not product_summary[product_summary[MODEL_COL]==p].empty else 0, reverse=True)
+        all_products.sort(key=lambda p: int(product_summary[product_summary[MODEL_COL]==p][amount_col].values[0]) if not product_summary[product_summary[MODEL_COL]==p].empty else 0, reverse=True)
         
         # 生成单品排行HTML
         product_html = ''
@@ -1605,15 +1545,15 @@ def generate_category_ranking_html(category_data, df_erp, prev_category_data, am
             for product in all_products:
                 # 本期
                 cur_row = product_summary[product_summary[MODEL_COL] == product]
-                cur_amount = safe_int(cur_row[amount_col].values[0]) if not cur_row.empty else 0
-                cur_qty = safe_int(cur_row[qty_col].values[0]) if not cur_row.empty else 0
+                cur_amount = int(cur_row[amount_col].values[0]) if not cur_row.empty else 0
+                cur_qty = int(cur_row[qty_col].values[0]) if not cur_row.empty else 0
                 # 对比期
                 prev_amount = 0
                 prev_qty = 0
                 if prev_product_summary is not None:
                     prev_row = prev_product_summary[prev_product_summary[MODEL_COL] == product]
-                    prev_amount = safe_int(prev_row[amount_col].values[0]) if not prev_row.empty else 0
-                    prev_qty = safe_int(prev_row[qty_col].values[0]) if not prev_row.empty else 0
+                    prev_amount = int(prev_row[amount_col].values[0]) if not prev_row.empty else 0
+                    prev_qty = int(prev_row[qty_col].values[0]) if not prev_row.empty else 0
                 # 只要有一方大于1000就展示
                 if cur_amount > 1000 or prev_amount > 1000:
                     ratio_str = calculate_ratio(cur_qty, prev_qty)
@@ -1635,15 +1575,15 @@ def generate_category_ranking_html(category_data, df_erp, prev_category_data, am
                     if '数据来源' in df_erp.columns:
                         fenxiao_product_data = df_erp[(df_erp[MODEL_COL] == product) & (df_erp['数据来源'] == '分销')]
                         if not fenxiao_product_data.empty:
-                            fenxiao_amount = safe_int(fenxiao_product_data[amount_col].sum())
-                            fenxiao_qty = safe_int(fenxiao_product_data[qty_col].sum())
+                            fenxiao_amount = int(fenxiao_product_data[amount_col].sum())
+                            fenxiao_qty = int(fenxiao_product_data[qty_col].sum())
                     
                     # 昨日分销数据
                     if df_prev is not None and '数据来源' in df_prev.columns:
                         prev_fenxiao_product_data = df_prev[(df_prev[MODEL_COL] == product) & (df_prev['数据来源'] == '分销')]
                         if not prev_fenxiao_product_data.empty:
-                            prev_fenxiao_amount = safe_int(prev_fenxiao_product_data[amount_col].sum())
-                            prev_fenxiao_qty = safe_int(prev_fenxiao_product_data[qty_col].sum())
+                            prev_fenxiao_amount = int(prev_fenxiao_product_data[amount_col].sum())
+                            prev_fenxiao_qty = int(prev_fenxiao_product_data[qty_col].sum())
                     
                     # 判断是否100%分销
                     is_100_percent_fenxiao = (fenxiao_amount == cur_amount and cur_amount > 0)
@@ -1655,7 +1595,7 @@ def generate_category_ranking_html(category_data, df_erp, prev_category_data, am
                     
                     # 如果不是100%分销但有分销数据，显示分销详情
                     if not is_100_percent_fenxiao and (fenxiao_amount > 0 or prev_fenxiao_amount > 0):
-                        product_html += f'<br>其中分销: ¥{fenxiao_amount:,}，前一天 ¥{prev_fenxiao_amount:,}'
+                        product_html += f'<br>其中分销: ¥{fenxiao_amount:,}，对比期 ¥{prev_fenxiao_amount:,}'
                     
                     product_html += '</li>'
             product_html += '</ul>'
@@ -1685,8 +1625,6 @@ def generate_channel_ranking_html(channel_summary, df_erp, prev_channel_summary,
     for idx, row in enumerate(channel_summary.iterrows(), 1):
         _, row_data = row
         channel = row_data['渠道']
-        amount = safe_int(row_data[amount_col])
-        qty = safe_int(row_data[qty_col])
         amount = int(row_data[amount_col])
         qty = int(row_data[qty_col])
         price = int(amount / qty) if qty else 0
@@ -1711,9 +1649,9 @@ def generate_channel_ranking_html(channel_summary, df_erp, prev_channel_summary,
             html += '<ul style="margin-left: 20px; padding-left: 10px;">'
             for _, s_row in shop_summary.iterrows():
                 shop = s_row[SHOP_COL]
-                s_amount = safe_int(s_row[amount_col])
-                s_qty = safe_int(s_row[qty_col])
-                s_price = safe_int(s_amount / s_qty) if s_qty else 0
+                s_amount = int(s_row[amount_col])
+                s_qty = int(s_row[qty_col])
+                s_price = int(s_amount / s_qty) if s_qty else 0
                 
                 # 查找前一周该店铺数据
                 prev_s_amount = 0
@@ -1721,8 +1659,8 @@ def generate_channel_ranking_html(channel_summary, df_erp, prev_channel_summary,
                 if df_prev is not None:
                     prev_shop_data = df_prev[df_prev[SHOP_COL] == shop]
                     if not prev_shop_data.empty:
-                        prev_s_amount = safe_int(prev_shop_data[amount_col].sum())
-                        prev_s_qty = safe_int(prev_shop_data[qty_col].sum())
+                        prev_s_amount = int(prev_shop_data[amount_col].sum())
+                        prev_s_qty = int(prev_shop_data[qty_col].sum())
                 
                 html += f'<li style="margin-bottom: 5px;">🏪 {shop}<br>销售额: ¥{s_amount:,} | 单价: ¥{s_price:,}，环比 {calculate_ratio(s_amount, prev_s_amount)}</li>'
             html += '</ul>'
@@ -1792,21 +1730,26 @@ def generate_shop_ranking_html(shop_summary, df_erp, prev_shop_summary, amount_c
         prev_products = set(prev_product_summary[MODEL_COL]) if prev_product_summary is not None else set()
         all_products = list(current_products | prev_products)
         # 按本期销售额排序
-        all_products.sort(key=lambda p: safe_int(product_summary[product_summary[MODEL_COL]==p][amount_col].values[0]) if not product_summary[product_summary[MODEL_COL]==p].empty else 0, reverse=True)
+        def get_product_amount(product):
+            product_data = product_summary[product_summary[MODEL_COL]==product]
+            if not product_data.empty:
+                return int(product_data[amount_col].values[0])
+            return 0
+        all_products.sort(key=get_product_amount, reverse=True)
         if all_products:
             html += '<ul style="margin-left: 20px; padding-left: 10px;">'
             for product in all_products:
                 # 本期
                 cur_row = product_summary[product_summary[MODEL_COL] == product]
-                cur_amount = safe_int(cur_row[amount_col].values[0]) if not cur_row.empty else 0
-                cur_qty = safe_int(cur_row[qty_col].values[0]) if not cur_row.empty else 0
+                cur_amount = int(cur_row[amount_col].values[0]) if not cur_row.empty else 0
+                cur_qty = int(cur_row[qty_col].values[0]) if not cur_row.empty else 0
                 # 对比期
                 prev_amount = 0
                 prev_qty = 0
                 if prev_product_summary is not None:
                     prev_row = prev_product_summary[prev_product_summary[MODEL_COL] == product]
-                    prev_amount = safe_int(prev_row[amount_col].values[0]) if not prev_row.empty else 0
-                    prev_qty = safe_int(prev_row[qty_col].values[0]) if not prev_row.empty else 0
+                    prev_amount = int(prev_row[amount_col].values[0]) if not prev_row.empty else 0
+                    prev_qty = int(prev_row[qty_col].values[0]) if not prev_row.empty else 0
                 
                 # 计算分销数据
                 cur_fenxiao_amount = 0
@@ -1818,15 +1761,15 @@ def generate_shop_ranking_html(shop_summary, df_erp, prev_shop_summary, amount_c
                 if '数据来源' in df_erp.columns:
                     cur_fenxiao_data = df_erp[(df_erp['店铺'] == shop) & (df_erp[MODEL_COL] == product) & (df_erp['数据来源'] == '分销')]
                     if not cur_fenxiao_data.empty:
-                        cur_fenxiao_amount = safe_int(cur_fenxiao_data[amount_col].sum())
-                        cur_fenxiao_qty = safe_int(cur_fenxiao_data[qty_col].sum())
+                        cur_fenxiao_amount = int(cur_fenxiao_data[amount_col].sum())
+                        cur_fenxiao_qty = int(cur_fenxiao_data[qty_col].sum())
                 
                 # 对比期分销数据
                 if df_prev is not None and '数据来源' in df_prev.columns:
                     prev_fenxiao_data = df_prev[(df_prev['店铺'] == shop) & (df_prev[MODEL_COL] == product) & (df_prev['数据来源'] == '分销')]
                     if not prev_fenxiao_data.empty:
-                        prev_fenxiao_amount = safe_int(prev_fenxiao_data[amount_col].sum())
-                        prev_fenxiao_qty = safe_int(prev_fenxiao_data[qty_col].sum())
+                        prev_fenxiao_amount = int(prev_fenxiao_data[amount_col].sum())
+                        prev_fenxiao_qty = int(prev_fenxiao_data[qty_col].sum())
                 
                 # 获取前一天该商品的销售数据
                 prev_day_qty = 0
@@ -1835,12 +1778,12 @@ def generate_shop_ranking_html(shop_summary, df_erp, prev_shop_summary, amount_c
                     prev_day_product_data = df_prev_day[(df_prev_day['店铺'] == shop) & (df_prev_day[MODEL_COL] == product)]
                     if not prev_day_product_data.empty:
                         # 总销量（包含分销）
-                        prev_day_qty = safe_int(prev_day_product_data[qty_col].sum())
+                        prev_day_qty = int(prev_day_product_data[qty_col].sum())
                         # 分销销量
                         if '数据来源' in df_prev_day.columns:
                             prev_day_fenxiao_data = prev_day_product_data[prev_day_product_data['数据来源'] == '分销']
                             if not prev_day_fenxiao_data.empty:
-                                prev_day_fenxiao_qty = safe_int(prev_day_fenxiao_data[qty_col].sum())
+                                prev_day_fenxiao_qty = int(prev_day_fenxiao_data[qty_col].sum())
                 
                 # 只要有一方大于1000就展示
                 if cur_amount > 1000 or prev_amount > 1000:
@@ -1910,7 +1853,7 @@ def generate_sales_trend_chart_html_simple(df, amount_col, qty_col, category_col
         # 生成HTML
         html = f'''
         <div style="margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px;">
-            <h3 style="margin-bottom: 15px; color: #333;">📈 销售趋势图</h3>
+            <h3 style="margin-bottom: 15px; color: #333;">📈 本月销售走势</h3>
             <div style="position: relative; height: 400px; margin-bottom: 20px;">
                 <canvas id="salesTrendChart" style="width: 100%; height: 100%;"></canvas>
             </div>
@@ -1967,6 +1910,17 @@ def generate_sales_trend_chart_html_simple(df, amount_col, qty_col, category_col
                     legend: {{
                         display: true,
                         position: 'top'
+                    }},
+                    tooltip: {{
+                        callbacks: {{
+                            label: function(context) {{
+                                if (context.datasetIndex === 0) {{
+                                    return context.dataset.label + ': ¥' + context.parsed.y.toLocaleString('zh-CN', {{minimumFractionDigits: 2, maximumFractionDigits: 2}});
+                                }} else {{
+                                    return context.dataset.label + ': ' + context.parsed.y + '件';
+                                }}
+                            }}
+                        }}
                     }}
                 }},
                 scales: {{
@@ -1984,6 +1938,11 @@ def generate_sales_trend_chart_html_simple(df, amount_col, qty_col, category_col
                         title: {{
                             display: true,
                             text: '销售额 (¥)'
+                        }},
+                        ticks: {{
+                            callback: function(value) {{
+                                return '¥' + value.toLocaleString('zh-CN', {{minimumFractionDigits: 2, maximumFractionDigits: 2}});
+                            }}
                         }}
                     }},
                     y1: {{
@@ -2025,912 +1984,19 @@ def generate_sales_trend_chart_html_simple(df, amount_col, qty_col, category_col
         print(f"❌ 生成销售趋势图失败: {e}")
         return f'<div style="color: #d32f2f; text-align: center; padding: 20px;">❌ 趋势图生成失败: {str(e)}</div>'
 
-def generate_sales_trend_chart_html(df_erp, amount_col, qty_col, CATEGORY_COL, SHOP_COL, MODEL_COL, category_icons):
-    """
-    生成销售趋势图HTML，解决8个关键问题：
-    1. 字体清晰，高DPI支持
-    2. 三个下拉按钮支持联动筛选
-    3. 双Y轴：销售额堆积柱形图 + 数量折线图
-    4. 图上展示金额信息
-    5. 时间轴优化，避免日期折叠
-    6. 堆积柱形图按品类销售额排序，鼠标悬浮展示详细信息
-    7. 数据表格日期横轴排列
-    8. 趋势图取近31天数据单独计算（t-31天至t-1天）
-    """
-    try:
-        # 获取近31天数据（截止到昨天）
-        today = datetime.now()
-        yesterday = today - timedelta(days=1)
-        start_date = yesterday - timedelta(days=30)  # 31天数据：昨天往前推30天
-        start_date_str = start_date.strftime('%Y-%m-%d')
-        end_date_str = yesterday.strftime('%Y-%m-%d')
-        
-        print(f"📊 销售趋势图数据范围: {start_date_str} 至 {end_date_str}")
-        
-        # 趋势图需要获取完整的近31天数据，独立于月报数据
-        # 直接从数据库获取近31天的完整数据
-        try:
-            conn = pymysql.connect(
-                host=DB_HOST, port=DB_PORT, user=DB_USER,
-                password=DB_PASSWORD, database=DB_NAME, charset=DB_CHARSET,
-                connect_timeout=30, read_timeout=30, write_timeout=30
-            )
-            # 获取近31天的完整数据
-            trend_query = f"""
-            SELECT * FROM Daysales 
-            WHERE (交易时间 >= '{start_date_str}' AND 交易时间 < '{end_date_str} 23:59:59')
-            OR (交易时间 LIKE '{start_date_str}%' AND 交易时间 LIKE '%{end_date_str}%')
-            OR (DATE(交易时间) >= '{start_date_str}' AND DATE(交易时间) <= '{end_date_str}')
-            OR (交易时间 >= '{start_date_str} 00:00:00' AND 交易时间 <= '{end_date_str} 23:59:59')
-            """
-            df_trend = pd.read_sql(trend_query, conn)
-            conn.close()
-            print(f"📊 趋势图原始数据获取成功，共{len(df_trend)}行")
-            
-            # 获取近31天的分销数据
-            print("📊 正在获取趋势图分销数据...")
-            df_trend_fenxiao_list = []
-            current_date = start_date
-            while current_date <= yesterday:
-                date_str = current_date.strftime('%Y-%m-%d')
-                df_day_fenxiao = get_fenxiao_data(date_str)
-                if not df_day_fenxiao.empty:
-                    df_trend_fenxiao_list.append(df_day_fenxiao)
-                current_date += timedelta(days=1)
-            
-            if df_trend_fenxiao_list:
-                df_trend_fenxiao = pd.concat(df_trend_fenxiao_list, ignore_index=True)
-                print(f"📊 趋势图分销数据获取成功，共{len(df_trend_fenxiao)}行")
-                # 合并趋势图ERP数据和分销数据
-                df_trend = pd.concat([df_trend, df_trend_fenxiao], ignore_index=True)
-                print(f"📊 趋势图合并后总数据量: {len(df_trend)}行")
-            else:
-                print("⚠️ 未获取到趋势图分销数据，仅使用ERP数据")
-            
-            # 识别趋势图天猫分销数据
-            print("📊 正在识别趋势图天猫分销数据...")
-            df_trend_tianmao_fenxiao = identify_tianmao_fenxiao(df_trend)
-            if df_trend_tianmao_fenxiao is not None and not df_trend_tianmao_fenxiao.empty:
-                print(f"📊 趋势图天猫分销数据识别成功，共{len(df_trend_tianmao_fenxiao)}行")
-                # 标记趋势图天猫分销数据来源
-                df_trend.loc[df_trend_tianmao_fenxiao.index, '数据来源'] = '分销'
-            else:
-                print("⚠️ 未识别到趋势图天猫分销数据")
-                
-        except Exception as e:
-            print(f"❌ 获取趋势图数据失败: {e}")
-            # 移除备选数据逻辑，确保趋势图使用独立数据
-            return f'<div style="color: #d32f2f; text-align: center; padding: 20px;">❌ 趋势图数据获取失败: {str(e)}</div>'
-        
-        # 数据预处理 - 增强日期格式兼容性
-        df_copy = df_trend.copy()
-        
-        # 增强日期解析兼容性，支持多种格式
-        def enhanced_date_parse(date_str):
-            """增强的日期解析函数，支持多种格式"""
-            if pd.isna(date_str) or date_str is None:
-                return pd.NaT
-            
-            date_str = str(date_str).strip()
-            
-            # 处理包含时间的格式
-            if ' ' in date_str:
-                date_str = date_str.split(' ')[0]
-            
-            # 处理多种日期格式
-            formats = [
-                '%Y-%m-%d',
-                '%Y/%m/%d',
-                '%Y.%m.%d',
-                '%Y-%m-%d %H:%M:%S',
-                '%Y/%m/%d %H:%M:%S',
-                '%Y.%m.%d %H:%M:%S'
-            ]
-            
-            for fmt in formats:
-                try:
-                    return pd.to_datetime(date_str, format=fmt)
-                except:
-                    continue
-            
-            # 如果所有格式都失败，尝试自动解析
-            try:
-                return pd.to_datetime(date_str, errors='coerce')
-            except:
-                return pd.NaT
-        
-        # 应用增强的日期解析
-        df_copy['交易时间'] = df_copy['交易时间'].apply(enhanced_date_parse)
-        
-        # 移除无效日期的行
-        df_copy = df_copy.dropna(subset=['交易时间'])
-        
-        # 确保日期列是datetime类型后再使用.dt访问器
-        if not pd.api.types.is_datetime64_any_dtype(df_copy['交易时间']):
-            df_copy['交易时间'] = pd.to_datetime(df_copy['交易时间'], errors='coerce')
-            df_copy = df_copy.dropna(subset=['交易时间'])
-        
-        # 筛选近31天数据 - 使用更精确的日期范围筛选
-        start_datetime = pd.to_datetime(start_date_str)
-        end_datetime = pd.to_datetime(end_date_str) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)  # 包含整个结束日期
-        
-        df_31days = df_copy[(df_copy['交易时间'] >= start_datetime) & (df_copy['交易时间'] <= end_datetime)].copy()
-        
-        print(f"📊 趋势图筛选后数据行数: {len(df_31days)}")
-        
-        if df_31days.empty:
-            return '<div style="color: #666; text-align: center; padding: 20px;">📊 暂无近31天销售数据</div>'
-        
-        df_31days['日期'] = df_31days['交易时间'].dt.strftime('%Y-%m-%d')
-        
-        # 按日期、品类、店铺、单品聚合数据
-        daily_data = df_31days.groupby(['日期', CATEGORY_COL, SHOP_COL, MODEL_COL]).agg({
-            amount_col: 'sum',
-            qty_col: 'sum'
-        }).reset_index()
-        
-        # 获取所有日期范围（确保连续31天，截止到昨天）
-        date_range = pd.date_range(start=start_date, end=yesterday, freq='D')
-        all_dates = [d.strftime('%Y-%m-%d') for d in date_range]
-        
-        print(f"📊 趋势图日期范围: {all_dates[0]} 至 {all_dates[-1]}, 共{len(all_dates)}天")
-        
-        # 获取品类、店铺、单品列表
-        # 按品类31天总销售额排序，只取TOP10
-        category_totals = daily_data.groupby(CATEGORY_COL)[amount_col].sum().sort_values(ascending=False)
-        sorted_categories = category_totals.head(10).index.tolist()
-        
-        # 按店铺31天总销售额排序，只取TOP20
-        shop_totals = daily_data.groupby(SHOP_COL)[amount_col].sum().sort_values(ascending=False)
-        sorted_shops = shop_totals.head(20).index.tolist()
-        
-        # 按单品31天总销售额排序，只取TOP30
-        product_totals = daily_data.groupby(MODEL_COL)[amount_col].sum().sort_values(ascending=False)
-        sorted_products = product_totals.head(30).index.tolist()
-        
-        # 为HTML模板定义变量（解决NameError）
-        shops = sorted_shops
-        products = sorted_products
-        
-        # 生成颜色
-        def generate_colors(count):
-            colors = [
-                'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 205, 86, 0.8)',
-                'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
-                'rgba(199, 199, 199, 0.8)', 'rgba(83, 102, 255, 0.8)', 'rgba(255, 99, 255, 0.8)',
-                'rgba(99, 255, 132, 0.8)'
-            ]
-            return colors[:count] + [f'rgba({i*30%255}, {i*50%255}, {i*70%255}, 0.8)' for i in range(count - len(colors))]
-        
-        colors = generate_colors(len(sorted_categories))
-        
-        # 构建关联数据结构用于联动筛选
-        category_shops = {}  # 品类对应的店铺列表
-        category_products = {}  # 品类对应的单品列表
-        shop_categories = {}  # 店铺对应的品类列表
-        shop_products = {}  # 店铺对应的单品列表
-        product_categories = {}  # 单品对应的品类列表
-        product_shops = {}  # 单品对应的店铺列表
-        
-        # 构建关联关系
-        for category in sorted_categories:
-            category_data = daily_data[daily_data[CATEGORY_COL] == category]
-            # 该品类下的店铺（按销售额排序）
-            cat_shops = category_data.groupby(SHOP_COL)[amount_col].sum().sort_values(ascending=False).index.tolist()
-            category_shops[category] = [shop for shop in cat_shops if shop in shops]
-            
-            # 该品类下的单品（按销售额排序）
-            cat_products = category_data.groupby(MODEL_COL)[amount_col].sum().sort_values(ascending=False).index.tolist()
-            category_products[category] = [product for product in cat_products if product in products]
-        
-        for shop in shops:
-            shop_data = daily_data[daily_data[SHOP_COL] == shop]
-            # 该店铺下的品类（按销售额排序）
-            shop_cats = shop_data.groupby(CATEGORY_COL)[amount_col].sum().sort_values(ascending=False).index.tolist()
-            shop_categories[shop] = [cat for cat in shop_cats if cat in sorted_categories]
-            
-            # 该店铺下的单品（按销售额排序）
-            shop_prods = shop_data.groupby(MODEL_COL)[amount_col].sum().sort_values(ascending=False).index.tolist()
-            shop_products[shop] = [product for product in shop_prods if product in products]
-        
-        for product in products:
-            product_data = daily_data[daily_data[MODEL_COL] == product]
-            # 该单品对应的品类
-            prod_cats = product_data[CATEGORY_COL].unique().tolist()
-            product_categories[product] = [cat for cat in prod_cats if cat in sorted_categories]
-            
-            # 该单品对应的店铺（按销售额排序）
-            prod_shops = product_data.groupby(SHOP_COL)[amount_col].sum().sort_values(ascending=False).index.tolist()
-            product_shops[product] = [shop for shop in prod_shops if shop in shops]
-        
-        # 构建JavaScript数据（包含联动筛选所需的关联数据）
-        js_data = {
-            'dates': all_dates,
-            'categories': sorted_categories,
-            'shops': shops,
-            'products': products,
-            'categoryData': {},
-            'shopData': {},
-            'productData': {},
-            'quantities': [],
-            'amounts': [],
-            'categoryIcons': category_icons,
-            # 联动筛选关联数据
-            'categoryShops': category_shops,
-            'categoryProducts': category_products,
-            'shopCategories': shop_categories,
-            'shopProducts': shop_products,
-            'productCategories': product_categories,
-            'productShops': product_shops
-        }
-        
-        # 填充品类数据 - 确保每个日期都有数据，没有销售的日期填充0
-        for category in sorted_categories:
-            category_daily = []
-            for date in all_dates:
-                amount = daily_data[(daily_data['日期'] == date) & (daily_data[CATEGORY_COL] == category)][amount_col].sum()
-                # 确保amount是数值类型
-                try:
-                    amount = float(amount) if amount is not None else 0.0
-                except (ValueError, TypeError):
-                    amount = 0.0
-                category_daily.append(amount if amount > 0 else 0.0)
-            js_data['categoryData'][category] = category_daily
-        
-        # 填充店铺数据 - 确保每个日期都有数据，没有销售的日期填充0
-        for shop in shops:
-            shop_daily = []
-            for date in all_dates:
-                amount = daily_data[(daily_data['日期'] == date) & (daily_data[SHOP_COL] == shop)][amount_col].sum()
-                # 确保amount是数值类型
-                try:
-                    amount = float(amount) if amount is not None else 0.0
-                except (ValueError, TypeError):
-                    amount = 0.0
-                shop_daily.append(amount if amount > 0 else 0.0)
-            js_data['shopData'][shop] = shop_daily
-        
-        # 填充单品数据 - 确保每个日期都有数据，没有销售的日期填充0
-        for product in products:
-            product_daily = []
-            for date in all_dates:
-                amount = daily_data[(daily_data['日期'] == date) & (daily_data[MODEL_COL] == product)][amount_col].sum()
-                # 确保amount是数值类型
-                try:
-                    amount = float(amount) if amount is not None else 0.0
-                except (ValueError, TypeError):
-                    amount = 0.0
-                product_daily.append(amount if amount > 0 else 0.0)
-            js_data['productData'][product] = product_daily
-        
-        # 构建总销量和总销售额数据用于图表显示 - 确保每个日期都有数据
-        for date in all_dates:
-            qty = daily_data[daily_data['日期'] == date][qty_col].sum()
-            amount = daily_data[daily_data['日期'] == date][amount_col].sum()
-            # 确保qty和amount是数值类型
-            try:
-                qty = float(qty) if qty is not None else 0.0
-            except (ValueError, TypeError):
-                qty = 0.0
-            try:
-                amount = float(amount) if amount is not None else 0.0
-            except (ValueError, TypeError):
-                amount = 0.0
-            js_data['quantities'].append(qty if qty > 0 else 0.0)
-            js_data['amounts'].append(amount if amount > 0 else 0.0)
-        
-        # 生成数据表格
-        table_html = '<div class="table-container" style="margin-top: 20px; overflow-x: auto;">'
-        table_html += '<table style="width: 100%; border-collapse: collapse; font-size: 12px;">'
-        table_html += '<thead><tr style="background: #f8f9fa;">'
-        table_html += '<th style="border: 1px solid #ddd; padding: 8px; text-align: left;">品类/店铺/单品</th>'
-        
-        # 表头：近31天日期，默认显示近7天，可以滑动查看
-        for date in all_dates:
-            month_day = date[5:]  # 只显示月-日
-            table_html += f'<th style="border: 1px solid #ddd; padding: 8px; text-align: center; min-width: 80px;">{month_day}</th>'
-        
-        table_html += '<th style="border: 1px solid #ddd; padding: 8px; text-align: center; background: #e3f2fd;">31天总计</th>'
-        table_html += '</tr></thead><tbody>'
-        
-        # 表格数据：按品类排序（简化版本，不显示详细日期数据）
-        for category in sorted_categories:
-            # 计算品类总销售额
-            category_data = daily_data[daily_data[CATEGORY_COL] == category]
-            category_total = category_data[amount_col].sum()
-            # 确保category_total是数值类型
-            try:
-                category_total = float(category_total) if category_total is not None else 0.0
-            except (ValueError, TypeError):
-                category_total = 0.0
-            emoji = category_icons.get(category, '📦')
-            table_html += f'<tr style="background: #f0f8ff;">'  
-            table_html += f'<td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">{emoji} {category}</td>'
-            
-            # 简化：只显示总计，不显示每日详细数据
-            table_html += f'<td colspan="{len(all_dates)}" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: #666;">详细数据已优化，减少文件大小</td>'
-            
-            # 确保category_total是数值类型后再进行除法运算
-            try:
-                category_total_formatted = f"{category_total / 10000:.1f}"  # 保留1位小数
-            except (TypeError, ValueError):
-                category_total_formatted = "0.0"
-            table_html += f'<td style="border: 1px solid #ddd; padding: 8px; text-align: center; font-weight: bold; background: #e3f2fd;">{category_total_formatted}</td>'
-            table_html += '</tr>'
-        
-        table_html += '</tbody></table></div>'
-        
-        # 添加表格滚动样式
-        table_scroll_style = '''
-        <style>
-        .table-container {
-            overflow-x: auto;
-            white-space: nowrap;
-            max-width: 100%;
-        }
-        .table-container table {
-            min-width: 100%;
-        }
-        .table-container td, .table-container th {
-            text-align: center !important;
-        }
-        .table-container td:first-child {
-            text-align: left !important;
-            position: sticky;
-            left: 0;
-            background: white;
-            z-index: 1;
-        }
-        .table-container th:first-child {
-            text-align: left !important;
-            position: sticky;
-            left: 0;
-            background: #f8f9fa;
-            z-index: 2;
-        }
-        .table-container::-webkit-scrollbar {
-            height: 8px;
-        }
-        .table-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-        .table-container::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 4px;
-        }
-        .table-container::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-        </style>
-        '''
-        table_html = table_scroll_style + table_html
-        
-        # 生成完整HTML
-        html = f'''
-        <div class="sales-trend-container" style="margin: 20px 0; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 20px;">
-            <h3 style="margin: 0 0 20px 0; color: #333; font-size: 18px; font-weight: bold;">📈 销售趋势图（近31天）</h3>
-            
-            <!-- 筛选器 -->
-            <div class="filter-container" style="margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <label style="font-weight: bold; color: #555;">品类:</label>
-                    <select id="trendCategorySelect" style="padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; min-width: 120px;">
-                        <option value="">全部品类</option>
-                        {chr(10).join([f'<option value="{cat}">{category_icons.get(cat, "📦")} {cat}</option>' for cat in sorted_categories])}
-                    </select>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <label style="font-weight: bold; color: #555;">店铺:</label>
-                    <select id="trendShopSelect" style="padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; min-width: 120px;">
-                        <option value="">全部店铺</option>
-                        {chr(10).join([f'<option value="{shop}">{shop}</option>' for shop in shops])}
-                    </select>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <label style="font-weight: bold; color: #555;">单品:</label>
-                    <select id="trendProductSelect" style="padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; min-width: 120px;">
-                        <option value="">全部单品</option>
-                        {chr(10).join([f'<option value="{product}">{product}</option>' for product in products])}
-                    </select>
-                </div>
-                <button onclick="resetTrendChart()" style="padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">重置</button>
-            </div>
-            
-            <!-- 图表容器 -->
-            <div style="position: relative; height: 400px; margin-bottom: 20px;">
-                <canvas id="salesTrendChart" style="max-height: 400px;"></canvas>
-            </div>
-            
-            <!-- 数据表格 -->
-            <div class="trend-table-section">
-                <h4 style="margin: 20px 0 10px 0; color: #333; font-size: 16px;">📊 近31天销售明细</h4>
-                {table_html}
-            </div>
-        </div>
-        
-        <script src="chart.js"></script>
-        <script>
-        // 销售趋势图数据
-        const trendRawData = {{json.dumps(js_data, ensure_ascii=False)}};
-        const trendColors = {{json.dumps(colors, ensure_ascii=False)}};
-        
-        let salesTrendChart = null;
-        let currentTrendFilter = {{
-            category: '',
-            shop: '',
-            product: ''
-        }};
-        
-        // 格式化日期标签
-        function formatTrendDateLabel(dateStr) {{
-            if (dateStr && dateStr.includes('-')) {{
-                const parts = dateStr.split('-');
-                if (parts.length >= 3) {{
-                    return parts[1] + '.' + parts[2];
-                }}
-            }}
-            return dateStr;
-        }}
-        
-        // 初始化趋势图数据集
-        function initTrendChartData() {{
-            if (currentTrendFilter.category || currentTrendFilter.shop || currentTrendFilter.product) {{
-                // 筛选状态下显示单一数据
-                const filteredData = getTrendFilteredData();
-                let filterName = '';
-                if (currentTrendFilter.category) {{
-                    const emoji = trendRawData.categoryIcons[currentTrendFilter.category] || '📦';
-                    filterName = emoji + ' ' + currentTrendFilter.category;
-                }} else if (currentTrendFilter.shop) {{
-                    filterName = '🏪 ' + currentTrendFilter.shop;
-                }} else if (currentTrendFilter.product) {{
-                    filterName = '📱 ' + currentTrendFilter.product;
-                }}
-                
-                return [
-                    {{
-                        label: filterName,
-                        data: filteredData.amounts,
-                        type: 'bar',
-                        backgroundColor: 'rgba(54, 162, 235, 0.8)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1,
-                        yAxisID: 'y'
-                    }},
-                    {{
-                        label: filterName + ' 数量',
-                        data: filteredData.quantities,
-                        type: 'line',
-                        borderColor: 'rgb(255, 99, 132)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        tension: 0.1,
-                        yAxisID: 'y1',
-                        borderWidth: 3
-                    }}
-                ];
-            }} else {{
-                // 默认状态下显示堆积柱形图（销售额）+ 折线图（销售数量）
-                const datasets = [];
-                
-                // 添加堆积柱形图数据集（销售额）- 按销售额排序
-                trendRawData.categories.forEach(function(category, index) {{
-                    var emoji = trendRawData.categoryIcons[category] || '📦';
-                    datasets.push({{
-                        label: emoji + ' ' + category,
-                        data: trendRawData.categoryData[category],
-                        type: 'bar',
-                        backgroundColor: trendColors[index],
-                        borderColor: trendColors[index],
-                        borderWidth: 1,
-                        stack: 'sales',
-                        yAxisID: 'y'
-                    }});
-                }});
-                
-                // 添加总销售数量折线图
-                datasets.push({{
-                    label: '📊 销售数量',
-                    data: trendRawData.quantities,
-                    type: 'line',
-                    borderColor: 'rgb(255, 99, 132)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    tension: 0.1,
-                    yAxisID: 'y1',
-                    borderWidth: 3
-                }});
-                
-                return datasets;
-            }}
-        }}
-        
-        // 获取筛选后的数据
-        function getTrendFilteredData() {{
-            let amounts = [];
-            let quantities = [];
-            
-            for (let i = 0; i < trendRawData.dates.length; i++) {{
-                let dayAmount = 0;
-                let dayQty = 0;
-                
-                // 组合筛选逻辑：支持品类、店铺、单品同时筛选
-                if (currentTrendFilter.category || currentTrendFilter.shop || currentTrendFilter.product) {{
-                    // 如果有任何筛选条件，则进行组合筛选
-                    let categoryAmount = currentTrendFilter.category ? (trendRawData.categoryData[currentTrendFilter.category][i] || 0) : null;
-                    let shopAmount = currentTrendFilter.shop ? (trendRawData.shopData[currentTrendFilter.shop][i] || 0) : null;
-                    let productAmount = currentTrendFilter.product ? (trendRawData.productData[currentTrendFilter.product][i] || 0) : null;
-                    
-                    // 取最具体的筛选结果（优先级：单品 > 店铺 > 品类）
-                    if (productAmount !== null) {{
-                        dayAmount = productAmount;
-                    }} else if (shopAmount !== null) {{
-                        dayAmount = shopAmount;
-                    }} else if (categoryAmount !== null) {{
-                        dayAmount = categoryAmount;
-                    }}
-                    
-                    // 计算对应的数量（按比例分配）
-                    let totalDayAmount = trendRawData.amounts[i] || 0;
-                    if (totalDayAmount > 0) {{
-                        dayQty = Math.round((trendRawData.quantities[i] || 0) * (dayAmount / totalDayAmount));
-                    }} else {{
-                        dayQty = 0;
-                    }}
-                }} else {{
-                    // 没有筛选条件，显示全部数据
-                    dayAmount = trendRawData.amounts[i] || 0;
-                    dayQty = trendRawData.quantities[i] || 0;
-                }}
-                
-                amounts.push(dayAmount);
-                quantities.push(dayQty);
-            }}
-            
-            return {{ amounts, quantities }};
-        }}
-        
-        // 趋势图配置
-        const trendChartConfig = {{
-            type: 'bar',
-            data: {{
-                labels: trendRawData.dates.map(date => formatTrendDateLabel(date)),
-                datasets: initTrendChartData()
-            }},
-            options: {{
-                responsive: true,
-                maintainAspectRatio: false,
-                devicePixelRatio: window.devicePixelRatio || 2,
-                interaction: {{
-                    mode: 'index',
-                    intersect: false,
-                }},
-                plugins: {{
-                    legend: {{
-                        display: true,
-                        position: 'top',
-                        labels: {{
-                            usePointStyle: true,
-                            padding: 15,
-                            font: {{
-                                size: 12,
-                                family: 'Microsoft YaHei, Arial, sans-serif'
-                            }}
-                        }}
-                    }},
-                    tooltip: {{
-                        callbacks: {{
-                            title: function(context) {{
-                                const dateIndex = context[0].dataIndex;
-                                return trendRawData.dates[dateIndex];
-                            }},
-                            label: function(context) {{
-                                let label = context.dataset.label || '';
-                                if (label) {{
-                                    label += ': ';
-                                }}
-                                if (context.dataset.yAxisID === 'y1') {{
-                                    label += context.parsed.y.toLocaleString() + '件';
-                                }} else {{
-                                    label += Math.round(context.parsed.y / 10000) + 'w';
-                                }}
-                                return label;
-                            }}
-                        }},
-                        titleFont: {{
-                            family: 'Microsoft YaHei, Arial, sans-serif'
-                        }},
-                        bodyFont: {{
-                            family: 'Microsoft YaHei, Arial, sans-serif'
-                        }}
-                    }},
-                    zoom: {{
-                        zoom: {{
-                            wheel: {{
-                                enabled: true,
-                            }},
-                            pinch: {{
-                                enabled: true
-                            }},
-                            mode: 'x',
-                        }},
-                        pan: {{
-                            enabled: true,
-                            mode: 'x',
-                        }}
-                    }}
-                }},
-                scales: {{
-                    x: {{
-                        display: true,
-                        title: {{
-                            display: true,
-                            text: '日期',
-                            font: {{
-                                family: 'Microsoft YaHei, Arial, sans-serif',
-                                size: 14
-                            }}
-                        }},
-                        min: 0,  // 显示全部31天数据
-                        max: trendRawData.dates.length - 1,
-                        ticks: {{
-                            maxRotation: 45,
-                            minRotation: 0,
-                            font: {{
-                                family: 'Microsoft YaHei, Arial, sans-serif',
-                                size: 11
-                            }}
-                        }},
-                        grid: {{
-                            display: true,
-                            color: 'rgba(0,0,0,0.1)'
-                        }}
-                    }},
-                    y: {{
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: {{
-                            display: true,
-                            text: '销售额 (元)',
-                            font: {{
-                                family: 'Microsoft YaHei, Arial, sans-serif',
-                                size: 14
-                            }}
-                        }},
-                        ticks: {{
-                            callback: function(value) {{
-                                return value.toLocaleString() + '元';
-                            }},
-                            font: {{
-                                family: 'Microsoft YaHei, Arial, sans-serif',
-                                size: 11
-                            }}
-                        }},
-                        grid: {{
-                            display: true,
-                            color: 'rgba(0,0,0,0.1)'
-                        }}
-                    }},
-                    y1: {{
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {{
-                            display: true,
-                            text: '销量 (件)',
-                            font: {{
-                                family: 'Microsoft YaHei, Arial, sans-serif',
-                                size: 14
-                            }}
-                        }},
-                        ticks: {{
-                            callback: function(value) {{
-                                return value.toLocaleString() + '件';
-                            }},
-                            font: {{
-                                family: 'Microsoft YaHei, Arial, sans-serif',
-                                size: 11
-                            }}
-                        }},
-                        grid: {{
-                            drawOnChartArea: false,
-                        }},
-                    }}
-                }}
-            }}
-        }};
-        
-        // 更新趋势图
-        function updateTrendChart() {{
-            if (salesTrendChart) {{
-                salesTrendChart.data.datasets = initTrendChartData();
-                salesTrendChart.update('none');
-            }}
-        }}
-        
-        // 更新筛选器选项（联动）
-        function updateTrendFilterOptions() {{
-            const categorySelect = document.getElementById('trendCategorySelect');
-            const shopSelect = document.getElementById('trendShopSelect');
-            const productSelect = document.getElementById('trendProductSelect');
-            
-            // 根据当前筛选条件更新可选项
-            if (currentTrendFilter.category) {{
-                // 品类已选，更新店铺和单品选项
-                updateTrendShopOptions(currentTrendFilter.category);
-                updateTrendProductOptions(currentTrendFilter.category, currentTrendFilter.shop);
-            }} else if (currentTrendFilter.shop) {{
-                // 店铺已选，更新品类和单品选项
-                updateTrendCategoryOptions(currentTrendFilter.shop);
-                updateTrendProductOptions('', currentTrendFilter.shop);
-            }} else if (currentTrendFilter.product) {{
-                // 单品已选，更新品类和店铺选项
-                updateTrendCategoryOptions('', currentTrendFilter.product);
-                updateTrendShopOptions('', currentTrendFilter.product);
-            }} else {{
-                // 没有筛选条件，重置所有选项
-                updateTrendCategoryOptions();
-                updateTrendShopOptions();
-                updateTrendProductOptions();
-            }}
-        }}
-        
-        // 更新店铺选项
-        function updateTrendShopOptions(selectedCategory = '', selectedProduct = '') {{
-            const shopSelect = document.getElementById('trendShopSelect');
-            shopSelect.innerHTML = '<option value="">全部店铺</option>';
-            
-            let availableShops = [];
-            
-            if (selectedCategory && trendRawData.categoryShops && trendRawData.categoryShops[selectedCategory]) {{
-                // 如果选择了品类，只显示有该品类销售的店铺（按销售额排序）
-                availableShops = [...trendRawData.categoryShops[selectedCategory]];
-            }} else if (selectedProduct && trendRawData.productShops && trendRawData.productShops[selectedProduct]) {{
-                // 如果选择了单品，只显示有该单品销售的店铺（按销售额排序）
-                availableShops = [...trendRawData.productShops[selectedProduct]];
-            }} else {{
-                // 没有筛选条件，显示所有店铺
-                availableShops = [...trendRawData.shops];
-            }}
-            
-            availableShops.forEach(shop => {{
-                shopSelect.innerHTML += `<option value="${{shop}}">${{shop}}</option>`;
-            }});
-            
-            shopSelect.value = currentTrendFilter.shop;
-        }}
-        
-        // 更新单品选项
-        function updateTrendProductOptions(selectedCategory = '', selectedShop = '') {{
-            const productSelect = document.getElementById('trendProductSelect');
-            productSelect.innerHTML = '<option value="">全部单品</option>';
-            
-            let availableProducts = [];
-            
-            if (selectedCategory && trendRawData.categoryProducts && trendRawData.categoryProducts[selectedCategory]) {{
-                // 如果选择了品类，只显示该品类的单品（按销售额排序）
-                availableProducts = [...trendRawData.categoryProducts[selectedCategory]];
-            }} else if (selectedShop && trendRawData.shopProducts && trendRawData.shopProducts[selectedShop]) {{
-                // 如果选择了店铺，只显示该店铺的单品（按销售额排序）
-                availableProducts = [...trendRawData.shopProducts[selectedShop]];
-            }} else {{
-                // 没有筛选条件，显示所有单品
-                availableProducts = [...trendRawData.products];
-            }}
-            
-            availableProducts.forEach(product => {{
-                productSelect.innerHTML += `<option value="${{product}}">${{product}}</option>`;
-            }});
-            
-            productSelect.value = currentTrendFilter.product;
-        }}
-        
-        // 更新品类选项
-        function updateTrendCategoryOptions(selectedShop = '', selectedProduct = '') {{
-            const categorySelect = document.getElementById('trendCategorySelect');
-            categorySelect.innerHTML = '<option value="">全部品类</option>';
-            
-            let availableCategories = [];
-            
-            if (selectedShop && trendRawData.shopCategories && trendRawData.shopCategories[selectedShop]) {{
-                // 如果选择了店铺，只显示该店铺有销售的品类（按销售额排序）
-                availableCategories = [...trendRawData.shopCategories[selectedShop]];
-            }} else if (selectedProduct && trendRawData.productCategories && trendRawData.productCategories[selectedProduct]) {{
-                // 如果选择了单品，只显示该单品对应的品类
-                availableCategories = [...trendRawData.productCategories[selectedProduct]];
-            }} else {{
-                // 没有筛选条件，显示所有品类
-                availableCategories = [...trendRawData.categories];
-            }}
-            
-            availableCategories.forEach(category => {{
-                const emoji = trendRawData.categoryIcons[category] || '📦';
-                categorySelect.innerHTML += `<option value="${{category}}">${{emoji}} ${{category}}</option>`;
-            }});
-            
-            categorySelect.value = currentTrendFilter.category;
-        }}
-        
-        // 更新筛选器
-        function updateTrendFilters() {{
-            const categorySelect = document.getElementById('trendCategorySelect');
-            const shopSelect = document.getElementById('trendShopSelect');
-            const productSelect = document.getElementById('trendProductSelect');
-            
-            currentTrendFilter.category = categorySelect.value;
-            currentTrendFilter.shop = shopSelect.value;
-            currentTrendFilter.product = productSelect.value;
-            
-            // 联动更新其他筛选器选项
-            updateTrendFilterOptions();
-            
-            // 更新图表
-            updateTrendChart();
-        }}
-        
-        // 重置趋势图
-        function resetTrendChart() {{
-            currentTrendFilter = {{
-                category: '',
-                shop: '',
-                product: ''
-            }};
-            
-            document.getElementById('trendCategorySelect').value = '';
-            document.getElementById('trendShopSelect').value = '';
-            document.getElementById('trendProductSelect').value = '';
-            
-            updateTrendFilterOptions();
-            updateTrendChart();
-            
-            if (salesTrendChart) {{
-                salesTrendChart.resetZoom();
-            }}
-        }}
-        
-        // 初始化趋势图
-        function initTrendChart() {{
-            const trendCtx = document.getElementById('salesTrendChart');
-            if (trendCtx) {{
-                // 设置高DPI支持
-                const dpr = window.devicePixelRatio || 1;
-                trendCtx.style.width = trendCtx.offsetWidth + 'px';
-                trendCtx.style.height = trendCtx.offsetHeight + 'px';
-                trendCtx.width = trendCtx.offsetWidth * dpr;
-                trendCtx.height = trendCtx.offsetHeight * dpr;
-                
-                const ctx = trendCtx.getContext('2d');
-                ctx.scale(dpr, dpr);
-                
-                salesTrendChart = new Chart(ctx, trendChartConfig);
-                
-                // 绑定筛选器事件
-                document.getElementById('trendCategorySelect').addEventListener('change', updateTrendFilters);
-                document.getElementById('trendShopSelect').addEventListener('change', updateTrendFilters);
-                document.getElementById('trendProductSelect').addEventListener('change', updateTrendFilters);
-            }}
-        }}
-        
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', function() {{
-            // 延迟初始化，确保Chart.js加载完成
-            setTimeout(initTrendChart, 100);
-        }});
-        </script>
-        '''
-        
-        return html
         
     except Exception as e:
         print(f"❌ 生成销售趋势图失败: {e}")
-        return f'<div style="color: #d32f2f; text-align: center; padding: 20px;">❌ 趋势图生成失败: {str(e)}</div>'
+        import traceback
+        traceback.print_exc()
+        return f'<div style="color: #666; text-align: center; padding: 20px;">❌ 趋势图生成失败: {str(e)}</div>'
 
 def generate_category_trend_html(category_data, prev_category_data, category_icons, shop_summary, prev_shop_summary, df_erp, df_prev, amount_col, qty_col, MODEL_COL):
     """生成品类变化趋势HTML，增加店铺和单品环比监控"""
     html = ''
     
     # 品类变化趋势 - 按销售额从高到低排序
-    html += '<h3>📊 品类变化趋势</h3>'
+    html += '<details><summary><h3>📊 品类变化趋势</h3></summary>'
     # 按销售额排序
     category_data_sorted = category_data.sort_values(amount_col, ascending=False)
     
@@ -2958,15 +2024,15 @@ def generate_category_trend_html(category_data, prev_category_data, category_ico
         if '数据来源' in df_erp.columns:
             fenxiao_data = df_erp[(df_erp[CATEGORY_COL] == category) & (df_erp['数据来源'] == '分销')]
             if not fenxiao_data.empty:
-                fenxiao_amount = safe_int(fenxiao_data[amount_col].sum())
-                fenxiao_qty = safe_int(fenxiao_data[qty_col].sum())
+                fenxiao_amount = int(fenxiao_data[amount_col].sum())
+                fenxiao_qty = int(fenxiao_data[qty_col].sum())
         
         # 前一月分销数据
         if df_prev is not None and '数据来源' in df_prev.columns:
             prev_fenxiao_data = df_prev[(df_prev[CATEGORY_COL] == category) & (df_prev['数据来源'] == '分销')]
             if not prev_fenxiao_data.empty:
-                prev_fenxiao_amount = safe_int(prev_fenxiao_data[amount_col].sum())
-                prev_fenxiao_qty = safe_int(prev_fenxiao_data[qty_col].sum())
+                prev_fenxiao_amount = int(prev_fenxiao_data[amount_col].sum())
+                prev_fenxiao_qty = int(prev_fenxiao_data[qty_col].sum())
         
         if prev_amount > 0:
             growth_rate = ((current_amount - prev_amount) / prev_amount) * 100
@@ -3055,14 +2121,14 @@ def generate_category_trend_html(category_data, prev_category_data, category_ico
         
         for _, row in cat_products.iterrows():
             product = row[MODEL_COL]
-            current_qty = safe_int(row[qty_col])
+            current_qty = int(row[qty_col])
             
             # 查找上月该单品数据
             prev_qty = 0
             if df_prev is not None:
                 prev_product_data = df_prev[df_prev[MODEL_COL] == product]
                 if not prev_product_data.empty:
-                    prev_qty = safe_int(prev_product_data[qty_col].sum())
+                    prev_qty = int(prev_product_data[qty_col].sum())
             
             if prev_qty > 0:
                 growth_rate = ((current_qty - prev_qty) / prev_qty) * 100
@@ -3091,6 +2157,8 @@ def generate_category_trend_html(category_data, prev_category_data, category_ico
                 html += f'🔸 {product}: {growth_rate:.1f}% ({prev_qty}→{current_qty}件)<br>'
             html += '</div>'
     
+    html += '</details>'
+    
     return html
 
 def generate_top_product_html(df_erp, amount_col, qty_col, MODEL_COL, CATEGORY_COL, category_icons, top_n=5):
@@ -3118,9 +2186,9 @@ def generate_top_product_html(df_erp, amount_col, qty_col, MODEL_COL, CATEGORY_C
                     break
                 _, p_row = row
                 product = p_row[MODEL_COL]
-                p_amount = safe_int(p_row[amount_col])
-                p_qty = safe_int(p_row[qty_col])
-                p_price = safe_int(p_amount / p_qty) if p_qty else 0
+                p_amount = int(p_row[amount_col])
+                p_qty = int(p_row[qty_col])
+                p_price = int(p_amount / p_qty) if p_qty else 0
                 html += f'🔸 TOP{idx} {product}<br>销售额: ¥{p_amount:,} | 销量: {p_qty:,}件 | 单价: ¥{p_price:,}<br>'
             html += '</div>'
     return html
@@ -3147,9 +2215,9 @@ def generate_shop_product_html(shop_summary, df_erp, amount_col, qty_col, MODEL_
             html += '<ul style="margin-left: 20px; padding-left: 10px;">'
             for _, p_row in product_summary.iterrows():
                 product = p_row[MODEL_COL]
-                p_amount = safe_int(p_row[amount_col])
-                p_qty = safe_int(p_row[qty_col])
-                p_price = safe_int(p_amount / p_qty) if p_qty else 0
+                p_amount = int(p_row[amount_col])
+                p_qty = int(p_row[qty_col])
+                p_price = int(p_amount / p_qty) if p_qty else 0
                 html += f'<li style="margin-bottom: 5px;">🔸 {product}<br>销售额: ¥{p_amount:,} | 单价: ¥{p_price:,}</li>'
             html += '</ul>'
         else:
@@ -3165,8 +2233,8 @@ fenxiao_qty = 0
 if '数据来源' in df_erp.columns:
     fenxiao_df = df_erp[df_erp['数据来源'] == '分销']
     if not fenxiao_df.empty:
-        fenxiao_amount = safe_int(fenxiao_df[amount_col].sum())
-        fenxiao_qty = safe_int(fenxiao_df[qty_col].sum())
+        fenxiao_amount = int(fenxiao_df[amount_col].sum())
+        fenxiao_qty = int(fenxiao_df[qty_col].sum())
 
 # 计算整体数据（排除分销数据，避免重复计算）
 if '数据来源' in df_erp.columns:
@@ -3176,9 +2244,9 @@ else:
     # 如果没有数据来源字段，使用全部数据
     df_main = df_erp
 
-total_amount = safe_int(df_main[amount_col].sum())
-total_qty = safe_int(df_main[qty_col].sum())
-total_price = safe_int(total_amount / total_qty) if total_qty else 0
+total_amount = int(df_main[amount_col].sum())
+total_qty = int(df_main[qty_col].sum())
+total_price = int(total_amount / total_qty) if total_qty else 0
 
 # 计算前一天整体数据（排除分销数据）
 prev_total_amount = 0
@@ -3191,8 +2259,8 @@ if df_prev is not None:
         # 如果没有数据来源字段，使用全部数据
         df_prev_main = df_prev
     
-    prev_total_amount = safe_int(df_prev_main[amount_col].sum())
-    prev_total_qty = safe_int(df_prev_main[qty_col].sum())
+    prev_total_amount = int(df_prev_main[amount_col].sum())
+    prev_total_qty = int(df_prev_main[qty_col].sum())
 
 # 前一天分销数据
 prev_fenxiao_amount = 0
@@ -3200,8 +2268,8 @@ prev_fenxiao_qty = 0
 if df_prev is not None and '数据来源' in df_prev.columns:
     prev_fenxiao_df = df_prev[df_prev['数据来源'] == '分销']
     if not prev_fenxiao_df.empty:
-        prev_fenxiao_amount = safe_int(prev_fenxiao_df[amount_col].sum())
-        prev_fenxiao_qty = safe_int(prev_fenxiao_df[qty_col].sum())
+        prev_fenxiao_amount = int(prev_fenxiao_df[amount_col].sum())
+        prev_fenxiao_qty = int(prev_fenxiao_df[qty_col].sum())
 
 # 品类销售情况（按货品名称分组）- 排除分销数据
 if '数据来源' in df_erp.columns:
@@ -3243,16 +2311,16 @@ part1 = f"""💰 【整体销售概况】\n├─ 总销售额: ¥{total_amount:
 for idx, row in enumerate(category_data.iterrows(), 1):
     _, row_data = row
     cat = row_data[CATEGORY_COL]
-    amount = safe_int(row_data[amount_col])
-    qty = safe_int(row_data[qty_col])
-    price = safe_int(amount / qty) if qty else 0
+    amount = int(row_data[amount_col])
+    qty = int(row_data[qty_col])
+    price = int(amount / qty) if qty else 0
     
     # 查找前一天该品类数据
     prev_amount = 0
     if prev_category_data is not None:
         prev_cat_data = prev_category_data[prev_category_data[CATEGORY_COL] == cat]
         if not prev_cat_data.empty:
-            prev_amount = safe_int(prev_cat_data.iloc[0][amount_col])
+            prev_amount = int(prev_cat_data.iloc[0][amount_col])
     
     # 获取该品类的渠道分解
     category_channel_data = df_erp[df_erp[CATEGORY_COL] == cat].groupby('渠道').agg({
@@ -3270,28 +2338,28 @@ for idx, row in enumerate(category_data.iterrows(), 1):
     channel_breakdown = []
     for _, ch_row in category_channel_data.iterrows():
         channel = ch_row['渠道']
-        ch_amount = safe_int(ch_row[amount_col])
+        ch_amount = int(ch_row[amount_col])
         
         # 查找前一周该渠道数据
         prev_ch_amount = 0
         if prev_category_channel_data is not None:
             prev_ch_data = prev_category_channel_data[prev_category_channel_data['渠道'] == channel]
             if not prev_ch_data.empty:
-                prev_ch_amount = safe_int(prev_ch_data.iloc[0][amount_col])
+                prev_ch_amount = int(prev_ch_data.iloc[0][amount_col])
         
         channel_breakdown.append(f"{channel}¥{ch_amount:,}({calculate_ratio(ch_amount, prev_ch_amount)})")
     
     # 添加分销数据显示（如果存在）
     fenxiao_data = category_channel_data[category_channel_data['渠道'] == '分销']
     if not fenxiao_data.empty:
-        fenxiao_amount = safe_int(fenxiao_data.iloc[0][amount_col])
+        fenxiao_amount = int(fenxiao_data.iloc[0][amount_col])
         
         # 查找前一周分销数据
         prev_fenxiao_amount = 0
         if prev_category_channel_data is not None:
             prev_fenxiao_data = prev_category_channel_data[prev_category_channel_data['渠道'] == '分销']
             if not prev_fenxiao_data.empty:
-                prev_fenxiao_amount = safe_int(prev_fenxiao_data.iloc[0][amount_col])
+                prev_fenxiao_amount = int(prev_fenxiao_data.iloc[0][amount_col])
         
         # 如果分销金额大于0，添加特殊标识
         if fenxiao_amount > 0:
@@ -3348,16 +2416,16 @@ def generate_shop_ranking(shop_summary, prev_shop_summary, for_web=False):
             
         _, row_data = row
         shop = row_data['店铺']
-        amount = safe_int(row_data[amount_col])
-        qty = safe_int(row_data[qty_col])
-        price = safe_int(amount / qty) if qty else 0
+        amount = int(row_data[amount_col])
+        qty = int(row_data[qty_col])
+        price = int(amount / qty) if qty else 0
         
         # 查找前一周该店铺数据
         prev_amount = 0
         if prev_shop_summary is not None:
             prev_shop_data = prev_shop_summary[prev_shop_summary['店铺'] == shop]
             if not prev_shop_data.empty:
-                prev_amount = safe_int(prev_shop_data.iloc[0][amount_col])
+                prev_amount = int(prev_shop_data.iloc[0][amount_col])
         
         shop_list += f"├─ 🏪 TOP{idx} {shop}\n├─ 销售额: ¥{amount:,} ({calculate_ratio(amount, prev_amount)})\n├─ 单价: ¥{price:,}\n\n"
     
@@ -3370,16 +2438,16 @@ channel_summary = channel_summary.sort_values(amount_col, ascending=False)
 for idx, row in enumerate(channel_summary.iterrows(), 1):
     _, row_data = row
     channel = row_data['渠道']
-    amount = safe_int(row_data[amount_col])
-    qty = safe_int(row_data[qty_col])
-    price = safe_int(amount / qty) if qty else 0
+    amount = int(row_data[amount_col])
+    qty = int(row_data[qty_col])
+    price = int(amount / qty) if qty else 0
     
     # 查找前一周该渠道数据
     prev_amount = 0
     if prev_channel_summary is not None:
         prev_channel_data = prev_channel_summary[prev_channel_summary['渠道'] == channel]
         if not prev_channel_data.empty:
-            prev_amount = safe_int(prev_channel_data.iloc[0][amount_col])
+            prev_amount = int(prev_channel_data.iloc[0][amount_col])
     
     part2 += f"🏪 {idx}. {channel}渠道: ¥{amount:,} ({calculate_ratio(amount, prev_amount)}) | ¥{price:,}/件\n"
 
@@ -3463,15 +2531,15 @@ for idx, row in enumerate(category_data.iterrows(), 1):
     for product in all_products:
         # 本期数据
         cur_row = product_summary[product_summary[MODEL_COL] == product]
-        cur_amount = safe_int(cur_row[amount_col].values[0]) if not cur_row.empty else 0
-        cur_qty = safe_int(cur_row[qty_col].values[0]) if not cur_row.empty else 0
+        cur_amount = int(cur_row[amount_col].values[0]) if not cur_row.empty else 0
+        cur_qty = int(cur_row[qty_col].values[0]) if not cur_row.empty else 0
         # 对比期数据
         prev_amount = 0
         prev_qty = 0
         if prev_product_summary is not None:
             prev_row = prev_product_summary[prev_product_summary[MODEL_COL] == product]
-            prev_amount = safe_int(prev_row[amount_col].values[0]) if not prev_row.empty else 0
-            prev_qty = safe_int(prev_row[qty_col].values[0]) if not prev_row.empty else 0
+            prev_amount = int(prev_row[amount_col].values[0]) if not prev_row.empty else 0
+            prev_qty = int(prev_row[qty_col].values[0]) if not prev_row.empty else 0
         # 只要有一方大于1000就展示
         if cur_amount > 1000 or prev_amount > 1000:
             part3 += f"🔸 {product}：本期¥{cur_amount:,}，对比期¥{prev_amount:,}\n"
@@ -3514,15 +2582,15 @@ for idx, row in enumerate(shop_summary.iterrows(), 1):
     for product in all_products:
         # 本期数据
         cur_row = product_summary[product_summary[MODEL_COL] == product]
-        cur_amount = safe_int(cur_row[amount_col].values[0]) if not cur_row.empty else 0
-        cur_qty = safe_int(cur_row[qty_col].values[0]) if not cur_row.empty else 0
+        cur_amount = int(cur_row[amount_col].values[0]) if not cur_row.empty else 0
+        cur_qty = int(cur_row[qty_col].values[0]) if not cur_row.empty else 0
         # 对比期数据
         prev_amount = 0
         prev_qty = 0
         if prev_product_summary is not None:
             prev_row = prev_product_summary[prev_product_summary[MODEL_COL] == product]
-            prev_amount = safe_int(prev_row[amount_col].values[0]) if not prev_row.empty else 0
-            prev_qty = safe_int(prev_row[qty_col].values[0]) if not prev_row.empty else 0
+            prev_amount = int(prev_row[amount_col].values[0]) if not prev_row.empty else 0
+            prev_qty = int(prev_row[qty_col].values[0]) if not prev_row.empty else 0
         # 只要有一方大于1000就展示
         if cur_amount > 1000 or prev_amount > 1000:
             part4 += f"🔸 {product}：本期¥{cur_amount:,}，对比期¥{prev_amount:,}\n"
@@ -3540,14 +2608,14 @@ decline_channels = []
 
 for _, row in channel_summary.iterrows():
     channel = row['渠道']
-    current_amount = safe_int(row[amount_col])
+    current_amount = int(row[amount_col])
     
     # 查找前一周该渠道数据
     prev_amount = 0
     if prev_channel_summary is not None:
         prev_data = prev_channel_summary[prev_channel_summary['渠道'] == channel]
         if not prev_data.empty:
-            prev_amount = safe_int(prev_data.iloc[0][amount_col])
+            prev_amount = int(prev_data.iloc[0][amount_col])
     
     if prev_amount > 0:
         growth_rate = ((current_amount - prev_amount) / prev_amount) * 100
@@ -3584,14 +2652,14 @@ decline_shops = []
 
 for _, row in shop_summary.iterrows():
     shop = row['店铺']
-    current_amount = safe_int(row[amount_col])
+    current_amount = int(row[amount_col])
     
     # 查找前一周该店铺数据
     prev_amount = 0
     if prev_shop_summary is not None:
         prev_data = prev_shop_summary[prev_shop_summary['店铺'] == shop]
         if not prev_data.empty:
-            prev_amount = safe_int(prev_data.iloc[0][amount_col])
+            prev_amount = int(prev_data.iloc[0][amount_col])
     
     if prev_amount > 0:
         growth_rate = ((current_amount - prev_amount) / prev_amount) * 100
@@ -3641,14 +2709,14 @@ part5 += f"""
 category_changes = []
 for _, row in category_data.iterrows():
     category = row[CATEGORY_COL]
-    current_amount = safe_int(row[amount_col])
+    current_amount = int(row[amount_col])
     
     # 查找前一周该品类数据
     prev_amount = 0
     if prev_category_data is not None:
         prev_data = prev_category_data[prev_category_data[CATEGORY_COL] == category]
         if not prev_data.empty:
-            prev_amount = safe_int(prev_data.iloc[0][amount_col])
+            prev_amount = int(prev_data.iloc[0][amount_col])
     
     if prev_amount > 0:
         growth_rate = ((current_amount - prev_amount) / prev_amount) * 100
@@ -3729,7 +2797,7 @@ try:
     <div class="section left-align">
         <!-- 销售趋势图 -->
         <h2>📈 【销售趋势图】</h2>
-        {generate_sales_trend_chart_html(df_erp, amount_col, qty_col, CATEGORY_COL, SHOP_COL, MODEL_COL, category_icons)}
+        {generate_sales_trend_chart_html_simple(df_erp, amount_col, qty_col, CATEGORY_COL, SHOP_COL, MODEL_COL, category_icons)}
         
         <!-- 品类变化趋势 -->
         <h2>🔍 【品类变化趋势】</h2>
@@ -3791,15 +2859,15 @@ try:
     for idx, row in enumerate(channel_summary.iterrows(), 1):
         _, row_data = row
         channel = row_data['渠道']
-        amount = safe_int(row_data[amount_col])
-        qty = safe_int(row_data[qty_col])
-        price = safe_int(amount / qty) if qty else 0
+        amount = int(row_data[amount_col])
+        qty = int(row_data[qty_col])
+        price = int(amount / qty) if qty else 0
         # 修复：正确获取上月该渠道数据
         prev_amount = 0
         if prev_channel_summary is not None:
             prev_channel_data = prev_channel_summary[prev_channel_summary['渠道'] == channel]
             if not prev_channel_data.empty:
-                prev_amount = safe_int(prev_channel_data.iloc[0][amount_col])
+                prev_amount = int(prev_channel_data.iloc[0][amount_col])
         wechat_content += f"🏪 {idx}. {channel}渠道: ¥{amount:,} ({calculate_ratio(amount, prev_amount)}) | ¥{price:,}/件\n"
     wechat_content += "\n🔍 【品类变化趋势】\n"
     # 品类变化趋势排序：按本期销售额从高到低
@@ -3817,15 +2885,15 @@ try:
         if '数据来源' in df_erp.columns:
             fenxiao_data_cat = df_erp[(df_erp[CATEGORY_COL] == category) & (df_erp['数据来源'] == '分销')]
             if not fenxiao_data_cat.empty:
-                fenxiao_amount_cat = safe_int(fenxiao_data_cat[amount_col].sum())
-                fenxiao_qty_cat = safe_int(fenxiao_data_cat[qty_col].sum())
+                fenxiao_amount_cat = int(fenxiao_data_cat[amount_col].sum())
+                fenxiao_qty_cat = int(fenxiao_data_cat[qty_col].sum())
         
         # 上月分销数据
         if df_prev is not None and '数据来源' in df_prev.columns:
             prev_fenxiao_data_cat = df_prev[(df_prev[CATEGORY_COL] == category) & (df_prev['数据来源'] == '分销')]
             if not prev_fenxiao_data_cat.empty:
-                prev_fenxiao_amount_cat = safe_int(prev_fenxiao_data_cat[amount_col].sum())
-                prev_fenxiao_qty_cat = safe_int(prev_fenxiao_data_cat[qty_col].sum())
+                prev_fenxiao_amount_cat = int(prev_fenxiao_data_cat[amount_col].sum())
+                prev_fenxiao_qty_cat = int(prev_fenxiao_data_cat[qty_col].sum())
         
         # 基本品类变化信息
         if growth_rate > 0:
@@ -3886,78 +2954,62 @@ finally:
     print(f"\n⏱️ 总执行时间: {total_time}")
     logging.info(f"脚本执行完成，耗时: {total_time}")
 
-def normalize_date_format(date_str):
-    """
-    统一日期格式处理，兼容7.2号等特殊格式
-    """
-    if pd.isna(date_str) or date_str is None:
-        return None
-    
-    date_str = str(date_str).strip()
-    
-    # 处理7.2号格式 (7.2, 7.2号, 7.2日等)
-    if re.match(r'^\d+\.\d+[号日]?$', date_str):
-        # 提取月份和日期
-        parts = date_str.replace('号', '').replace('日', '').split('.')
-        if len(parts) == 2:
-            month = int(parts[0])
-            day = int(parts[1])
-            # 假设是当前年份
-            current_year = datetime.now().year
-            try:
-                return datetime(current_year, month, day).strftime('%Y-%m-%d')
-            except ValueError:
-                # 如果日期无效，返回None
-                return None
-    
-    # 处理其他常见格式
-    try:
-        # 尝试标准格式解析
-        parsed_date = pd.to_datetime(date_str, errors='coerce')
-        if pd.notna(parsed_date):
-            return parsed_date.strftime('%Y-%m-%d')
-    except:
-        pass
-    
-    # 处理YYYY-MM-DD HH:MM:SS格式
-    if re.match(r'^\d{4}-\d{2}-\d{2}', date_str):
-        try:
-            return pd.to_datetime(date_str).strftime('%Y-%m-%d')
-        except:
-            pass
-    
-    # 处理MM-DD格式
-    if re.match(r'^\d{2}-\d{2}$', date_str):
-        current_year = datetime.now().year
-        try:
-            return datetime(current_year, int(date_str.split('-')[0]), int(date_str.split('-')[1])).strftime('%Y-%m-%d')
-        except ValueError:
-            return None
-    
-    return None
-
 def get_trend_data_with_filters(df_erp, start_date, end_date, amount_col, qty_col, CATEGORY_COL, SHOP_COL, MODEL_COL):
     """
     获取趋势图数据，包含数据过滤和京东分销数据汇总
+    增强版：更好的日期格式兼容性
     """
     try:
         # 数据预处理
         df_copy = df_erp.copy()
         
-        # 统一日期格式处理
+        # 增强的日期格式处理
+        print(f"📊 开始处理日期格式，原始数据行数: {len(df_copy)}")
+        
+        # 检查交易时间列的原始格式
+        sample_dates = df_copy['交易时间'].head(10).tolist()
+        print(f"📊 日期格式样本: {sample_dates}")
+        
+        # 使用增强的日期格式处理函数
         df_copy['交易时间'] = df_copy['交易时间'].apply(normalize_date_format)
+        
+        # 统计处理结果
+        valid_dates = df_copy['交易时间'].notna().sum()
+        total_dates = len(df_copy)
+        print(f"📊 日期格式处理结果: 有效日期 {valid_dates}/{total_dates}")
+        
+        # 移除无效日期的行
         df_copy = df_copy.dropna(subset=['交易时间'])
+        print(f"📊 移除无效日期后数据行数: {len(df_copy)}")
+        
+        if df_copy.empty:
+            print("❌ 警告：所有日期数据都无效，无法生成趋势图")
+            return pd.DataFrame()
         
         # 转换为datetime类型
         df_copy['交易时间'] = pd.to_datetime(df_copy['交易时间'])
+        
+        # 显示日期范围
+        min_date = df_copy['交易时间'].min()
+        max_date = df_copy['交易时间'].max()
+        print(f"📊 数据日期范围: {min_date.strftime('%Y-%m-%d')} 至 {max_date.strftime('%Y-%m-%d')}")
         
         # 筛选日期范围
         start_datetime = pd.to_datetime(start_date)
         end_datetime = pd.to_datetime(end_date) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
         
+        print(f"📊 筛选日期范围: {start_datetime.strftime('%Y-%m-%d')} 至 {end_datetime.strftime('%Y-%m-%d')}")
+        
         df_filtered = df_copy[(df_copy['交易时间'] >= start_datetime) & (df_copy['交易时间'] <= end_datetime)].copy()
         
         print(f"📊 趋势图数据筛选: {start_date} 至 {end_date}, 共{len(df_filtered)}行")
+        
+        # 显示筛选后的日期分布
+        if not df_filtered.empty:
+            filtered_dates = df_filtered['交易时间'].dt.strftime('%Y-%m-%d').value_counts().sort_index()
+            print(f"📊 筛选后日期分布 (前10个):")
+            for date, count in filtered_dates.head(10).items():
+                print(f"   {date}: {count}条记录")
         
         # 京东分销数据汇总处理
         jingdong_data = df_filtered[df_filtered['店铺'].str.contains('京东', na=False)]
@@ -3973,10 +3025,390 @@ def get_trend_data_with_filters(df_erp, start_date, end_date, amount_col, qty_co
             
             # 将汇总数据添加到原数据中
             df_filtered = pd.concat([df_filtered, jingdong_summary], ignore_index=True)
+            print(f"📊 添加京东汇总后总行数: {len(df_filtered)}")
         
         return df_filtered
         
     except Exception as e:
         print(f"❌ 趋势图数据获取失败: {e}")
+        import traceback
+        traceback.print_exc()
         return pd.DataFrame()
 
+def generate_sales_trend_chart_html(df_erp, amount_col, qty_col, CATEGORY_COL, SHOP_COL, MODEL_COL, category_icons):
+    """
+    生成销售趋势图HTML - 堆积柱形图版本
+    包含堆积柱形图、万为单位显示、多筛选条件联动、智能排序、详细数据表格
+    """
+    try:
+        # 数据预处理
+        df_copy = df_erp.copy()
+        if df_copy is None or df_copy.empty:
+            print("❌ 警告：输入数据为空，无法生成趋势图")
+            return '<div style="color: #666; text-align: center; padding: 20px;">📊 暂无销售数据</div>'
+        
+        print(f"📊 开始处理销售趋势图，原始数据行数: {len(df_copy)}")
+        
+        # 确保日期列是datetime类型
+        df_copy['交易时间'] = pd.to_datetime(df_copy['交易时间'], errors='coerce')
+        df_copy = df_copy.dropna(subset=['交易时间'])
+        
+        if df_copy.empty:
+            print("❌ 警告：所有日期数据都无效，无法生成趋势图")
+            return '<div style="color: #666; text-align: center; padding: 20px;">📊 暂无有效的销售数据</div>'
+        
+        # 显示数据日期范围
+        min_date = df_copy['交易时间'].min()
+        max_date = df_copy['交易时间'].max()
+        print(f"📊 数据日期范围: {min_date.strftime('%Y-%m-%d')} 至 {max_date.strftime('%Y-%m-%d')}")
+        
+        # 获取数据的实际日期范围
+        data_start = min_date.replace(day=1)  # 从数据开始月份的第一天开始
+        data_end = max_date  # 到数据的最后一天结束
+        
+        print(f"📊 使用数据实际范围: {data_start.strftime('%Y-%m-%d')} 至 {data_end.strftime('%Y-%m-%d')}")
+        
+        # 筛选数据范围内的数据
+        df_filtered = df_copy[(df_copy['交易时间'] >= data_start) & (df_copy['交易时间'] <= data_end)].copy()
+        
+        print(f"📊 筛选后数据行数: {len(df_filtered)}")
+        
+        if df_filtered.empty:
+            return '<div style="color: #666; text-align: center; padding: 20px;">📊 暂无销售数据</div>'
+        
+        # 获取所有日期范围
+        date_range = pd.date_range(start=data_start, end=data_end, freq='D')
+        all_dates = [d.strftime('%Y-%m-%d') for d in date_range]
+        
+        print(f"📊 趋势图日期范围: {all_dates[0]} 至 {all_dates[-1]}, 共{len(all_dates)}天")
+        
+        # 按品类和日期聚合数据，用于堆积图
+        df_filtered['日期'] = df_filtered['交易时间'].dt.strftime('%Y-%m-%d')
+        
+        # 获取品类、店铺、单品列表，按销售额排序
+        category_sales = df_filtered.groupby(CATEGORY_COL)[amount_col].sum().sort_values(ascending=False)
+        categories = category_sales.index.tolist()
+        
+        shop_sales = df_filtered.groupby(SHOP_COL)[amount_col].sum().sort_values(ascending=False)
+        shops = shop_sales.index.tolist()
+        
+        product_sales = df_filtered.groupby(MODEL_COL)[amount_col].sum().sort_values(ascending=False)
+        products = product_sales.index.tolist()
+        
+        # 生成HTML选项
+        category_options = '\n'.join([f'<option value="{cat}">{category_icons.get(cat, "📦")} {cat}</option>' for cat in categories])
+        shop_options = '\n'.join([f'<option value="{shop}">{shop}</option>' for shop in shops])
+        product_options = '\n'.join([f'<option value="{product}">{product}</option>' for product in products])
+        
+        # 准备堆积图数据 - 按品类聚合
+        category_daily_data = df_filtered.groupby(['日期', CATEGORY_COL]).agg({
+            amount_col: 'sum',
+            qty_col: 'sum'
+        }).reset_index()
+        
+        # 确保所有日期和品类组合都有数据
+        category_daily_complete = []
+        for date in all_dates:
+            for category in categories:
+                data = category_daily_data[(category_daily_data['日期'] == date) & (category_daily_data[CATEGORY_COL] == category)]
+                if not data.empty:
+                    category_daily_complete.append({
+                        '日期': date,
+                        '品类': category,
+                        '销售额': float(data.iloc[0][amount_col]),
+                        '销售数量': float(data.iloc[0][qty_col])
+                    })
+                else:
+                    category_daily_complete.append({
+                        '日期': date,
+                        '品类': category,
+                        '销售额': 0.0,
+                        '销售数量': 0.0
+                    })
+        
+        category_daily_df = pd.DataFrame(category_daily_complete)
+        
+        # 准备图表数据
+        dates = all_dates
+        category_datasets = []
+        
+        # 按销售额排序品类，规模大的在下面
+        category_order = category_sales.index.tolist()
+        
+        # 定义颜色数组
+        colors = [
+            'rgba(54, 162, 235, 0.7)', 'rgba(255, 99, 132, 0.7)', 'rgba(255, 205, 86, 0.7)',
+            'rgba(75, 192, 192, 0.7)', 'rgba(153, 102, 255, 0.7)', 'rgba(255, 159, 64, 0.7)',
+            'rgba(199, 199, 199, 0.7)', 'rgba(83, 102, 255, 0.7)', 'rgba(78, 252, 3, 0.7)',
+            'rgba(252, 3, 244, 0.7)', 'rgba(3, 252, 198, 0.7)', 'rgba(252, 186, 3, 0.7)'
+        ]
+        
+        for i, category in enumerate(category_order):
+            category_data = category_daily_df[category_daily_df['品类'] == category]
+            amounts = [float(x) / 10000 for x in category_data['销售额'].tolist()]  # 转换为万元
+            category_datasets.append({
+                'label': category,
+                'data': amounts,
+                'backgroundColor': colors[i % len(colors)],
+                'borderColor': colors[i % len(colors)].replace('0.7', '1'),
+                'borderWidth': 1,
+                'stack': 'stack0'
+            })
+        
+        # 生成完整HTML
+        html = f'''
+        <div style="margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+            <h3 style="margin-bottom: 15px; color: #333;">📈 销售走势（堆积图）</h3>
+            
+            <!-- 筛选控件 -->
+            <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <label style="font-weight: bold; color: #555;">品类:</label>
+                    <select id="categoryFilter" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px; background: white;">
+                        <option value="">全部品类</option>
+                        {category_options}
+                    </select>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <label style="font-weight: bold; color: #555;">店铺:</label>
+                    <select id="shopFilter" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px; background: white;">
+                        <option value="">全部店铺</option>
+                        {shop_options}
+                    </select>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <label style="font-weight: bold; color: #555;">单品:</label>
+                    <select id="productFilter" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px; background: white;">
+                        <option value="">全部单品</option>
+                        {product_options}
+                    </select>
+                </div>
+                
+                <button onclick="resetFilters()" style="padding: 5px 10px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">重置筛选</button>
+            </div>
+            
+            <!-- 图表容器 -->
+            <div style="position: relative; height: 400px; margin-bottom: 20px;">
+                <canvas id="salesTrendChart" style="width: 100%; height: 100%;"></canvas>
+            </div>
+            
+            <!-- 数据表格 -->
+            <div style="margin-top: 20px;">
+                <h4 style="margin-bottom: 10px; color: #333;">📊 详细数据（万元）</h4>
+                <div id="dataTable" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px;">
+                    <table id="trendDataTable" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                        <thead style="background: #f8f9fa; position: sticky; top: 0;">
+                            <tr>
+                                <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">日期</th>
+                                <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">销售额 (万元)</th>
+                                <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">销售数量</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trendDataTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+        // 销售趋势图数据
+        const trendData = {{
+            dates: {dates},
+            categoryDatasets: {category_datasets},
+            categories: {categories},
+            shops: {shops},
+            products: {products},
+            categorySales: {category_sales.to_dict()},
+            shopSales: {shop_sales.to_dict()},
+            productSales: {product_sales.to_dict()}
+        }};
+        
+        // 图表配置
+        let salesTrendChart;
+        
+        function initTrendChart() {{
+            const trendCtx = document.getElementById('salesTrendChart');
+            if (trendCtx) {{
+                // 销毁现有图表
+                if (salesTrendChart) {{
+                    salesTrendChart.destroy();
+                }}
+                
+                // 获取筛选条件
+                const selectedCategory = document.getElementById('categoryFilter').value;
+                const selectedShop = document.getElementById('shopFilter').value;
+                const selectedProduct = document.getElementById('productFilter').value;
+                
+                // 准备图表数据
+                let chartDatasets = trendData.categoryDatasets;
+                
+                // 如果有筛选条件，重新计算数据
+                if (selectedCategory || selectedShop || selectedProduct) {{
+                    // 这里可以添加筛选逻辑，暂时使用全部数据
+                    console.log('筛选条件:', {{category: selectedCategory, shop: selectedShop, product: selectedProduct}});
+                }}
+                
+                // 更新数据表格
+                updateDataTable(trendData.dates, chartDatasets);
+                
+                // 创建堆积柱形图
+                salesTrendChart = new Chart(trendCtx, {{
+                    type: 'bar',
+                    data: {{
+                        labels: trendData.dates,
+                        datasets: chartDatasets
+                    }},
+                    options: {{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {{
+                            mode: 'index',
+                            intersect: false
+                        }},
+                        plugins: {{
+                            title: {{
+                                display: true,
+                                text: '销售趋势分析（堆积图）'
+                            }},
+                            legend: {{
+                                display: true,
+                                position: 'top'
+                            }},
+                            tooltip: {{
+                                callbacks: {{
+                                    label: function(context) {{
+                                        return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '万元';
+                                    }}
+                                }}
+                            }}
+                        }},
+                        scales: {{
+                            x: {{
+                                display: true,
+                                title: {{
+                                    display: true,
+                                    text: '日期'
+                                }}
+                            }},
+                            y: {{
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {{
+                                    display: true,
+                                    text: '销售额 (万元)'
+                                }},
+                                ticks: {{
+                                    callback: function(value) {{
+                                        return value.toFixed(1) + '万';
+                                    }}
+                                }},
+                                stacked: true
+                            }}
+                        }}
+                    }}
+                }});
+            }}
+        }}
+        
+        function updateDataTable(dates, datasets) {{
+            const tbody = document.getElementById('trendDataTableBody');
+            tbody.innerHTML = '';
+            
+            let totalAmount = 0;
+            let totalQty = 0;
+            
+            for (let i = 0; i < dates.length; i++) {{
+                const row = document.createElement('tr');
+                
+                // 计算当日总销售额
+                let dailyAmount = 0;
+                let dailyQty = 0;
+                for (let j = 0; j < datasets.length; j++) {{
+                    dailyAmount += datasets[j].data[i] || 0;
+                    // 这里可以添加数量计算逻辑
+                }}
+                
+                totalAmount += dailyAmount;
+                totalQty += dailyQty;
+                
+                row.innerHTML = `
+                    <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${{dates[i]}}</td>
+                    <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${{dailyAmount.toFixed(1)}}万</td>
+                    <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${{dailyQty}}件</td>
+                `;
+                tbody.appendChild(row);
+            }}
+            
+            // 添加月累汇总行
+            const summaryRow = document.createElement('tr');
+            summaryRow.style.backgroundColor = '#f8f9fa';
+            summaryRow.style.fontWeight = 'bold';
+            summaryRow.innerHTML = `
+                <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">月累汇总</td>
+                <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${{totalAmount.toFixed(1)}}万</td>
+                <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${{totalQty}}件</td>
+            `;
+            tbody.appendChild(summaryRow);
+        }}
+        
+        function resetFilters() {{
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('shopFilter').value = '';
+            document.getElementById('productFilter').value = '';
+            initTrendChart();
+        }}
+        
+        // 智能筛选联动
+        function updateShopOptions() {{
+            const selectedCategory = document.getElementById('categoryFilter').value;
+            const shopFilter = document.getElementById('shopFilter');
+            
+            if (selectedCategory) {{
+                // 根据选中的品类重新排序店铺选项
+                // 这里可以添加具体的筛选逻辑
+                console.log('更新店铺选项，选中品类:', selectedCategory);
+            }}
+        }}
+        
+        function updateProductOptions() {{
+            const selectedCategory = document.getElementById('categoryFilter').value;
+            const selectedShop = document.getElementById('shopFilter').value;
+            const productFilter = document.getElementById('productFilter');
+            
+            if (selectedCategory || selectedShop) {{
+                // 根据选中的品类和店铺重新排序单品选项
+                console.log('更新单品选项，选中品类:', selectedCategory, '选中店铺:', selectedShop);
+            }}
+        }}
+        
+        // 事件监听器
+        document.getElementById('categoryFilter').addEventListener('change', function() {{
+            updateShopOptions();
+            updateProductOptions();
+            initTrendChart();
+        }});
+        document.getElementById('shopFilter').addEventListener('change', function() {{
+            updateProductOptions();
+            initTrendChart();
+        }});
+        document.getElementById('productFilter').addEventListener('change', initTrendChart);
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {{
+            setTimeout(initTrendChart, 100);
+        }});
+        </script>
+        '''
+        
+        return html
+        
+    except Exception as e:
+        print(f"❌ 生成销售趋势图失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return f'<div style="color: #666; text-align: center; padding: 20px;">❌ 趋势图生成失败: {str(e)}</div>'

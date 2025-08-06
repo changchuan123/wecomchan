@@ -1,29 +1,4 @@
 {
-  "name": "sales-report",
-  "domains": [
-    {
-      "domain": "edge.haierht.cn",
-      "type": "custom"
-    }
-  ],
-  "build": {
-    "outputDirectory": "reports",
-    "buildCommand": "",
-    "installCommand": ""
-  },
-  "environment": {
-    "production": {
-      "EDGEONE_TOKEN": "${EDGEONE_TOKEN}"
-    }
-  },
-  "routes": [
-    {
-      "src": "/reports/(.*)",
-      "dest": "/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/reports/$1"
-    }
-  ]
+  "Name": "sales-report",
+  "ProjectId": "pages-tq7gdqhb1zgo"
 }

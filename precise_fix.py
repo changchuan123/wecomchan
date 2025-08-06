@@ -1,35 +1,75 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-精确修复JavaScript函数中的双大括号问题
+精确的修复脚本
 """
 
-def fix_js_functions():
-    """修复JavaScript函数中的双大括号"""
-    print("🔧 开始精确修复JavaScript函数...")
+def precise_fix():
+    """精确修复f-string中的大括号问题"""
     
-    # 读取文件
+    # 读取原文件
     with open('整体月报数据.py', 'r', encoding='utf-8') as f:
-        lines = f.readlines()
+        content = f.read()
     
-    # 修复特定的JavaScript函数
-    fixed_lines = []
-    for line in lines:
-        # 只修复JavaScript函数中的双大括号
-        if 'function' in line and '{{' in line:
-            line = line.replace('{{', '{')
-        if '}}' in line and ('function' in line or 'if (' in line or 'document.addEventListener' in line):
-            line = line.replace('}}', '}')
-        if '{{' in line and ('function' in line or 'if (' in line or 'document.addEventListener' in line):
-            line = line.replace('{{', '{')
+    # 修复第1931行附近的问题
+    # 将JavaScript代码从f-string中提取出来
+    
+    # 找到包含JavaScript的f-string并替换
+    old_js_block = '''                }}
+            }
+        };
         
-        fixed_lines.append(line)
+        // 初始化图表
+        let salesTrendChart;
+        
+        function initTrendChart() {{
+            const trendCtx = document.getElementById('salesTrendChart');
+            if (trendCtx) {{
+                salesTrendChart = new Chart(trendCtx, trendChartConfig);
+            }}
+        }}
+        
+        
     
-    # 写回文件
+    
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {{
+            setTimeout(initTrendChart, 100);
+        }});
+        </script>
+        ''''''
+    
+    new_js_block = '''                }}
+            }}
+        }};
+        
+        // 初始化图表
+        let salesTrendChart;
+        
+        function initTrendChart() {{
+            const trendCtx = document.getElementById('salesTrendChart');
+            if (trendCtx) {{
+                salesTrendChart = new Chart(trendCtx, trendChartConfig);
+            }}
+        }}
+        
+        
+    
+    
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {{
+            setTimeout(initTrendChart, 100);
+        }});
+        </script>
+        ''''''
+    
+    content = content.replace(old_js_block, new_js_block)
+    
+    # 写入修复后的文件
     with open('整体月报数据.py', 'w', encoding='utf-8') as f:
-        f.writelines(fixed_lines)
+        f.write(content)
     
-    print("✅ JavaScript函数修复完成")
+    print("✅ 精确修复完成")
 
 if __name__ == "__main__":
-    fix_js_functions() 
+    precise_fix() 

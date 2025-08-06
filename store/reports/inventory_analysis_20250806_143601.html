@@ -1,0 +1,1181 @@
+
+        <!DOCTYPE html>
+        <html lang="zh-CN">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>库存分析报告</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
+                .container { max-width: 1400px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                h1 { color: #333; text-align: center; }
+                .filters { margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 5px; }
+                .filters label { margin-right: 15px; font-weight: bold; }
+                .filters select { padding: 5px; margin-right: 20px; border: 1px solid #ddd; border-radius: 3px; }
+                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+                th { background-color: #f2f2f2; font-weight: bold; position: sticky; top: 0; }
+                tr:nth-child(even) { background-color: #f9f9f9; }
+                .number { text-align: right; font-family: monospace; }
+                .timestamp { text-align: center; color: #666; margin-top: 20px; font-style: italic; }
+                .category-row { background-color: #e3f2fd !important; font-weight: bold; }
+                .product-row { display: table-row; }
+            </style>
+            <script>
+                // 存储所有数据
+                let allData = [{'品类': '冰箱', '规格名称': 'BCD-88GHTMZ0WV', '合计库存': 2698.0, '常规仓': 0, '顺丰仓': 0, '京仓': 2698.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冰箱', '规格名称': 'BC-93LTMPA', '合计库存': 1639.0, '常规仓': 0, '顺丰仓': 0, '京仓': 1639.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冰箱', '规格名称': 'BCD-510WGHFD1BNXU1', '合计库存': 453.0, '常规仓': 0, '顺丰仓': 0, '京仓': 453.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冰箱', '规格名称': 'BCD-501WLHTD58B9U1', '合计库存': 287.0, '常规仓': 0, '顺丰仓': 0, '京仓': 134.0, '云仓': 153.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冰箱', '规格名称': 'BCD-539WGHTDEDSDU1', '合计库存': 164.0, '常规仓': 0, '顺丰仓': 0, '京仓': 98.0, '云仓': 66.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冰箱', '规格名称': 'BCD-620WGHSSEDWV', '合计库存': 89.0, '常规仓': 0, '顺丰仓': 0, '京仓': 89.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冰箱', '规格名称': 'BCD-400WLCI38FVAU1', '合计库存': 35.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 35.0}, {'品类': '冰箱', '规格名称': 'BCD-400WLCI3M4WKU1', '合计库存': 4.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 4.0}, {'品类': '冰箱', '规格名称': 'LTD-435WL9U1', '合计库存': 4.0, '常规仓': 0, '顺丰仓': 0, '京仓': 4.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冰箱', '规格名称': 'BCD-486WGHFD1BG9U1', '合计库存': 3.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 3.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冰箱', '规格名称': 'BCD-478WGHTD5DDYU1', '合计库存': 2.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 2.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冰箱', '规格名称': 'BCD-603WGCRTM7S3U1', '合计库存': 2.0, '常规仓': 0, '顺丰仓': 0, '京仓': 2.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冰箱', '规格名称': 'BCD-485WGHFD1BWLU1', '合计库存': 1.0, '常规仓': 0, '顺丰仓': 0, '京仓': 1.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冰箱', '规格名称': 'BCD-518WLHSSE5D9U1', '合计库存': 1.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 1.0, '统仓': 0, '金融仓': 0.0}, {'品类': '洗衣机', '规格名称': 'XQB80-M308', '合计库存': 1915.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 1885.0, '统仓': 0, '金融仓': 30.0}, {'品类': '洗衣机', '规格名称': 'XQG100-LD58E', '合计库存': 370.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 370.0, '统仓': 0, '金融仓': 0.0}, {'品类': '洗衣机', '规格名称': 'C3 3W1U1', '合计库存': 25.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 25.0}, {'品类': '洗衣机', '规格名称': 'CGY 10FL5EU1', '合计库存': 5.0, '常规仓': 0, '顺丰仓': 0, '京仓': 5.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '洗衣机', '规格名称': 'XQB100-Z228', '合计库存': 3.0, '常规仓': 0, '顺丰仓': 0, '京仓': 3.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '洗衣机', '规格名称': 'EG10012B28S', '合计库存': 1.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 1.0, '统仓': 0, '金融仓': 0.0}, {'品类': '洗衣机', '规格名称': 'EG100BD39S', '合计库存': 1.0, '常规仓': 0, '顺丰仓': 0, '京仓': 1.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '电热', '规格名称': 'EC6002-PT5U1', '合计库存': 1415.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 1415.0}, {'品类': '电热', '规格名称': 'ES60H-GD5(A)U1', '合计库存': 800.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 800.0}, {'品类': '空调', '规格名称': 'KFR-35GW/05LKG81TU1', '合计库存': 603.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 603.0, '统仓': 0, '金融仓': 0.0}, {'品类': '空调', '规格名称': 'KFR-48GW/18MDA81TU1', '合计库存': 591.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 591.0, '统仓': 0, '金融仓': 0.0}, {'品类': '空调', '规格名称': 'KFR-72LW/03LKB81TU1', '合计库存': 150.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 150.0, '统仓': 0, '金融仓': 0.0}, {'品类': '空调', '规格名称': 'KFR-26GW/02KBB83U1', '合计库存': 7.0, '常规仓': 0, '顺丰仓': 0, '京仓': 7.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '空调', '规格名称': 'KFR-72GW/18MDA83TU1', '合计库存': 6.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 6.0, '统仓': 0, '金融仓': 0.0}, {'品类': '空调', '规格名称': 'KF-35GW/20MCA75', '合计库存': 5.0, '常规仓': 0, '顺丰仓': 0, '京仓': 5.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '空调', '规格名称': 'KFR-50GW/18MDA81TU1', '合计库存': 5.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 5.0, '统仓': 0, '金融仓': 0.0}, {'品类': '空调', '规格名称': 'KFR-35GW/03LKB81TU1', '合计库存': 3.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 3.0, '统仓': 0, '金融仓': 0.0}, {'品类': '空调', '规格名称': 'KFR-35GW/03XBA81ATU1', '合计库存': 2.0, '常规仓': 0, '顺丰仓': 0, '京仓': 2.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '空调', '规格名称': 'KFRD-125QW/21DAH13', '合计库存': 2.0, '常规仓': 0, '顺丰仓': 0, '京仓': 2.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '空调', '规格名称': 'KF-26GW/20MCA75', '合计库存': 1.0, '常规仓': 0, '顺丰仓': 0, '京仓': 1.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '空调', '规格名称': 'KFR-26GW/05EDS83', '合计库存': 1.0, '常规仓': 0, '顺丰仓': 0, '京仓': 1.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '空调', '规格名称': 'KFR-72LW/02WDB81TU1', '合计库存': 1.0, '常规仓': 0, '顺丰仓': 0, '京仓': 1.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '空调', '规格名称': 'KFR-72LW/28PCA81U1', '合计库存': 1.0, '常规仓': 0, '顺丰仓': 0, '京仓': 1.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '洗碗机', '规格名称': 'EYBW152266BKU1', '合计库存': 145.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 145.0}, {'品类': '净水', '规格名称': 'CKC800-RZF18HU1', '合计库存': 71.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 71.0}, {'品类': '净水', '规格名称': 'HRO1000CVH7-U1', '合计库存': 22.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 22.0}, {'品类': '净水', '规格名称': 'CRO800-DA2U1', '合计库存': 20.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 20.0}, {'品类': '净水', '规格名称': 'HKC600-RFB17A3U1', '合计库存': 14.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 14.0}, {'品类': '净水', '规格名称': 'CKC1000-RZQ3U1', '合计库存': 6.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 6.0}, {'品类': '净水', '规格名称': 'CGR-22BU1', '合计库存': 3.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 3.0}, {'品类': '净水', '规格名称': 'HKC3000-R886D2U1', '合计库存': 2.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 2.0}, {'品类': '净水', '规格名称': 'CS15-XHU1', '合计库存': 1.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 1.0}, {'品类': '冷柜', '规格名称': 'BC/BD-200WGHESM', '合计库存': 29.0, '常规仓': 0, '顺丰仓': 0, '京仓': 29.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冷柜', '规格名称': 'BD-331WEGAU1', '合计库存': 14.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 14.0}, {'品类': '冷柜', '规格名称': 'BC/BD-241WGHEB1', '合计库存': 7.0, '常规仓': 0, '顺丰仓': 0, '京仓': 7.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冷柜', '规格名称': 'BC/BD-241WGHESM', '合计库存': 7.0, '常规仓': 0, '顺丰仓': 0, '京仓': 7.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冷柜', '规格名称': 'BC/BD-200WGHEB1', '合计库存': 6.0, '常规仓': 0, '顺丰仓': 0, '京仓': 6.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冷柜', '规格名称': 'BD-210WGHS9', '合计库存': 5.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 2.0, '统仓': 0, '金融仓': 3.0}, {'品类': '冷柜', '规格名称': 'BC/BD-100GHPCZ', '合计库存': 3.0, '常规仓': 0, '顺丰仓': 0, '京仓': 3.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冷柜', '规格名称': 'BD-151WGHES', '合计库存': 3.0, '常规仓': 0, '顺丰仓': 0, '京仓': 3.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冷柜', '规格名称': 'LC-220JE', '合计库存': 3.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 3.0}, {'品类': '冷柜', '规格名称': 'BC/BD-200GHEPG', '合计库存': 1.0, '常规仓': 0, '顺丰仓': 0, '京仓': 1.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冷柜', '规格名称': 'BC/BD-200GHMT', '合计库存': 1.0, '常规仓': 0, '顺丰仓': 0, '京仓': 1.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '冷柜', '规格名称': 'BD-171WGHECZ', '合计库存': 1.0, '常规仓': 0, '顺丰仓': 0, '京仓': 1.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '商用柜嵌', '规格名称': 'KFRd-120LW/5YTF82T', '合计库存': 50.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 50.0}, {'品类': '彩电', '规格名称': 'K75M60', '合计库存': 10.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 10.0}, {'品类': '彩电', '规格名称': 'K65M60', '合计库存': 8.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 8.0}, {'品类': '彩电', '规格名称': 'K100M50', '合计库存': 4.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 4.0}, {'品类': '彩电', '规格名称': 'K85M60', '合计库存': 4.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 4.0}, {'品类': '彩电', '规格名称': 'K85M30', '合计库存': 2.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 2.0}, {'品类': '厨电', '规格名称': 'JZT-Q23M(12T)', '合计库存': 20.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 20.0}, {'品类': '厨电', '规格名称': 'CXW-358-EC723', '合计库存': 2.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 2.0, '统仓': 0, '金融仓': 0.0}, {'品类': '厨电', '规格名称': 'CXW-258-EC719UD', '合计库存': 1.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 1.0, '统仓': 0, '金融仓': 0.0}, {'品类': '热泵', '规格名称': 'KF75/200-AE7U1', '合计库存': 5.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 5.0}, {'品类': '燃热', '规格名称': 'JSQ25-13CV1GU1', '合计库存': 5.0, '常规仓': 0, '顺丰仓': 0, '京仓': 0.0, '云仓': 0.0, '统仓': 0, '金融仓': 5.0}, {'品类': '热水器', '规格名称': 'L1PB20-LC1(T)U1', '合计库存': 3.0, '常规仓': 0, '顺丰仓': 0, '京仓': 3.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}, {'品类': '其他', '规格名称': '纤见干衣机香薰片40片/盒', '合计库存': 1.0, '常规仓': 0, '顺丰仓': 0, '京仓': 1.0, '云仓': 0.0, '统仓': 0, '金融仓': 0.0}];
+                
+                function updateProductFilter() {
+                    const categoryFilter = document.getElementById('categoryFilter').value;
+                    const productFilter = document.getElementById('productFilter');
+                    
+                    // 清空产品筛选
+                    productFilter.innerHTML = '<option value="">全部规格名称</option>';
+                    
+                    if (categoryFilter) {
+                        // 获取该品类下的所有产品，按数量排序
+                        const categoryProducts = allData
+                            .filter(item => item.品类 === categoryFilter)
+                            .sort((a, b) => b.合计库存 - a.合计库存);
+                        
+                        categoryProducts.forEach(item => {
+                            const option = document.createElement('option');
+                            option.value = item.规格名称;
+                            option.textContent = `${item.规格名称} (${item.合计库存.toLocaleString()})`;
+                            productFilter.appendChild(option);
+                        });
+                    }
+                    
+                    filterTable();
+                }
+                
+                function filterTable() {
+                    const categoryFilter = document.getElementById('categoryFilter').value;
+                    const productFilter = document.getElementById('productFilter').value;
+                    const rows = document.querySelectorAll('tbody tr');
+                    let visibleCount = 0;
+                    
+                    rows.forEach(row => {
+                        const category = row.cells[0].textContent.trim();
+                        const product = row.cells[1].textContent.trim();
+                        
+                        // 检查是否是品类行（包含"小计"字样）
+                        const isCategoryRow = category.includes('小计');
+                        
+                        if (isCategoryRow) {
+                            // 品类行的处理逻辑
+                            const categoryName = category.replace(' (小计)', '');
+                            const categoryMatch = categoryFilter === '' || categoryName === categoryFilter;
+                            if (categoryMatch) {
+                                row.style.display = '';
+                                visibleCount++;
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        } else {
+                            // 产品行的处理逻辑
+                            const categoryMatch = categoryFilter === '' || category === categoryFilter;
+                            const productMatch = productFilter === '' || product === productFilter;
+                            
+                            if (categoryMatch && productMatch) {
+                                row.style.display = '';
+                                visibleCount++;
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        }
+                    });
+                    
+                    // 更新显示信息
+                    document.getElementById('visibleCount').textContent = visibleCount;
+                }
+                
+                function resetFilters() {
+                    document.getElementById('categoryFilter').value = '';
+                    document.getElementById('productFilter').innerHTML = '<option value="">全部规格名称</option>';
+                    filterTable();
+                }
+                
+                // 页面加载时初始化筛选
+                window.onload = function() {
+                    filterTable();
+                };
+            </script>
+        </head>
+        <body>
+            <div class="container">
+                <h1>📦 库存分析报告</h1>
+                
+                <div class="filters">
+                    <label>品类筛选:</label>
+                    <select id="categoryFilter" onchange="updateProductFilter()">
+                        <option value="">全部品类</option>
+                        <option value="冰箱">冰箱</option><option value="洗衣机">洗衣机</option><option value="电热">电热</option><option value="空调">空调</option><option value="洗碗机">洗碗机</option><option value="净水">净水</option><option value="冷柜">冷柜</option><option value="商用柜嵌">商用柜嵌</option><option value="彩电">彩电</option><option value="厨电">厨电</option><option value="热泵">热泵</option><option value="燃热">燃热</option><option value="热水器">热水器</option><option value="其他">其他</option>
+                    </select>
+                    
+                    <label>规格名称筛选:</label>
+                    <select id="productFilter" onchange="filterTable()">
+                        <option value="">全部规格名称</option>
+                    </select>
+                    
+                    <button onclick="resetFilters()" style="padding: 5px 10px; margin-left: 10px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">重置筛选</button>
+                    
+                    <span style="margin-left: 20px; color: #666;">显示记录数: <span id="visibleCount">0</span></span>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>品类</th>
+                            <th>规格名称</th>
+                            <th>合计库存</th>
+                            <th>常规仓</th>
+                            <th>顺丰仓</th>
+                            <th>京仓</th>
+                            <th>云仓</th>
+                            <th>统仓</th>
+                            <th>金融仓</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        
+                        <tr class="category-row">
+                            <td>冰箱 (小计)</td>
+                            <td></td>
+                            <td class="number">5,382</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">5,118</td>
+                            <td class="number">225</td>
+                            <td class="number">0</td>
+                            <td class="number">39</td>
+                        </tr>
+            
+                        <tr>
+                            <td></td>
+                            <td>BCD-88GHTMZ0WV</td>
+                            <td class="number">2,698</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">2,698</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BC-93LTMPA</td>
+                            <td class="number">1,639</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1,639</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BCD-510WGHFD1BNXU1</td>
+                            <td class="number">453</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">453</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BCD-501WLHTD58B9U1</td>
+                            <td class="number">287</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">134</td>
+                            <td class="number">153</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BCD-539WGHTDEDSDU1</td>
+                            <td class="number">164</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">98</td>
+                            <td class="number">66</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BCD-620WGHSSEDWV</td>
+                            <td class="number">89</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">89</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BCD-400WLCI38FVAU1</td>
+                            <td class="number">35</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">35</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BCD-400WLCI3M4WKU1</td>
+                            <td class="number">4</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">4</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>LTD-435WL9U1</td>
+                            <td class="number">4</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">4</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BCD-486WGHFD1BG9U1</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BCD-478WGHTD5DDYU1</td>
+                            <td class="number">2</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">2</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BCD-603WGCRTM7S3U1</td>
+                            <td class="number">2</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">2</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BCD-485WGHFD1BWLU1</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BCD-518WLHSSE5D9U1</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr class="category-row">
+                            <td>洗衣机 (小计)</td>
+                            <td></td>
+                            <td class="number">2,320</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">9</td>
+                            <td class="number">2,256</td>
+                            <td class="number">0</td>
+                            <td class="number">55</td>
+                        </tr>
+            
+                        <tr>
+                            <td></td>
+                            <td>XQB80-M308</td>
+                            <td class="number">1,915</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1,885</td>
+                            <td class="number">0</td>
+                            <td class="number">30</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>XQG100-LD58E</td>
+                            <td class="number">370</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">370</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>C3 3W1U1</td>
+                            <td class="number">25</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">25</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>CGY 10FL5EU1</td>
+                            <td class="number">5</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">5</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>XQB100-Z228</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>EG10012B28S</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>EG100BD39S</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr class="category-row">
+                            <td>电热 (小计)</td>
+                            <td></td>
+                            <td class="number">2,215</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">2,215</td>
+                        </tr>
+            
+                        <tr>
+                            <td></td>
+                            <td>EC6002-PT5U1</td>
+                            <td class="number">1,415</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1,415</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>ES60H-GD5(A)U1</td>
+                            <td class="number">800</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">800</td>
+                        </tr>
+                
+                        <tr class="category-row">
+                            <td>空调 (小计)</td>
+                            <td></td>
+                            <td class="number">1,378</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">20</td>
+                            <td class="number">1,358</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+            
+                        <tr>
+                            <td></td>
+                            <td>KFR-35GW/05LKG81TU1</td>
+                            <td class="number">603</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">603</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>KFR-48GW/18MDA81TU1</td>
+                            <td class="number">591</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">591</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>KFR-72LW/03LKB81TU1</td>
+                            <td class="number">150</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">150</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>KFR-26GW/02KBB83U1</td>
+                            <td class="number">7</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">7</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>KFR-72GW/18MDA83TU1</td>
+                            <td class="number">6</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">6</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>KF-35GW/20MCA75</td>
+                            <td class="number">5</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">5</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>KFR-50GW/18MDA81TU1</td>
+                            <td class="number">5</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">5</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>KFR-35GW/03LKB81TU1</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>KFR-35GW/03XBA81ATU1</td>
+                            <td class="number">2</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">2</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>KFRD-125QW/21DAH13</td>
+                            <td class="number">2</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">2</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>KF-26GW/20MCA75</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>KFR-26GW/05EDS83</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>KFR-72LW/02WDB81TU1</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>KFR-72LW/28PCA81U1</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr class="category-row">
+                            <td>洗碗机 (小计)</td>
+                            <td></td>
+                            <td class="number">145</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">145</td>
+                        </tr>
+            
+                        <tr>
+                            <td></td>
+                            <td>EYBW152266BKU1</td>
+                            <td class="number">145</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">145</td>
+                        </tr>
+                
+                        <tr class="category-row">
+                            <td>净水 (小计)</td>
+                            <td></td>
+                            <td class="number">139</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">139</td>
+                        </tr>
+            
+                        <tr>
+                            <td></td>
+                            <td>CKC800-RZF18HU1</td>
+                            <td class="number">71</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">71</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>HRO1000CVH7-U1</td>
+                            <td class="number">22</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">22</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>CRO800-DA2U1</td>
+                            <td class="number">20</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">20</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>HKC600-RFB17A3U1</td>
+                            <td class="number">14</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">14</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>CKC1000-RZQ3U1</td>
+                            <td class="number">6</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">6</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>CGR-22BU1</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">3</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>HKC3000-R886D2U1</td>
+                            <td class="number">2</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">2</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>CS15-XHU1</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1</td>
+                        </tr>
+                
+                        <tr class="category-row">
+                            <td>冷柜 (小计)</td>
+                            <td></td>
+                            <td class="number">80</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">58</td>
+                            <td class="number">2</td>
+                            <td class="number">0</td>
+                            <td class="number">20</td>
+                        </tr>
+            
+                        <tr>
+                            <td></td>
+                            <td>BC/BD-200WGHESM</td>
+                            <td class="number">29</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">29</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BD-331WEGAU1</td>
+                            <td class="number">14</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">14</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BC/BD-241WGHEB1</td>
+                            <td class="number">7</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">7</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BC/BD-241WGHESM</td>
+                            <td class="number">7</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">7</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BC/BD-200WGHEB1</td>
+                            <td class="number">6</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">6</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BD-210WGHS9</td>
+                            <td class="number">5</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">2</td>
+                            <td class="number">0</td>
+                            <td class="number">3</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BC/BD-100GHPCZ</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BD-151WGHES</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>LC-220JE</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">3</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BC/BD-200GHEPG</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BC/BD-200GHMT</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>BD-171WGHECZ</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr class="category-row">
+                            <td>商用柜嵌 (小计)</td>
+                            <td></td>
+                            <td class="number">50</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">50</td>
+                        </tr>
+            
+                        <tr>
+                            <td></td>
+                            <td>KFRd-120LW/5YTF82T</td>
+                            <td class="number">50</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">50</td>
+                        </tr>
+                
+                        <tr class="category-row">
+                            <td>彩电 (小计)</td>
+                            <td></td>
+                            <td class="number">28</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">28</td>
+                        </tr>
+            
+                        <tr>
+                            <td></td>
+                            <td>K75M60</td>
+                            <td class="number">10</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">10</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>K65M60</td>
+                            <td class="number">8</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">8</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>K100M50</td>
+                            <td class="number">4</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">4</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>K85M60</td>
+                            <td class="number">4</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">4</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>K85M30</td>
+                            <td class="number">2</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">2</td>
+                        </tr>
+                
+                        <tr class="category-row">
+                            <td>厨电 (小计)</td>
+                            <td></td>
+                            <td class="number">23</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">20</td>
+                        </tr>
+            
+                        <tr>
+                            <td></td>
+                            <td>JZT-Q23M(12T)</td>
+                            <td class="number">20</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">20</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>CXW-358-EC723</td>
+                            <td class="number">2</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">2</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr>
+                            <td></td>
+                            <td>CXW-258-EC719UD</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr class="category-row">
+                            <td>热泵 (小计)</td>
+                            <td></td>
+                            <td class="number">5</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">5</td>
+                        </tr>
+            
+                        <tr>
+                            <td></td>
+                            <td>KF75/200-AE7U1</td>
+                            <td class="number">5</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">5</td>
+                        </tr>
+                
+                        <tr class="category-row">
+                            <td>燃热 (小计)</td>
+                            <td></td>
+                            <td class="number">5</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">5</td>
+                        </tr>
+            
+                        <tr>
+                            <td></td>
+                            <td>JSQ25-13CV1GU1</td>
+                            <td class="number">5</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">5</td>
+                        </tr>
+                
+                        <tr class="category-row">
+                            <td>热水器 (小计)</td>
+                            <td></td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+            
+                        <tr>
+                            <td></td>
+                            <td>L1PB20-LC1(T)U1</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">3</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr class="category-row">
+                            <td>其他 (小计)</td>
+                            <td></td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+            
+                        <tr>
+                            <td></td>
+                            <td>纤见干衣机香薰片40片/盒</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">1</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                        </tr>
+                
+                        <tr style="background-color: #ffeb3b; font-weight: bold;">
+                            <td colspan="2">总计</td>
+                            <td class="number">11,774</td>
+                            <td class="number">0</td>
+                            <td class="number">0</td>
+                            <td class="number">5,209</td>
+                            <td class="number">3,844</td>
+                            <td class="number">0</td>
+                            <td class="number">2,721</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="timestamp">
+                    📅 报告生成时间: 2025-08-06 14:36:01
+                </div>
+            </div>
+        </body>
+        </html>
+        

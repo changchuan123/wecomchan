@@ -76,6 +76,9 @@ url = "http://212.64.57.87:5001/send"         # WecomChan服务器地址
 token = "wecomchan_token"                      # 认证令牌
 to_user = "weicungang"                         # 先只发给weicungang
 
+# 企业微信推送开关 - 当服务器配置有问题时可以暂时禁用
+ENABLE_WECOM_PUSH = True  # 设置为False可以禁用企业微信推送
+
 # 企业微信服务器配置
 server_base = "http://212.64.57.87:5001"
 
@@ -231,6 +234,11 @@ def get_web_report_url():
 
 def _send_single_message(message):
     """发送单条消息"""
+    # 检查企业微信推送开关
+    if not ENABLE_WECOM_PUSH:
+        print("⚠️ 企业微信推送已禁用 (ENABLE_WECOM_PUSH = False)")
+        return True  # 返回True避免触发失败报告
+    
     url = "http://212.64.57.87:5001/send"
     token = "wecomchan_token"
     data = {
@@ -461,9 +469,20 @@ def deploy_to_edgeone(reports_dir):
         deploy_path = os.path.abspath(reports_dir)
         print(f"🔧 使用绝对路径部署: {deploy_path}")
         
+        # 影刀环境中的EdgeOne CLI路径
+        edgeone_cli_path = r"C:\Users\weicu\AppData\Roaming\npm\edgeone.cmd"
+        print(f"🔧 使用EdgeOne CLI路径: {edgeone_cli_path}")
+        
+        # 检查CLI是否存在
+        if not os.path.exists(edgeone_cli_path):
+            print(f"❌ EdgeOne CLI不存在: {edgeone_cli_path}")
+            # 尝试使用环境变量中的edgeone
+            edgeone_cli_path = "edgeone"
+            print(f"🔧 尝试使用环境变量: {edgeone_cli_path}")
+        
         # 执行部署命令
         result = subprocess.run([
-            "edgeone", "pages", "deploy", deploy_path,
+            edgeone_cli_path, "pages", "deploy", deploy_path,
             "-n", "sales-report",
             "-t", "YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc="
         ], capture_output=True, text=True, timeout=300)
@@ -782,7 +801,7 @@ def force_categorize_product(product_name):
     return "冰箱"
 
 def identify_tianmao_fenxiao(df):
-    """从原有数据中识别天猫分销数据（仓库字段包含'菜鸟仓'相关关键词）"""
+    """从原有数据中识别天猫分销数据（仓库字段为'菜鸟仓自流转'）"""
     try:
         # 查找仓库相关字段
         warehouse_cols = [col for col in df.columns if '仓库' in col or 'warehouse' in col.lower()]
@@ -799,12 +818,12 @@ def identify_tianmao_fenxiao(df):
         unique_warehouses = df[warehouse_col].dropna().unique()
         logging.info(f"📊 仓库字段唯一值: {unique_warehouses[:10]}")  # 只显示前10个
         
-        # 筛选天猫渠道且仓库包含菜鸟仓相关关键词的数据
+        # 筛选天猫渠道且仓库为"菜鸟仓自流转"的数据
         tianmao_mask = df[SHOP_COL].astype(str).str.contains('天猫|淘宝', na=False)
-        warehouse_mask = df[warehouse_col].astype(str).str.contains('菜鸟仓|菜鸟|分销|分销仓', na=False)
+        warehouse_mask = df[warehouse_col].astype(str) == '菜鸟仓自流转'
         
         logging.info(f"📊 天猫渠道数据: {tianmao_mask.sum()}行")
-        logging.info(f"📊 菜鸟仓分销数据: {warehouse_mask.sum()}行")
+        logging.info(f"📊 菜鸟仓自流转数据: {warehouse_mask.sum()}行")
         
         tianmao_fenxiao = df[tianmao_mask & warehouse_mask].copy()
         

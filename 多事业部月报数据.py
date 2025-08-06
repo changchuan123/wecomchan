@@ -478,7 +478,7 @@ def force_categorize_product(product_name):
     return "冰箱"
 
 def identify_tianmao_fenxiao(df):
-    """从ERP数据中识别天猫分销数据（仓库字段包含'菜鸟仓自流转'）"""
+    """从ERP数据中识别天猫分销数据（仓库字段为'菜鸟仓自流转'）"""
     try:
         logger.info("🔍 开始识别天猫分销数据...")
         
@@ -492,9 +492,9 @@ def identify_tianmao_fenxiao(df):
         unique_warehouses = df[warehouse_col].dropna().unique()
         logger.info(f"📊 仓库字段唯一值: {unique_warehouses[:10]}")  # 只显示前10个
         
-        # 筛选天猫渠道且仓库包含"菜鸟仓自流转"的数据
+        # 筛选天猫渠道且仓库为"菜鸟仓自流转"的数据
         tianmao_mask = df[SHOP_COL].astype(str).str.contains('天猫|淘宝', na=False)
-        warehouse_mask = df[warehouse_col].astype(str).str.contains('菜鸟仓自流转', na=False)
+        warehouse_mask = df[warehouse_col].astype(str) == '菜鸟仓自流转'
         
         logger.info(f"📊 天猫渠道数据: {tianmao_mask.sum()}行")
         logger.info(f"📊 菜鸟仓自流转数据: {warehouse_mask.sum()}行")

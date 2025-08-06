@@ -938,8 +938,41 @@ def force_categorize_product(product_name):
     # 默认兜底
     return "冰箱"
 
+def categorize_product_for_fenxiao(product_name):
+    """从产品名称中识别品类，优先使用数据库匹配"""
+    if not isinstance(product_name, str):
+        return "其他"
+    
+    # 首先尝试从数据库获取品类
+    db_category = get_product_category_from_db(product_name)
+    if db_category:
+        return db_category
+    
+    # 如果数据库匹配失败，使用关键词识别
+    product_name_lower = product_name.lower()
+    
+    # 品类关键词映射
+    category_keywords = {
+        "家用空调": ["空调", "挂机", "柜机", "中央空调", "分体式"],
+        "商用空调": ["商用", "商用空调", "多联机", "风管机"],
+        "冰箱": ["冰箱", "冷柜", "冰柜", "冷藏", "冷冻"],
+        "洗衣机": ["洗衣机", "洗烘一体", "滚筒", "波轮"],
+        "洗碗机": ["洗碗机", "洗碗", "洗碟机"],  # 洗碗机独立为一个品类
+        "热水器": ["热水器", "电热水器", "燃气热水器", "多能源热水器"],
+        "净水": ["净水", "净水器", "净水机", "过滤器"],
+        "采暖": ["采暖", "暖气", "地暖", "壁挂炉"],
+        "厨电": ["厨电", "油烟机", "燃气灶", "消毒柜", "蒸箱", "烤箱"]  # 移除洗碗机
+    }
+    
+    for category, keywords in category_keywords.items():
+        if any(keyword in product_name_lower for keyword in keywords):
+            return category
+    
+    logger.info(f"⚠️ 未匹配到品类: {product_name}，归类为其他")
+    return "其他"
+
 def identify_tianmao_fenxiao(df):
-    """从原有数据中识别天猫分销数据（仓库字段包含'菜鸟仓自流转'）"""
+    """从原有数据中识别天猫分销数据（仓库字段为'菜鸟仓自流转'）"""
     try:
         # 查找仓库相关字段
         warehouse_cols = [col for col in df.columns if '仓库' in col or 'warehouse' in col.lower()]
@@ -956,9 +989,9 @@ def identify_tianmao_fenxiao(df):
         unique_warehouses = df[warehouse_col].dropna().unique()
         logger.info(f"📊 仓库字段唯一值: {unique_warehouses[:10]}")  # 只显示前10个
         
-        # 筛选天猫渠道且仓库包含菜鸟仓相关关键词的数据
+        # 筛选天猫渠道且仓库为"菜鸟仓自流转"的数据
         tianmao_mask = df[SHOP_COL].astype(str).str.contains('天猫|淘宝', na=False)
-        warehouse_mask = df[warehouse_col].astype(str).str.contains('菜鸟仓|菜鸟|分销|分销仓', na=False)
+        warehouse_mask = df[warehouse_col].astype(str) == '菜鸟仓自流转'
         
         logger.info(f"📊 天猫渠道数据: {tianmao_mask.sum()}行")
         logger.info(f"📊 菜鸟仓自流转数据: {warehouse_mask.sum()}行")
@@ -968,12 +1001,12 @@ def identify_tianmao_fenxiao(df):
         if not tianmao_fenxiao.empty:
             # 添加分销标识
             tianmao_fenxiao['数据来源'] = '分销'
-            # 使用原有的货品名称，而不是规格名称的品类
-            tianmao_fenxiao['品类'] = tianmao_fenxiao[CATEGORY_COL].apply(categorize_product)
+            # 使用原有的货品名称进行品类识别
+            tianmao_fenxiao[CATEGORY_COL] = tianmao_fenxiao[CATEGORY_COL].apply(categorize_product_for_fenxiao)
             logger.info(f"📊 识别到天猫分销数据: {len(tianmao_fenxiao)}行")
             logger.info(f"📊 天猫分销数据示例:")
             for i, row in tianmao_fenxiao.head(3).iterrows():
-                logger.info(f"   店铺: {row[SHOP_COL]}, 仓库: {row[warehouse_col]}, 金额: {row[AMOUNT_COL]}, 品类: {row.get('品类', 'N/A')}")
+                logger.info(f"   店铺: {row[SHOP_COL]}, 仓库: {row[warehouse_col]}, 金额: {row[AMOUNT_COL]}, 品类: {row.get(CATEGORY_COL, 'N/A')}")
             return tianmao_fenxiao
         else:
             logger.info("📊 未识别到天猫分销数据")
