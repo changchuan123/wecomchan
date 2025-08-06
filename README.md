@@ -14,7 +14,7 @@
 
 ### 配置要求
 - Git远程仓库: https://github.com/weixiaogang/wecomchan.git
-- 分支: main
+- 分支: master
 - 用户名: weixiaogang
 - 邮箱: weixiaogang@haierht.com
 
