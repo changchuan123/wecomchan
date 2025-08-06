@@ -515,74 +515,54 @@ def send_failure_report_to_admin(script_name, error_details):
         print(f"❌ 失败报告发送异常: {e}")
 
 def send_wecomchan_segment(result):
-    """分段发送，去除分段编号和截断提示"""
-    max_chars = 800
-    if len(result) <= max_chars:
-        success = _send_single_message(result)
-        if not success:
-            send_failure_report_to_admin("整体日报数据.py", "微信消息发送失败")
-    else:
-        print(f"⚠️ 内容过长({len(result)}字符)，进行智能分段")
-        segments = _smart_split_content(result, max_chars)
-        for segment in segments:
+    """发送企业微信消息（分段发送）"""
+    try:
+        # 检测影刀环境
+        if _detect_yingdao_environment():
+            print("🤖 检测到影刀环境，使用企业微信推送...")
+            return _send_single_message(result)
+        
+        # 分段发送逻辑
+        segments = _smart_split_content(result, 2000)
+        
+        for i, segment in enumerate(segments, 1):
+            print(f"📤 发送第{i}段消息...")
             success = _send_single_message(segment)
             if not success:
-                send_failure_report_to_admin("整体日报数据.py", "微信消息发送失败")
-                break
-            time.sleep(2)
-
-def _smart_split_content(content, max_chars):
-    """智能分割内容"""
-    # 按照自然分段符分割
-    natural_breaks = ['\n\n', '\n━━━', '\n===', '\n---', '\n📊', '\n🔥', '\n💰']
-    
-    segments = []
-    current_segment = ""
-    
-    lines = content.split('\n')
-    for line in lines:
-        if len(current_segment + line + '\n') > max_chars:
-            if current_segment:
-                segments.append(current_segment.strip())
-                current_segment = line + '\n'
-            else:
-                # 单行太长，强制截断
-                segments.append(line[:max_chars])
-                current_segment = ""
-        else:
-            current_segment += line + '\n'
-    
-    if current_segment.strip():
-        segments.append(current_segment.strip())
-    
-    return segments
-
-def _detect_yingdao_environment():
-    """检测是否在影刀RPA环境中运行"""
-    try:
-        # 检查影刀特有的环境变量或进程
-        yingdao_indicators = [
-            "SHADOWBOT_HOME" in os.environ,
-            "YINGDAO_ENV" in os.environ,
-            any("shadowbot" in proc.lower() for proc in os.listdir("/proc") if os.path.isdir(f"/proc/{proc}")) if os.path.exists("/proc") else False,
-            os.path.exists(r"D:\软件\ShadowBot"),
-            os.path.exists(r"C:\ShadowBot"),
-            "ShadowBot" in os.getcwd(),
-            any("shadowbot" in path.lower() for path in sys.path)
-        ]
+                print(f"❌ 第{i}段消息发送失败")
+                return False
+            time.sleep(1)  # 避免发送过快
         
-        is_yingdao = any(yingdao_indicators)
-        
-        if is_yingdao:
-            print("🤖 检测到影刀RPA环境")
-        else:
-            print("💻 检测到标准Python环境")
-            
-        return is_yingdao
+        print("✅ 所有消息段发送完成")
+        return True
         
     except Exception as e:
-        print(f"⚠️ 环境检测异常: {e}")
+        print(f"❌ 分段发送失败: {e}")
         return False
+
+def _simple_verify_url(public_url):
+    """严格验证URL是否可访问"""
+    print(f"🔍 正在验证URL: {public_url}")
+    
+    # 等待CDN同步，最多重试5次
+    for attempt in range(5):
+        try:
+            time.sleep(3)  # 等待CDN同步
+            response = requests.head(public_url, timeout=15)
+            
+            if response.status_code == 200:
+                print(f"✅ URL验证成功，文件可正常访问: {public_url}")
+                return public_url
+            elif response.status_code == 404:
+                print(f"⚠️ 第{attempt+1}次验证失败，文件不存在 (404)，等待CDN同步...")
+            else:
+                print(f"⚠️ 第{attempt+1}次验证失败，状态码: {response.status_code}")
+                
+        except Exception as verify_e:
+            print(f"⚠️ 第{attempt+1}次验证异常: {verify_e}")
+    
+    print(f"❌ URL验证失败，经过5次重试仍无法访问，不返回URL")
+    return None
 
 def upload_html_and_get_url(filename, html_content):
     """通过EdgeOne Pages部署HTML内容（影刀环境优化版）"""
