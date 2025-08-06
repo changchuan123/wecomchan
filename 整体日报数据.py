@@ -541,6 +541,33 @@ def send_wecomchan_segment(result):
         print(f"❌ 分段发送失败: {e}")
         return False
 
+def verify_multiple_urls(filename):
+    """验证多种可能的URL格式"""
+    possible_urls = [
+        f"https://sales-report.pages.edgeone.com/{filename}",
+        f"https://edge.haierht.cn/{filename}",
+        f"https://sales-report.pages.edgeone.com/reports/{filename}",
+        f"https://edge.haierht.cn/reports/{filename}"
+    ]
+    
+    print(f"🔍 验证多种URL格式...")
+    
+    for i, url in enumerate(possible_urls, 1):
+        print(f"📡 尝试URL {i}/{len(possible_urls)}: {url}")
+        
+        try:
+            response = requests.head(url, timeout=5)
+            if response.status_code == 200:
+                print(f"✅ 找到可用URL: {url}")
+                return url
+            else:
+                print(f"⚠️ 状态码 {response.status_code}: {url}")
+        except Exception as e:
+            print(f"❌ 连接失败: {url} ({e})")
+    
+    print(f"❌ 所有URL格式都不可用")
+    return None
+
 def _simple_verify_url(public_url):
     """智能验证URL是否可访问，包含CDN同步等待"""
     print(f"🔍 正在验证URL: {public_url}")
@@ -696,9 +723,17 @@ def upload_html_and_get_url(filename, html_content):
         
         # 执行部署
         if deploy_to_edgeone(reports_dir):
-            # 构建URL
-            public_url = f"https://edge.haierht.cn/{filename}"
-            print(f"🔗 构建URL: {public_url}")
+            # 首先尝试多URL格式验证
+            print("🔍 尝试多种URL格式...")
+            verified_url = verify_multiple_urls(filename)
+            
+            if verified_url:
+                print(f"✅ 找到可用URL: {verified_url}")
+                return verified_url
+            
+            # 如果多URL验证失败，使用默认URL格式
+            public_url = f"https://sales-report.pages.edgeone.com/{filename}"
+            print(f"🔗 构建默认URL: {public_url}")
             
             # 验证URL是否可访问
             verified_url = _simple_verify_url(public_url)
