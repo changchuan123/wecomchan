@@ -13,5 +13,8 @@
     },
     "static": {
         "directory": "reports"
+    },
+    "functions": {
+        "directory": "functions"
     }
 }

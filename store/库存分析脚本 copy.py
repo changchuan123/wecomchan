@@ -3,6 +3,7 @@
 """
 库存分析脚本
 功能：从多个数据库表格获取库存数据，按仓库类型聚合，生成报告并推送到企业微信
+新增：销售数据和进销存分析功能
 """
 
 import pymysql
@@ -17,7 +18,6 @@ import numpy as np
 import time
 import subprocess
 import sys
-import re # Added for regex in deployment ID extraction
 
 # 配置日志
 logging.basicConfig(
@@ -55,11 +55,13 @@ WECOM_CONFIG = {
     'touser': os.getenv('WECOM_TOUID', 'weicungang')
 }
 
-# ========== EdgeOne Pages 配置 ==========
-EDGEONE_PROJECT = "sales-report-new"
-EDGEONE_DOMAIN = "edge.haierht.cn"
-EDGEONE_CLI_PATH = "edgeone"  # 使用环境变量，更通用
-EDGEONE_CLI_PATH_ALT = "edgeone"  # 备用路径
+# EdgeOne部署配置
+EDGEONE_CONFIG = {
+    'cli_path': "/Users/weixiaogang/.npm-global/bin/edgeone",
+    'token': "YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc=",
+    'project_name': "sales-report",
+    'domain': "edge.haierht.cn"
+}
 
 class InventoryAnalyzer:
     """库存分析器"""
@@ -67,7 +69,6 @@ class InventoryAnalyzer:
     def __init__(self):
         self.wdt_connection = None
         self.date_connection = None
-        self.latest_deployment_id = None  # 存储最新的部署ID
         
     def connect_databases(self) -> bool:
         """连接数据库"""
@@ -88,8 +89,158 @@ class InventoryAnalyzer:
             self.date_connection.close()
         logger.info("数据库连接已关闭")
     
+    def get_sales_data(self, spec_mapping: Dict[str, Dict[str, str]], start_date: str, end_date: str) -> pd.DataFrame:
+        """获取销售数据：从Date-Daysales表获取指定时间范围的销售数据"""
+        if not self.date_connection:
+            logger.error("date数据库未连接")
+            return pd.DataFrame()
+        
+        if not spec_mapping:
+            logger.warning("没有规格名称映射，无法查询销售数据")
+            return pd.DataFrame()
+        
+        try:
+            # 获取所有有效的规格名称
+            spec_names = list(spec_mapping.keys())
+            
+            if not spec_names:
+                logger.warning("没有有效的规格名称")
+                return pd.DataFrame()
+            
+            # 构建批量查询
+            spec_names_str = "','".join(spec_names)
+            
+            # 查询销售数据，使用整体日报数据.py的刷单剔除逻辑
+            query = f"""
+            SELECT 
+                规格名称,
+                实发数量 as 销量,
+                分摊后总价 as 销售额,
+                交易时间,
+                店铺,
+                货品名称
+            FROM Daysales 
+            WHERE 规格名称 IN ('{spec_names_str}')
+            AND 交易时间 BETWEEN '{start_date}' AND '{end_date}'
+            AND 实发数量 > 0
+            AND 分摊后总价 > 0
+            AND (客服备注 IS NULL OR 客服备注 NOT LIKE '%抽纸%' AND 客服备注 NOT LIKE '%纸巾%' AND 客服备注 != '不发货')
+            AND (订单状态 IS NULL OR 订单状态 NOT IN ('未付款', '已取消'))
+            AND (店铺 LIKE '%京东%' OR 店铺 LIKE '%天猫%' OR 店铺 LIKE '%拼多多%' OR 店铺 LIKE '%抖音%' OR 店铺 LIKE '%卡萨帝%')
+            """
+            
+            df = pd.read_sql(query, self.date_connection)
+            
+            if not df.empty:
+                logger.info(f"从Daysales获取销售数据成功，共 {len(df)} 条记录")
+                return df
+            else:
+                logger.warning("未从Daysales获取到任何销售数据")
+                return pd.DataFrame()
+                
+        except Exception as e:
+            logger.error(f"获取销售数据失败: {e}")
+            return pd.DataFrame()
+    
+    def get_sales_period_data(self, spec_mapping: Dict[str, Dict[str, str]]) -> Dict[str, pd.DataFrame]:
+        """获取不同时间段的销售数据"""
+        try:
+            today = datetime.now()
+            
+            # 计算上月全月
+            if today.month == 1:
+                last_month = today.replace(year=today.year-1, month=12, day=1)
+            else:
+                last_month = today.replace(month=today.month-1, day=1)
+            
+            last_month_end = today.replace(day=1) - timedelta(days=1)
+            last_month_start = last_month.replace(day=1)
+            
+            # 计算四周数据
+            week1_end = today - timedelta(days=1)
+            week1_start = week1_end - timedelta(days=6)
+            
+            week2_end = week1_start - timedelta(days=1)
+            week2_start = week2_end - timedelta(days=6)
+            
+            week3_end = week2_start - timedelta(days=1)
+            week3_start = week3_end - timedelta(days=6)
+            
+            week4_end = week3_start - timedelta(days=1)
+            week4_start = week4_end - timedelta(days=6)
+            
+            # 获取各时间段数据
+            sales_data = {}
+            
+            # 上月数据
+            last_month_data = self.get_sales_data(
+                spec_mapping, 
+                last_month_start.strftime('%Y-%m-%d'), 
+                last_month_end.strftime('%Y-%m-%d')
+            )
+            sales_data['上月'] = last_month_data
+            
+            # T-1周数据
+            week1_data = self.get_sales_data(
+                spec_mapping, 
+                week1_start.strftime('%Y-%m-%d'), 
+                week1_end.strftime('%Y-%m-%d')
+            )
+            sales_data['T-1周'] = week1_data
+            
+            # T-2周数据
+            week2_data = self.get_sales_data(
+                spec_mapping, 
+                week2_start.strftime('%Y-%m-%d'), 
+                week2_end.strftime('%Y-%m-%d')
+            )
+            sales_data['T-2周'] = week2_data
+            
+            # T-3周数据
+            week3_data = self.get_sales_data(
+                spec_mapping, 
+                week3_start.strftime('%Y-%m-%d'), 
+                week3_end.strftime('%Y-%m-%d')
+            )
+            sales_data['T-3周'] = week3_data
+            
+            # T-4周数据
+            week4_data = self.get_sales_data(
+                spec_mapping, 
+                week4_start.strftime('%Y-%m-%d'), 
+                week4_end.strftime('%Y-%m-%d')
+            )
+            sales_data['T-4周'] = week4_data
+            
+            logger.info(f"获取销售数据完成，各时间段数据量：上月{len(last_month_data)}，T-1周{len(week1_data)}，T-2周{len(week2_data)}，T-3周{len(week3_data)}，T-4周{len(week4_data)}")
+            
+            return sales_data
+            
+        except Exception as e:
+            logger.error(f"获取销售时间段数据失败: {e}")
+            return {}
+    
+    def calculate_inventory_sales_ratio(self, inventory_qty: float, avg_daily_sales: float) -> Tuple[float, str]:
+        """计算存销比：库存/近四周日均数据"""
+        if avg_daily_sales <= 0:
+            return float('inf'), "无销售数据"
+        
+        ratio = inventory_qty / avg_daily_sales
+        
+        # 按区间分类
+        if ratio >= 60:
+            return ratio, "严重滞销"
+        elif ratio >= 45:
+            return ratio, "滞销"
+        elif ratio >= 30:
+            return ratio, "正常"
+        elif ratio >= 20:
+            return ratio, "畅销"
+        else:
+            return ratio, "缺货预警"
+    
     def get_wdt_stock_data(self, spec_mapping: Dict[str, Dict[str, str]]) -> pd.DataFrame:
-        """获取wdt数据库的stock表格数据，根据规格名称映射查询（使用可发库存avaliable_num）"""
+        """获取wdt数据库的stock表格数据，根据规格名称映射查询"""
         if not self.wdt_connection:
             logger.error("wdt数据库未连接")
             return pd.DataFrame()
@@ -111,7 +262,7 @@ class InventoryAnalyzer:
             query = f"""
             SELECT 
                 spec_name as 规格名称,
-                avaliable_num as 数量,
+                stock_num as 数量,
                 CASE 
                     WHEN warehouse_name = '常规仓' THEN '常规仓'
                     WHEN warehouse_name LIKE '%顺丰%' THEN '顺丰仓'
@@ -119,11 +270,8 @@ class InventoryAnalyzer:
                 END as 仓库类型
             FROM stock 
             WHERE spec_name IN ('{spec_names_str}')
-            AND (
-                warehouse_name = '常规仓' 
-                OR warehouse_name LIKE '%顺丰%'
-            )
-            AND avaliable_num > 0
+            AND (warehouse_name = '常规仓' OR warehouse_name LIKE '%顺丰%')
+            AND stock_num > 0
             """
             
             df = pd.read_sql(query, self.wdt_connection)
@@ -328,24 +476,22 @@ class InventoryAnalyzer:
             table_name = tables[0][0]
             logger.info(f"找到tongstore表格: {table_name}")
             
-            # 获取表结构
-            cursor.execute(f"DESCRIBE `{table_name}`")
-            columns = [col[0] for col in cursor.fetchall()]
-            logger.info(f"tongstore表格列: {columns}")
+            # 获取前10行数据来分析结构
+            query_sample = f"SELECT * FROM `{table_name}` LIMIT 10"
+            df_sample = pd.read_sql(query_sample, self.date_connection)
             
-            # 使用正确的列名
-            stock_col = '__EMPTY_2'  # 总库存列
-            available_col = '__EMPTY_3'  # 总可用库存列
-            model_col = '__EMPTY_8'  # 商品型号列
-            brand_col = '__EMPTY'  # 品牌列
-            product_group_col = '__EMPTY_1'  # 产品组列
+            logger.info(f"tongstore数据预览: \n{df_sample.to_string()}")
             
-            # 验证列是否存在
-            required_columns = [stock_col, available_col, model_col]
-            missing_columns = [col for col in required_columns if col not in columns]
-            if missing_columns:
-                logger.warning(f"tongstore表格中缺少必要列: {missing_columns}")
-                return pd.DataFrame()
+            # 根据实际数据结构确定列名
+            columns = df_sample.columns.tolist()
+            logger.info(f"tongstore所有列: {columns}")
+            
+            # 根据数据预览，确定正确的列名
+            # 从预览数据看，商品名称在__EMPTY_1列，数量在__EMPTY_2列
+            product_col_actual = '__EMPTY_1'  # 商品名称列
+            quantity_col_actual = '__EMPTY_2'  # 数量列
+            
+            logger.info(f"使用列: {product_col_actual} 作为商品名称, {quantity_col_actual} 作为数量")
             
             # 获取所有tongstore对应的名称
             tong_names = []
@@ -354,139 +500,39 @@ class InventoryAnalyzer:
             for spec_name, warehouse_names in spec_mapping.items():
                 if 'tongstore' in warehouse_names:
                     tong_name = warehouse_names['tongstore']
-                    if tong_name and tong_name.strip():  # 确保名称不为空
-                        tong_names.append(tong_name.strip())
-                        spec_name_mapping[tong_name.strip()] = spec_name
+                    tong_names.append(tong_name)
+                    spec_name_mapping[tong_name] = spec_name
             
             if not tong_names:
                 logger.warning("没有找到tongstore对应的名称")
                 return pd.DataFrame()
             
-            logger.info(f"tongstore映射名称数量: {len(tong_names)}")
-            logger.info(f"tongstore映射名称示例: {tong_names[:5]}...")  # 显示前5个
+            # 构建批量查询
+            tong_names_str = "','".join(tong_names)
+            query = f"""
+            SELECT 
+                `{product_col_actual}` as 对应名称,
+                CAST(`{quantity_col_actual}` AS SIGNED) as 数量
+            FROM `{table_name}`
+            WHERE `{product_col_actual}` IN ('{tong_names_str}')
+            AND `{product_col_actual}` IS NOT NULL 
+            AND `{product_col_actual}` != ''
+            AND `{product_col_actual}` != '_EMPTY_7'
+            AND `{quantity_col_actual}` IS NOT NULL
+            AND CAST(`{quantity_col_actual}` AS SIGNED) > 0
+            AND `{product_col_actual}` != '商品名称'  -- 排除标题行
+            """
             
-            # 分批查询，避免SQL过长
-            batch_size = 30
-            all_results = []
-            
-            for i in range(0, len(tong_names), batch_size):
-                batch_names = tong_names[i:i + batch_size]
-                
-                # 构建批量查询 - 使用精确匹配和模糊匹配结合
-                batch_conditions = []
-                for name in batch_names:
-                    # 转义特殊字符
-                    escaped_name = name.replace("'", "''").replace("%", "\\%").replace("_", "\\_")
-                    # 使用精确匹配和模糊匹配
-                    batch_conditions.append(f"(`{model_col}` = '{escaped_name}' OR `{model_col}` LIKE '%{escaped_name}%')")
-                
-                conditions_str = " OR ".join(batch_conditions)
-                query = f"""
-                SELECT 
-                    `{model_col}` as 对应名称,
-                    `{brand_col}` as 品牌,
-                    `{product_group_col}` as 产品组,
-                    CAST(`{available_col}` AS SIGNED) as 可用库存,
-                    CAST(`{stock_col}` AS SIGNED) as 总库存
-                FROM `{table_name}`
-                WHERE ({conditions_str})
-                AND `{model_col}` IS NOT NULL 
-                AND `{model_col}` != ''
-                AND `{model_col}` != '商品型号'
-                AND `{available_col}` IS NOT NULL
-                AND CAST(`{available_col}` AS SIGNED) > 0
-                AND `{model_col}` NOT LIKE '%商品型号%'
-                ORDER BY `{model_col}`
-                """
-                
-                try:
-                    logger.info(f"查询tongstore批次 {i//batch_size + 1}，包含 {len(batch_names)} 个商品型号")
-                    df_batch = pd.read_sql(query, self.date_connection)
-                    
-                    if not df_batch.empty:
-                        logger.info(f"tongstore批次 {i//batch_size + 1} 查询成功，获取 {len(df_batch)} 条记录")
-                        all_results.append(df_batch)
-                    else:
-                        logger.info(f"tongstore批次 {i//batch_size + 1} 未找到匹配数据")
-                        
-                except Exception as e:
-                    logger.error(f"tongstore批次 {i//batch_size + 1} 查询失败: {e}")
-                    continue
-            
-            if not all_results:
-                logger.warning("未从tongstore获取到任何数据")
-                return pd.DataFrame()
-            
-            # 合并所有批次结果
-            df = pd.concat(all_results, ignore_index=True)
+            df = pd.read_sql(query, self.date_connection)
             
             if not df.empty:
-                # 清理数据：移除重复和无效数据
-                df = df.drop_duplicates()
-                logger.info(f"tongstore原始数据: {len(df)} 条记录")
-                
                 # 添加规格名称和仓库类型
-                # 使用精确匹配和模糊匹配找到对应的规格名称
-                matched_data = []
-                unmatched_count = 0
+                df['规格名称'] = df['对应名称'].map(spec_name_mapping)
+                df['仓库类型'] = '统仓'
+                df = df.drop('对应名称', axis=1)
                 
-                for _, row in df.iterrows():
-                    model_name = str(row['对应名称']).strip()
-                    available_quantity = row['可用库存']
-                    total_quantity = row['总库存']
-                    brand = str(row['品牌']).strip() if pd.notna(row['品牌']) else ''
-                    product_group = str(row['产品组']).strip() if pd.notna(row['产品组']) else ''
-                    
-                    # 查找匹配的规格名称 - 优先精确匹配，然后模糊匹配
-                    matched_spec = None
-                    match_type = None
-                    
-                    # 1. 精确匹配
-                    for spec_name, warehouse_names in spec_mapping.items():
-                        if 'tongstore' in warehouse_names:
-                            tong_name = warehouse_names['tongstore']
-                            if tong_name and tong_name.strip() == model_name:
-                                matched_spec = spec_name
-                                match_type = '精确匹配'
-                                break
-                    
-                    # 2. 模糊匹配（如果精确匹配失败）
-                    if not matched_spec:
-                        for spec_name, warehouse_names in spec_mapping.items():
-                            if 'tongstore' in warehouse_names:
-                                tong_name = warehouse_names['tongstore']
-                                if tong_name and tong_name.strip() in model_name:
-                                    matched_spec = spec_name
-                                    match_type = '模糊匹配'
-                                    break
-                    
-                    if matched_spec:
-                        matched_data.append({
-                            '规格名称': matched_spec,
-                            '数量': available_quantity,  # 使用可用库存
-                            '仓库类型': '统仓',
-                            '匹配类型': match_type,
-                            '原始型号': model_name,
-                            '品牌': brand,
-                            '产品组': product_group,
-                            '总库存': total_quantity
-                        })
-                    else:
-                        unmatched_count += 1
-                        logger.debug(f"未匹配的tongstore记录: {model_name} (品牌: {brand}, 产品组: {product_group})")
-                
-                if matched_data:
-                    result_df = pd.DataFrame(matched_data)
-                    logger.info(f"从{table_name}获取数据成功，共 {len(result_df)} 条记录")
-                    logger.info(f"匹配统计: 精确匹配 {len([d for d in matched_data if d['匹配类型'] == '精确匹配'])} 条, 模糊匹配 {len([d for d in matched_data if d['匹配类型'] == '模糊匹配'])} 条")
-                    logger.info(f"未匹配记录: {unmatched_count} 条")
-                    
-                    # 移除调试列，只保留必要列
-                    result_df = result_df[['规格名称', '数量', '仓库类型']]
-                    return result_df
-                else:
-                    logger.warning("tongstore数据匹配失败，未找到对应的规格名称")
-                    return pd.DataFrame()
+                logger.info(f"从{table_name}获取数据成功，共 {len(df)} 条记录")
+                return df
             else:
                 logger.warning("未从tongstore获取到任何数据")
                 return pd.DataFrame()
@@ -546,49 +592,18 @@ class InventoryAnalyzer:
                 logger.warning("没有找到jdstore对应的名称")
                 return pd.DataFrame()
             
-            # 分批查询，避免数据库死锁
-            batch_size = 50
-            all_results = []
+            # 构建批量查询
+            jd_names_str = "','".join(jd_names)
+            query = f"""
+            SELECT 
+                `{model_col}` as 对应名称,
+                CAST(`{quantity_col}` AS SIGNED) as 数量
+            FROM `{table_name}`
+            WHERE `{model_col}` IN ('{jd_names_str}')
+            AND CAST(`{quantity_col}` AS SIGNED) > 0
+            """
             
-            for i in range(0, len(jd_names), batch_size):
-                batch_names = jd_names[i:i + batch_size]
-                
-                # 构建批量查询
-                jd_names_str = "','".join(batch_names)
-                query = f"""
-                SELECT 
-                    `{model_col}` as 对应名称,
-                    CAST(`{quantity_col}` AS SIGNED) as 数量
-                FROM `{table_name}`
-                WHERE `{model_col}` IN ('{jd_names_str}')
-                AND CAST(`{quantity_col}` AS SIGNED) > 0
-                """
-                
-                # 添加重试机制
-                max_retries = 3
-                for attempt in range(max_retries):
-                    try:
-                        logger.info(f"查询jdstore批次 {i//batch_size + 1}，尝试 {attempt + 1}/{max_retries}")
-                        df_batch = pd.read_sql(query, self.date_connection)
-                        all_results.append(df_batch)
-                        logger.info(f"jdstore批次 {i//batch_size + 1} 查询成功，获取 {len(df_batch)} 条记录")
-                        break
-                    except Exception as e:
-                        if "Deadlock" in str(e) and attempt < max_retries - 1:
-                            logger.warning(f"jdstore批次 {i//batch_size + 1} 数据库死锁，等待后重试: {e}")
-                            import time
-                            time.sleep(2 * (attempt + 1))  # 递增等待时间
-                            continue
-                        else:
-                            logger.error(f"jdstore批次 {i//batch_size + 1} 查询失败: {e}")
-                            break
-            
-            if not all_results:
-                logger.warning("未从jdstore获取到任何数据")
-                return pd.DataFrame()
-            
-            # 合并所有批次结果
-            df = pd.concat(all_results, ignore_index=True)
+            df = pd.read_sql(query, self.date_connection)
             
             if not df.empty:
                 # 添加规格名称和仓库类型
@@ -893,203 +908,162 @@ class InventoryAnalyzer:
         # 获取所有品类
         categories = summary_df['品类'].unique().tolist()
         
-        # 生成简化的HTML表格
-        html_content = f"""<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>库存分析报告</title>
-    <style>
-        body {{ 
-            font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif; 
-            margin: 0; 
-            padding: 20px; 
-            background-color: #f5f5f5; 
-        }}
-        .container {{ 
-            max-width: 1600px; 
-            margin: 0 auto; 
-            background-color: white; 
-            padding: 20px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-        }}
-        h1 {{ 
-            color: #333; 
-            text-align: center; 
-            font-size: 14pt; 
-            font-weight: bold; 
-            margin-bottom: 20px;
-        }}
-        
-        /* 筛选区域 */
-        .filter-area {{
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            border: 1px solid #e9ecef;
-        }}
-        .filter-row {{
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 10px;
-        }}
-        .filter-label {{
-            font-size: 12pt;
-            font-weight: bold;
-            min-width: 80px;
-        }}
-        .filter-select, .filter-input {{
-            padding: 6px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 12pt;
-            font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
-        }}
-        .filter-button {{
-            padding: 6px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12pt;
-            font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
-        }}
-        .filter-button:hover {{
-            background-color: #0056b3;
-        }}
-        .clear-button {{
-            background-color: #6c757d;
-        }}
-        .clear-button:hover {{
-            background-color: #545b62;
-        }}
-        
-        /* 表格容器 */
-        .table-container {{
-            position: relative;
-            max-height: 70vh;
-            overflow: auto;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-        }}
-        
-        /* 表格样式 */
-        table {{ 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin: 0;
-        }}
-        
-        /* 固定标题行 */
-        thead {{
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background-color: #f2f2f2;
-        }}
-        
-        th, td {{ 
-            border: 1px solid #ddd; 
-            padding: 8px 12px; 
-            text-align: left; 
-            font-size: 10.5pt;
-        }}
-        
-        th {{ 
-            background-color: #f2f2f2; 
-            font-weight: bold;
-            font-size: 14pt;
-            position: sticky;
-            top: 0;
-        }}
-        
-        tr:nth-child(even) {{ 
-            background-color: #f9f9f9; 
-        }}
-        
-        .number {{ 
-            text-align: right; 
-            font-family: "Microsoft YaHei", "微软雅黑", Arial, monospace; 
-        }}
-        
-        .timestamp {{ 
-            text-align: center; 
-            color: #666; 
-            margin-top: 20px; 
-            font-style: italic; 
-            font-size: 10.5pt;
-        }}
-        
-        .category-row {{ 
-            background-color: #e3f2fd !important; 
-            font-weight: bold;
-            font-size: 14pt;
-        }}
-        
-        .total-row {{
-            background-color: #ffeb3b !important; 
-            font-weight: bold;
-            font-size: 14pt;
-        }}
-        
-        /* 统计信息 */
-        .stats-info {{
-            background-color: #e8f5e8;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            font-size: 10.5pt;
-        }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>📦 库存分析报告</h1>
-        
-        <!-- 筛选区域 -->
-        <div class="filter-area">
-            <div class="filter-row">
-                <span class="filter-label">品类筛选:</span>
-                <select id="categoryFilter" class="filter-select" onchange="onCategoryChange()">
-                    <option value="">全部品类</option>
-                </select>
+        # 生成HTML表格
+        html_content = f"""
+        <!DOCTYPE html>
+        <html lang="zh-CN">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>库存分析报告</title>
+            <style>
+                body {{ font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }}
+                .container {{ max-width: 1400px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
+                h1 {{ color: #333; text-align: center; }}
+                .filters {{ margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 5px; }}
+                .filters label {{ margin-right: 15px; font-weight: bold; }}
+                .filters select {{ padding: 5px; margin-right: 20px; border: 1px solid #ddd; border-radius: 3px; }}
+                table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
+                th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }}
+                th {{ background-color: #f2f2f2; font-weight: bold; position: sticky; top: 0; }}
+                tr:nth-child(even) {{ background-color: #f9f9f9; }}
+                .number {{ text-align: right; font-family: monospace; }}
+                .timestamp {{ text-align: center; color: #666; margin-top: 20px; font-style: italic; }}
+                .category-row {{ background-color: #e3f2fd !important; font-weight: bold; }}
+                .product-row {{ display: table-row; }}
+                .hidden {{ display: none; }}
+            </style>
+            <script>
+                // 存储所有数据
+                let allData = {summary_df.to_dict('records')};
                 
-                <span class="filter-label">产品搜索:</span>
-                <select id="productFilter" class="filter-select">
-                    <option value="">全部产品</option>
-                </select>
+                function updateProductFilter() {{
+                    const categoryFilter = document.getElementById('categoryFilter').value;
+                    const productFilter = document.getElementById('productFilter');
+                    
+                    // 清空产品筛选
+                    productFilter.innerHTML = '<option value="">全部规格名称</option>';
+                    
+                    if (categoryFilter) {{
+                        // 获取该品类下的所有产品，按数量排序
+                        const categoryProducts = allData
+                            .filter(item => item.品类 === categoryFilter)
+                            .sort((a, b) => b.合计库存 - a.合计库存);
+                        
+                        categoryProducts.forEach(item => {{
+                            const option = document.createElement('option');
+                            option.value = item.规格名称;
+                            option.textContent = `${{item.规格名称}} (${{item.合计库存.toLocaleString()}})`;
+                            productFilter.appendChild(option);
+                        }});
+                    }}
+                    
+                    filterTable();
+                }}
                 
-                <button onclick="applyFilter()" class="filter-button">筛选</button>
-                <button onclick="clearFilter()" class="filter-button clear-button">清除</button>
-            </div>
-            <div class="stats-info" id="statsInfo">
-                显示统计信息
-            </div>
-        </div>
-        
-        <!-- 表格容器 -->
-        <div class="table-container">
-            <table id="inventoryTable">
-                <thead>
-                    <tr>
-                        <th>品类</th>
-                        <th>规格名称</th>
-                        <th>合计库存</th>
-                        <th>常规仓</th>
-                        <th>顺丰仓</th>
-                        <th>京仓</th>
-                        <th>云仓</th>
-                        <th>统仓</th>
-                        <th>金融仓</th>
-                    </tr>
-                </thead>
-                <tbody id="inventoryBody">
-"""
+                function filterTable() {{
+                    const categoryFilter = document.getElementById('categoryFilter').value;
+                    const productFilter = document.getElementById('productFilter').value;
+                    const rows = document.querySelectorAll('tbody tr');
+                    let visibleCount = 0;
+                    
+                    rows.forEach(row => {{
+                        const categoryCell = row.cells[0];
+                        const productCell = row.cells[1];
+                        
+                        if (!categoryCell || !productCell) return;
+                        
+                        const category = categoryCell.textContent.trim();
+                        const product = productCell.textContent.trim();
+                        
+                        // 检查是否是品类行（包含"小计"字样）
+                        const isCategoryRow = category.includes('小计');
+                        
+                        if (isCategoryRow) {{
+                            // 品类行的处理逻辑
+                            const categoryName = category.replace(' (小计)', '');
+                            const categoryMatch = categoryFilter === '' || categoryName === categoryFilter;
+                            
+                            if (categoryMatch) {{
+                                row.style.display = '';
+                                visibleCount++;
+                            }} else {{
+                                row.style.display = 'none';
+                            }}
+                        }} else {{
+                            // 产品行的处理逻辑
+                            const categoryMatch = categoryFilter === '' || category === categoryFilter;
+                            const productMatch = productFilter === '' || product === productFilter;
+                            
+                            if (categoryMatch && productMatch) {{
+                                row.style.display = '';
+                                visibleCount++;
+                            }} else {{
+                                row.style.display = 'none';
+                            }}
+                        }}
+                    }});
+                    
+                    // 更新显示信息
+                    document.getElementById('visibleCount').textContent = visibleCount;
+                }}
+                
+                function resetFilters() {{
+                    document.getElementById('categoryFilter').value = '';
+                    document.getElementById('productFilter').innerHTML = '<option value="">全部规格名称</option>';
+                    
+                    // 显示所有行
+                    const rows = document.querySelectorAll('tbody tr');
+                    rows.forEach(row => {{
+                        row.style.display = '';
+                    }});
+                    
+                    filterTable();
+                }}
+                
+                // 页面加载时初始化筛选
+                window.onload = function() {{
+                    filterTable();
+                }};
+            </script>
+        </head>
+        <body>
+            <div class="container">
+                <h1>📦 库存分析报告</h1>
+                
+                <div class="filters">
+                    <label>品类筛选:</label>
+                    <select id="categoryFilter" onchange="updateProductFilter()">
+                        <option value="">全部品类</option>
+                        {''.join([f'<option value="{cat}">{cat}</option>' for cat in categories])}
+                    </select>
+                    
+                    <label>规格名称筛选:</label>
+                    <select id="productFilter" onchange="filterTable()">
+                        <option value="">全部规格名称</option>
+                    </select>
+                    
+                    <button onclick="resetFilters()" style="padding: 5px 10px; margin-left: 10px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">重置筛选</button>
+                    
+                    <span style="margin-left: 20px; color: #666;">显示记录数: <span id="visibleCount">0</span></span>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>品类</th>
+                            <th>规格名称</th>
+                            <th>合计库存</th>
+                            <th>常规仓</th>
+                            <th>顺丰仓</th>
+                            <th>京仓</th>
+                            <th>云仓</th>
+                            <th>统仓</th>
+                            <th>金融仓</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        """
         
         # 按品类分组显示
         for category in categories:
@@ -1100,248 +1074,58 @@ class InventoryAnalyzer:
             category_warehouse_totals = category_data[['常规仓', '顺丰仓', '京仓', '云仓', '统仓', '金融仓']].sum()
             
             html_content += f"""
-                <tr class="category-row">
-                    <td>{category} (小计)</td>
-                    <td></td>
-                    <td class="number">{category_total:,.0f}</td>
-                    <td class="number">{category_warehouse_totals['常规仓']:,.0f}</td>
-                    <td class="number">{category_warehouse_totals['顺丰仓']:,.0f}</td>
-                    <td class="number">{category_warehouse_totals['京仓']:,.0f}</td>
-                    <td class="number">{category_warehouse_totals['云仓']:,.0f}</td>
-                    <td class="number">{category_warehouse_totals['统仓']:,.0f}</td>
-                    <td class="number">{category_warehouse_totals['金融仓']:,.0f}</td>
-                </tr>
+                        <tr class="category-row">
+                            <td>{category} (小计)</td>
+                            <td></td>
+                            <td class="number">{category_total:,.0f}</td>
+                            <td class="number">{category_warehouse_totals['常规仓']:,.0f}</td>
+                            <td class="number">{category_warehouse_totals['顺丰仓']:,.0f}</td>
+                            <td class="number">{category_warehouse_totals['京仓']:,.0f}</td>
+                            <td class="number">{category_warehouse_totals['云仓']:,.0f}</td>
+                            <td class="number">{category_warehouse_totals['统仓']:,.0f}</td>
+                            <td class="number">{category_warehouse_totals['金融仓']:,.0f}</td>
+                        </tr>
             """
             
             # 添加该品类的所有规格名称
             for _, row in category_data.iterrows():
                 html_content += f"""
-                <tr>
-                    <td>{category}</td>
-                    <td>{row['规格名称']}</td>
-                    <td class="number">{row['合计库存']:,.0f}</td>
-                    <td class="number">{row['常规仓']:,.0f}</td>
-                    <td class="number">{row['顺丰仓']:,.0f}</td>
-                    <td class="number">{row['京仓']:,.0f}</td>
-                    <td class="number">{row['云仓']:,.0f}</td>
-                    <td class="number">{row['统仓']:,.0f}</td>
-                    <td class="number">{row['金融仓']:,.0f}</td>
-                </tr>
+                        <tr>
+                            <td>{category}</td>
+                            <td>{row['规格名称']}</td>
+                            <td class="number">{row['合计库存']:,.0f}</td>
+                            <td class="number">{row['常规仓']:,.0f}</td>
+                            <td class="number">{row['顺丰仓']:,.0f}</td>
+                            <td class="number">{row['京仓']:,.0f}</td>
+                            <td class="number">{row['云仓']:,.0f}</td>
+                            <td class="number">{row['统仓']:,.0f}</td>
+                            <td class="number">{row['金融仓']:,.0f}</td>
+                        </tr>
                 """
         
         # 添加总计行
         total_row = summary_df.sum(numeric_only=True)
         html_content += f"""
-                <tr class="total-row">
-                    <td colspan="2">总计</td>
-                    <td class="number">{total_row['合计库存']:,.0f}</td>
-                    <td class="number">{total_row['常规仓']:,.0f}</td>
-                    <td class="number">{total_row['顺丰仓']:,.0f}</td>
-                    <td class="number">{total_row['京仓']:,.0f}</td>
-                    <td class="number">{total_row['云仓']:,.0f}</td>
-                    <td class="number">{total_row['统仓']:,.0f}</td>
-                    <td class="number">{total_row['金融仓']:,.0f}</td>
-                </tr>
-            </tbody>
-        </table>
-        </div>
-        
-        <div class="timestamp">
-            📅 报告生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-        </div>
-    </div>
-    
-    <script>
-        // 全局数据存储
-        let originalData = [];
-        let currentData = [];
-        
-        // 页面加载时初始化
-        document.addEventListener('DOMContentLoaded', function() {{
-            initializeData();
-            populateCategoryFilter();
-            populateProductFilter();
-            updateStats();
-        }});
-        
-        // 初始化数据
-        function initializeData() {{
-            const tbody = document.getElementById('inventoryBody');
-            const rows = tbody.querySelectorAll('tr');
-            
-            originalData = [];
-            rows.forEach(row => {{
-                const cells = row.querySelectorAll('td');
-                if (cells.length >= 9 && !row.classList.contains('total-row')) {{
-                    originalData.push({{
-                        element: row.cloneNode(true),
-                        category: cells[0].textContent.trim(),
-                        product: cells[1].textContent.trim(),
-                        totalStock: parseInt(cells[2].textContent.replace(/,/g, '')) || 0,
-                        isCategory: row.classList.contains('category-row')
-                    }});
-                }}
-            }});
-            currentData = [...originalData];
-        }}
-        
-        // 填充品类筛选下拉框
-        function populateCategoryFilter() {{
-            const categoryFilter = document.getElementById('categoryFilter');
-            
-            // 计算每个品类的总数量
-            const categoryTotals = {{}};
-            originalData.filter(item => !item.isCategory).forEach(item => {{
-                if (!categoryTotals[item.category]) {{
-                    categoryTotals[item.category] = 0;
-                }}
-                categoryTotals[item.category] += item.totalStock;
-            }});
-            
-            // 按总数量排序品类
-            const sortedCategories = Object.keys(categoryTotals).sort((a, b) => {{
-                return categoryTotals[b] - categoryTotals[a]; // 降序排列
-            }});
-            
-            // 清空并重新填充
-            categoryFilter.innerHTML = '<option value="">全部品类</option>';
-            sortedCategories.forEach(category => {{
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = `${{category}} (库存: ${{categoryTotals[category].toLocaleString()}})`;
-                categoryFilter.appendChild(option);
-            }});
-        }}
-        
-        // 填充产品搜索下拉框
-        function populateProductFilter() {{
-            const productFilter = document.getElementById('productFilter');
-            const selectedCategory = document.getElementById('categoryFilter').value;
-            
-            // 根据选中的品类筛选产品
-            let filteredProducts = originalData.filter(item => !item.isCategory);
-            if (selectedCategory) {{
-                filteredProducts = filteredProducts.filter(item => item.category === selectedCategory);
-            }}
-            
-            // 按数量排序产品
-            const sortedProducts = filteredProducts
-                .sort((a, b) => b.totalStock - a.totalStock) // 降序排列
-                .map(item => item.product);
-            
-            // 清空并重新填充
-            productFilter.innerHTML = '<option value="">全部产品</option>';
-            sortedProducts.forEach(product => {{
-                const option = document.createElement('option');
-                option.value = product;
-                option.textContent = product;
-                productFilter.appendChild(option);
-            }});
-        }}
-        
-        // 品类筛选变化时触发产品搜索下拉框更新
-        function onCategoryChange() {{
-            populateProductFilter();
-            applyFilter();
-        }}
-        
-        // 应用筛选
-        function applyFilter() {{
-            const categoryFilter = document.getElementById('categoryFilter').value;
-            const productFilter = document.getElementById('productFilter').value;
-            
-            currentData = originalData.filter(item => {{
-                // 品类筛选
-                if (categoryFilter && item.category !== categoryFilter) {{
-                    return false;
-                }}
+                        <tr style="background-color: #ffeb3b; font-weight: bold;">
+                            <td colspan="2">总计</td>
+                            <td class="number">{total_row['合计库存']:,.0f}</td>
+                            <td class="number">{total_row['常规仓']:,.0f}</td>
+                            <td class="number">{total_row['顺丰仓']:,.0f}</td>
+                            <td class="number">{total_row['京仓']:,.0f}</td>
+                            <td class="number">{total_row['云仓']:,.0f}</td>
+                            <td class="number">{total_row['统仓']:,.0f}</td>
+                            <td class="number">{total_row['金融仓']:,.0f}</td>
+                        </tr>
+                    </tbody>
+                </table>
                 
-                // 产品筛选
-                if (productFilter && item.product !== productFilter) {{
-                    return false;
-                }}
-                
-                return true;
-            }});
-            
-            renderTable();
-            updateStats();
-        }}
-        
-        // 清除筛选
-        function clearFilter() {{
-            document.getElementById('categoryFilter').value = '';
-            document.getElementById('productFilter').value = '';
-            currentData = [...originalData];
-            populateProductFilter(); // 重新填充产品筛选
-            renderTable();
-            updateStats();
-        }}
-        
-        // 渲染表格
-        function renderTable() {{
-            const tbody = document.getElementById('inventoryBody');
-            const totalRow = tbody.querySelector('.total-row');
-            
-            // 清空表格
-            tbody.innerHTML = '';
-            
-            // 按品类分组
-            const groupedData = {{}};
-            currentData.filter(item => !item.isCategory).forEach(item => {{
-                if (!groupedData[item.category]) {{
-                    groupedData[item.category] = [];
-                }}
-                groupedData[item.category].push(item);
-            }});
-            
-            // 计算品类小计
-            Object.keys(groupedData).sort().forEach(category => {{
-                const categoryItems = groupedData[category];
-                
-                // 计算小计
-                const categoryTotal = categoryItems.reduce((sum, item) => sum + item.totalStock, 0);
-                const categoryRow = document.createElement('tr');
-                categoryRow.className = 'category-row';
-                categoryRow.innerHTML = `
-                    <td>${{category}} (小计)</td>
-                    <td></td>
-                    <td class="number">${{categoryTotal.toLocaleString()}}</td>
-                    <td class="number">-</td>
-                    <td class="number">-</td>
-                    <td class="number">-</td>
-                    <td class="number">-</td>
-                    <td class="number">-</td>
-                    <td class="number">-</td>
-                `;
-                tbody.appendChild(categoryRow);
-                
-                // 添加该品类的产品
-                categoryItems.forEach(item => {{
-                    tbody.appendChild(item.element.cloneNode(true));
-                }});
-            }});
-            
-            // 重新添加总计行
-            if (totalRow) {{
-                tbody.appendChild(totalRow.cloneNode(true));
-            }}
-        }}
-        
-        // 更新统计信息
-        function updateStats() {{
-            const filteredProducts = currentData.filter(item => !item.isCategory);
-            const totalProducts = filteredProducts.length;
-            const totalStock = filteredProducts.reduce((sum, item) => sum + item.totalStock, 0);
-            const categories = [...new Set(filteredProducts.map(item => item.category))].length;
-            
-            document.getElementById('statsInfo').innerHTML = `
-                📊 当前显示: 产品 ${{totalProducts}} 种 | 品类 ${{categories}} 个 | 总库存 ${{totalStock.toLocaleString()}} 台
-            `;
-        }}
-    </script>
-</body>
-</html>"""
+                <div class="timestamp">
+                    📅 报告生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+                </div>
+            </div>
+        </body>
+        </html>
+        """
         
         return html_content
     
@@ -1352,221 +1136,140 @@ class InventoryAnalyzer:
         logger.info(f"数据已保存到 {filename}")
         return filename
     
-    def deploy_to_edgeone(self, html_content: str, filename: str) -> str:
-        """使用EdgeOne CLI部署到EdgeOne Pages - 彻底修复版本"""
-        try:
-            logger.info("🚀 开始部署到EdgeOne Pages...")
-            
-            # 获取主项目的reports目录路径
-            script_dir = os.path.dirname(os.path.abspath(__file__))  # 当前脚本目录（store）
-            main_project_dir = os.path.dirname(script_dir)  # 主项目目录（wecomchan）
-            reports_dir = os.path.join(main_project_dir, "reports")  # 主项目的reports目录
-            
-            # 确保reports目录存在
-            os.makedirs(reports_dir, exist_ok=True)
-            logger.info(f"📁 确保reports目录存在: {reports_dir}")
-            
-            # 保存HTML文件到主项目的reports目录
-            file_path = os.path.join(reports_dir, filename)
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(html_content)
-            
-            logger.info(f"📄 已保存HTML文件: {file_path}")
-            
-            # 检测操作系统
-            import platform
-            is_windows = platform.system() == "Windows"
-            
-            # 根据操作系统确定EdgeOne CLI路径
-            if is_windows:
-                edgeone_cmd = EDGEONE_CLI_PATH
-                edgeone_cmd_alt = EDGEONE_CLI_PATH_ALT
-            else:
-                edgeone_cmd = EDGEONE_CLI_PATH
-                edgeone_cmd_alt = EDGEONE_CLI_PATH_ALT
-            
-            # 检查EdgeOne CLI是否可用
-            def check_edgeone_cli():
-                try:
-                    import subprocess
-                    # 尝试主路径
-                    try:
-                        result = subprocess.run([edgeone_cmd, "--version"], 
-                                          capture_output=True, text=True, check=True, timeout=10)
-                        logger.info(f"✅ EdgeOne CLI 已安装: {edgeone_cmd}")
-                        return edgeone_cmd
-                    except:
-                        # 尝试备用路径
-                        try:
-                            result = subprocess.run([edgeone_cmd_alt, "--version"], 
-                                              capture_output=True, text=True, check=True, timeout=10)
-                            logger.info(f"✅ EdgeOne CLI 已安装 (备用路径): {edgeone_cmd_alt}")
-                            return edgeone_cmd_alt
-                        except:
-                            pass
-                    
-                    logger.error("❌ EdgeOne CLI 不可用")
-                    return None
-                except Exception as e:
-                    logger.error(f"❌ EdgeOne CLI 检查失败: {e}")
-                    return None
-            
-            # 检查登录状态
-            def check_edgeone_login(edgeone_path):
-                try:
-                    import subprocess
-                    result = subprocess.run([edgeone_path, "whoami"], 
-                                      capture_output=True, text=True, check=True, timeout=10)
-                    logger.info("✅ EdgeOne CLI 已登录")
-                    return True
-                except Exception as e:
-                    logger.error(f"❌ EdgeOne CLI 未登录: {e}")
-                    return False
-            
-            # 执行CLI部署 - 修复版本
-            def execute_cli_deploy(edgeone_path):
-                try:
-                    import subprocess
-                    import os
-                    
-                    # 使用绝对路径，在主项目目录下执行
-                    cmd = [
-                        edgeone_path, "pages", "deploy", 
-                        reports_dir,  # 使用绝对路径
-                        "-n", EDGEONE_PROJECT
-                    ]
-                    
-                    logger.info(f"📤 执行CLI部署命令: {' '.join(cmd)}")
-                    logger.info(f"📁 工作目录: {main_project_dir}")
-                    
-                    # 在主项目目录下执行部署命令
-                    result = subprocess.run(
-                        cmd, 
-                        check=True, 
-                        capture_output=True, 
-                        text=True, 
-                        timeout=300,
-                        cwd=main_project_dir  # 确保在正确的工作目录下执行
-                    )
-                    
-                    logger.info("✅ EdgeOne CLI 部署成功！")
-                    logger.info(f"📤 部署输出: {result.stdout}")
-                    
-                    # 从部署输出中提取部署ID
-                    deployment_id_match = re.search(r"Created deployment with ID: (\w+)", result.stdout)
-                    if deployment_id_match:
-                        self.latest_deployment_id = deployment_id_match.group(1)
-                        logger.info(f"✅ 提取到部署ID: {self.latest_deployment_id}")
-                    else:
-                        # 尝试其他可能的格式
-                        deployment_id_match = re.search(r"Deployment ID: (\w+)", result.stdout)
-                        if deployment_id_match:
-                            self.latest_deployment_id = deployment_id_match.group(1)
-                            logger.info(f"✅ 提取到部署ID: {self.latest_deployment_id}")
-                        else:
-                            logger.warning("⚠️ 未从CLI输出中提取到部署ID")
-                            self.latest_deployment_id = None
-                    
-                    return True
-                    
-                except subprocess.CalledProcessError as e:
-                    logger.error(f"❌ EdgeOne CLI 部署失败: {e}")
-                    logger.error(f"错误输出: {e.stderr}")
-                    return False
-                except Exception as e:
-                    logger.error(f"❌ EdgeOne CLI 部署异常: {e}")
-                    return False
-            
-            # 主部署流程
-            logger.info("🔍 检查EdgeOne CLI...")
-            edgeone_path = check_edgeone_cli()
-            
-            if not edgeone_path:
-                logger.error("❌ EdgeOne CLI 不可用，请先安装")
-                return None
-            
-            logger.info("🔍 检查登录状态...")
-            if not check_edgeone_login(edgeone_path):
-                logger.error("❌ EdgeOne CLI 未登录，请先运行登录命令")
-                logger.info(f"💡 登录命令: {edgeone_path} login")
-                return None
-            
-            logger.info("🚀 开始CLI部署...")
-            if execute_cli_deploy(edgeone_path):
-                logger.info("✅ EdgeOne CLI 部署完成！")
-                
-                # 等待CDN同步
-                logger.info("⏳ 等待CDN同步...")
-                time.sleep(15)  # 等待15秒让CDN同步
-                
-                # 构建访问URL - 使用正确的路径
-                verified_url = self._verify_multiple_urls(filename)
-                
-                if verified_url:
-                    logger.info(f"✅ URL验证成功: {verified_url}")
-                    return verified_url
-                else:
-                    # 返回默认URL
-                    default_url = f"https://{EDGEONE_DOMAIN}/{filename}"
-                    logger.info(f"💡 返回默认URL: {default_url}")
-                    return default_url
-            else:
-                logger.error("❌ EdgeOne CLI 部署失败")
-                return None
-                
-        except Exception as e:
-            logger.error(f"❌ 部署过程中发生错误: {e}")
-            return None
-    
-    def _verify_url_accessibility(self, url: str) -> str:
-        """验证URL可访问性，返回可访问的URL"""
-        logger.info(f"🔍 验证URL可访问性: {url}")
+    def _simple_verify_url(self, public_url: str) -> str:
+        """严格验证URL是否可访问"""
+        logger.info(f"🔍 正在验证URL: {public_url}")
         
-        # 快速验证，减少等待时间
-        for attempt in range(3):  # 减少到3次尝试
+        # 等待CDN同步，最多重试5次
+        for attempt in range(5):
             try:
-                # 减少等待时间
-                wait_time = 3 + (attempt * 2)  # 3, 5, 7秒
-                logger.info(f"⏳ 第{attempt+1}次验证，等待{wait_time}秒...")
-                time.sleep(wait_time)
-                
-                response = requests.head(url, timeout=10)  # 减少超时时间
+                time.sleep(3)  # 等待CDN同步
+                response = requests.head(public_url, timeout=15)
                 
                 if response.status_code == 200:
-                    logger.info(f"✅ URL验证成功，状态码: {response.status_code}")
-                    return url
+                    logger.info(f"✅ URL验证成功，文件可正常访问: {public_url}")
+                    return public_url
                 elif response.status_code == 404:
-                    logger.info(f"⚠️ 第{attempt+1}次验证失败，文件不存在 (404)")
+                    logger.info(f"⚠️ 第{attempt+1}次验证失败，文件不存在 (404)，等待CDN同步...")
                 else:
                     logger.info(f"⚠️ 第{attempt+1}次验证失败，状态码: {response.status_code}")
                     
-            except requests.exceptions.ConnectTimeout:
-                logger.info(f"⚠️ 第{attempt+1}次验证连接超时")
-            except requests.exceptions.Timeout:
-                logger.info(f"⚠️ 第{attempt+1}次验证请求超时")
-            except Exception as e:
-                logger.info(f"⚠️ 第{attempt+1}次验证异常: {e}")
+            except Exception as verify_e:
+                logger.info(f"⚠️ 第{attempt+1}次验证异常: {verify_e}")
         
-        logger.warning(f"❌ URL验证失败，但部署可能成功: {url}")
+        logger.error(f"❌ URL验证失败，经过5次重试仍无法访问，不返回URL")
         return None
     
-    def _verify_multiple_urls(self, filename: str) -> str:
-        """验证多种可能的URL格式，智能快速验证 - 简化版"""
-        # 构建基础URL
-        base_url = f"https://{EDGEONE_DOMAIN}/{filename}"
-        
-        # 快速验证主URL - 只等待5秒
+    def deploy_to_edgeone(self, html_content: str, filename: str) -> str:
+        """部署到EdgeOne Pages - 使用整体日报数据.py的部署方式"""
         try:
-            response = requests.head(base_url, timeout=5)
-            if response.status_code == 200:
-                logger.info(f"✅ URL验证成功: {base_url}")
-                return base_url
-        except:
-            pass
-        
-        # 如果主URL失败，返回基础URL（通常CDN会很快同步）
-        logger.info(f"💡 返回基础URL（CDN正在同步）: {base_url}")
-        return base_url
+            logger.info("🚀 开始部署到EdgeOne Pages...")
+            
+            # 创建reports目录
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            reports_dir = os.path.join(script_dir, "reports")
+            
+            # 确保reports目录存在
+            if not os.path.exists(reports_dir):
+                os.makedirs(reports_dir, exist_ok=True)
+                logger.info(f"📁 创建reports目录: {reports_dir}")
+            else:
+                logger.info(f"📁 使用现有reports目录: {reports_dir}")
+            
+            # 将HTML内容写入到reports目录
+            file_path = os.path.join(reports_dir, filename)
+            try:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(html_content)
+                logger.info(f"💾 HTML文件已保存到: {file_path}")
+                
+                # 验证文件是否成功写入
+                if os.path.exists(file_path):
+                    file_size = os.path.getsize(file_path)
+                    logger.info(f"✅ 文件写入成功，大小: {file_size:,} 字节")
+                else:
+                    logger.error(f"❌ 文件写入失败，文件不存在: {file_path}")
+                    return None
+                    
+            except Exception as write_error:
+                logger.error(f"❌ 文件写入异常: {write_error}")
+                return None
+            
+            # 检查目录中是否有文件
+            files = [f for f in os.listdir(reports_dir) if f.endswith('.html')]
+            if not files:
+                logger.error(f"❌ 部署目录中没有HTML文件: {reports_dir}")
+                return None
+            
+            logger.info(f"📄 找到 {len(files)} 个HTML文件")
+            
+            # 使用绝对路径部署
+            deploy_path = os.path.abspath(reports_dir)
+            logger.info(f"🔧 使用绝对路径部署: {deploy_path}")
+            
+            # 使用EdgeOne CLI部署
+            edgeone_cli_path = EDGEONE_CONFIG['cli_path']
+            logger.info(f"🔧 使用EdgeOne CLI路径: {edgeone_cli_path}")
+            
+            # 检查CLI是否存在
+            if not os.path.exists(edgeone_cli_path):
+                logger.warning(f"❌ EdgeOne CLI不存在: {edgeone_cli_path}")
+                # 尝试使用环境变量中的edgeone
+                edgeone_cli_path = "edgeone"
+                logger.info(f"🔧 尝试使用环境变量: {edgeone_cli_path}")
+            
+            # 构建部署命令
+            project_name = EDGEONE_CONFIG['project_name']
+            token = EDGEONE_CONFIG['token']
+            
+            # 执行部署命令
+            cmd = [
+                edgeone_cli_path,
+                "pages",
+                "deploy",
+                deploy_path,  # 使用目录路径
+                "-n", project_name,  # 项目名称
+                "-t", token  # token
+            ]
+            
+            logger.info(f"🔧 执行命令: {' '.join(cmd)}")
+            
+            # 执行部署命令
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=300,  # 5分钟超时
+                cwd=reports_dir
+            )
+            
+            if result.returncode == 0:
+                logger.info("✅ EdgeOne Pages 部署成功！")
+                logger.info(f"📤 部署输出: {result.stdout}")
+                
+                # 构建URL
+                domain = EDGEONE_CONFIG['domain']
+                public_url = f"https://{domain}/{filename}"
+                
+                # 验证URL
+                verified_url = self._simple_verify_url(public_url)
+                if verified_url:
+                    logger.info(f"✅ 部署成功，可访问URL: {verified_url}")
+                    return verified_url
+                else:
+                    logger.error("❌ URL验证失败，不返回URL")
+                    return None
+            else:
+                logger.error(f"❌ 部署失败: {result.stderr}")
+                logger.error(f"📤 部署输出: {result.stdout}")
+                return None
+                
+        except subprocess.TimeoutExpired:
+            logger.error("❌ 部署超时（5分钟）")
+            return None
+        except Exception as e:
+            logger.error(f"❌ 部署异常: {e}")
+            return None
     
     def send_wechat_message(self, summary: str, edgeone_url: str = None) -> bool:
         """发送企业微信消息 - 使用WecomChan服务器，配置企业微信凭证"""
@@ -1608,8 +1311,7 @@ class InventoryAnalyzer:
                     messages.append(current_msg.strip())
             
             # 发送所有分段
-            success_count = 0
-            for i, msg in enumerate(messages):
+            for msg in messages:
                 data = {
                     "msg": msg,
                     "token": token,
@@ -1624,68 +1326,55 @@ class InventoryAnalyzer:
                 
                 for attempt in range(max_retries):
                     try:
-                        logger.info(f"📤 正在发送消息分段 {i+1}/{len(messages)} (尝试 {attempt+1}/{max_retries})")
                         response = requests.post(url, json=data, timeout=30)
                         
-                        # 检查响应内容
-                        response_text = response.text.lower()
-                        if "errcode" in response_text and "0" in response_text:
-                            logger.info(f"✅ 消息分段 {i+1}/{len(messages)} 发送成功")
-                            success_count += 1
+                        if "errcode" in response.text and "0" in response.text:
+                            logger.info(f"消息发送成功 (分段 {messages.index(msg)+1}/{len(messages)})")
                             break
-                        elif "500" in response_text or "error" in response_text:
-                            logger.warning(f"⚠️ 消息分段 {i+1}/{len(messages)} 发送失败 (尝试 {attempt+1}/{max_retries}): {response.text}")
+                        elif "500" in response.text or "error" in response.text.lower():
                             if attempt < max_retries - 1:
                                 time.sleep(retry_delay)
                                 retry_delay *= 1.5
                                 continue
                         else:
-                            logger.warning(f"⚠️ 消息分段 {i+1}/{len(messages)} 响应异常 (尝试 {attempt+1}/{max_retries}): {response.text}")
                             if attempt < max_retries - 1:
                                 time.sleep(retry_delay)
                                 retry_delay *= 1.5
                                 continue
                     except requests.exceptions.ConnectTimeout:
-                        logger.warning(f"⚠️ 消息分段 {i+1}/{len(messages)} 连接超时 (尝试 {attempt+1}/{max_retries})")
                         if attempt < max_retries - 1:
                             time.sleep(retry_delay)
                             retry_delay *= 1.5
                             continue
                         else:
-                            logger.error(f"❌ 消息分段 {i+1}/{len(messages)} 连接超时，发送失败")
+                            logger.error("连接超时，发送失败")
+                            return False
                     except requests.exceptions.Timeout:
-                        logger.warning(f"⚠️ 消息分段 {i+1}/{len(messages)} 请求超时 (尝试 {attempt+1}/{max_retries})")
                         if attempt < max_retries - 1:
                             time.sleep(retry_delay)
                             retry_delay *= 1.5
                             continue
                         else:
-                            logger.error(f"❌ 消息分段 {i+1}/{len(messages)} 请求超时，发送失败")
+                            logger.error("请求超时，发送失败")
+                            return False
                     except Exception as e:
-                        logger.warning(f"⚠️ 消息分段 {i+1}/{len(messages)} 发送异常 (尝试 {attempt+1}/{max_retries}): {e}")
                         if attempt < max_retries - 1:
                             time.sleep(retry_delay)
                             retry_delay *= 1.5
                             continue
                         else:
-                            logger.error(f"❌ 消息分段 {i+1}/{len(messages)} 发送异常: {e}")
+                            logger.error(f"发送异常: {e}")
+                            return False
                 
                 # 分段之间稍作间隔
-                if i < len(messages) - 1:
+                if len(messages) > 1:
                     time.sleep(1)
             
-            if success_count == len(messages):
-                logger.info(f"✅ 企业微信消息发送成功，共 {len(messages)} 个分段全部发送成功")
-                return True
-            elif success_count > 0:
-                logger.warning(f"⚠️ 企业微信消息部分发送成功，{success_count}/{len(messages)} 个分段发送成功")
-                return True
-            else:
-                logger.error(f"❌ 企业微信消息发送失败，所有分段均发送失败")
-                return False
+            logger.info("企业微信消息发送成功")
+            return True
                 
         except Exception as e:
-            logger.error(f"❌ 发送企业微信消息异常: {e}")
+            logger.error(f"发送企业微信消息异常: {e}")
             return False
     
     def generate_summary(self, df: pd.DataFrame) -> str:

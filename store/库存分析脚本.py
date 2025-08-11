@@ -3,6 +3,7 @@
 """
 库存分析脚本
 功能：从多个数据库表格获取库存数据，按仓库类型聚合，生成报告并推送到企业微信
+新增：销售数据和进销存分析功能
 """
 
 import pymysql
@@ -58,7 +59,7 @@ WECOM_CONFIG = {
 EDGEONE_CONFIG = {
     'cli_path': "/Users/weixiaogang/.npm-global/bin/edgeone",
     'token': "YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc=",
-    'project_name': "sales-report",
+    'project_name': "sales-report-new",  # 使用正确的项目名称
     'domain': "edge.haierht.cn"
 }
 
@@ -87,6 +88,181 @@ class InventoryAnalyzer:
         if self.date_connection:
             self.date_connection.close()
         logger.info("数据库连接已关闭")
+    
+    def get_sales_data(self, spec_mapping: Dict[str, Dict[str, str]], start_date: str, end_date: str) -> pd.DataFrame:
+        """获取销售数据：从Date-Daysales表获取指定时间范围的销售数据"""
+        if not self.date_connection:
+            logger.error("date数据库未连接")
+            return pd.DataFrame()
+        
+        if not spec_mapping:
+            logger.warning("没有规格名称映射，无法查询销售数据")
+            return pd.DataFrame()
+        
+        try:
+            # 获取所有有效的规格名称
+            spec_names = list(spec_mapping.keys())
+            
+            if not spec_names:
+                logger.warning("没有有效的规格名称")
+                return pd.DataFrame()
+            
+            # 构建批量查询
+            spec_names_str = "','".join(spec_names)
+            
+            # 查询销售数据，使用整体日报数据.py的刷单剔除逻辑
+            query = f"""
+            SELECT 
+                规格名称,
+                实发数量 as 销量,
+                分摊后总价 as 销售额,
+                交易时间,
+                店铺,
+                货品名称,
+                客服备注,
+                订单状态
+            FROM Daysales 
+            WHERE 规格名称 IN ('{spec_names_str}')
+            AND 交易时间 BETWEEN '{start_date}' AND '{end_date}'
+            AND 实发数量 > 0
+            AND 分摊后总价 > 0
+            AND (客服备注 IS NULL OR 客服备注 NOT LIKE '%抽纸%' AND 客服备注 NOT LIKE '%纸巾%' AND 客服备注 != '不发货')
+            AND (订单状态 IS NULL OR 订单状态 NOT IN ('未付款', '已取消'))
+            AND (店铺 LIKE '%京东%' OR 店铺 LIKE '%天猫%' OR 店铺 LIKE '%拼多多%' OR 店铺 LIKE '%抖音%' OR 店铺 LIKE '%卡萨帝%')
+            """
+            
+            df = pd.read_sql(query, self.date_connection)
+            
+            if not df.empty:
+                logger.info(f"从Daysales获取销售数据成功，共 {len(df)} 条记录")
+                logger.info(f"时间范围: {start_date} 到 {end_date}")
+                logger.info(f"规格名称数量: {df['规格名称'].nunique()}")
+                return df
+            else:
+                logger.warning(f"未从Daysales获取到任何销售数据，时间范围: {start_date} 到 {end_date}")
+                return pd.DataFrame()
+                
+        except Exception as e:
+            logger.error(f"获取销售数据失败: {e}")
+            return pd.DataFrame()
+    
+    def get_sales_period_data(self, spec_mapping: Dict[str, Dict[str, str]]) -> Dict[str, pd.DataFrame]:
+        """获取不同时间段的销售数据"""
+        try:
+            today = datetime.now()
+            logger.info(f"当前时间: {today.strftime('%Y-%m-%d')}")
+            
+            # 计算上月全月
+            if today.month == 1:
+                last_month = today.replace(year=today.year-1, month=12, day=1)
+            else:
+                last_month = today.replace(month=today.month-1, day=1)
+            
+            last_month_end = today.replace(day=1) - timedelta(days=1)
+            last_month_start = last_month.replace(day=1)
+            
+            # 计算四周数据（从昨天开始往前推）
+            week1_end = today - timedelta(days=1)  # 昨天
+            week1_start = week1_end - timedelta(days=6)  # 7天前
+            
+            week2_end = week1_start - timedelta(days=1)  # 8天前
+            week2_start = week2_end - timedelta(days=6)  # 14天前
+            
+            week3_end = week2_start - timedelta(days=1)  # 15天前
+            week3_start = week3_end - timedelta(days=6)  # 21天前
+            
+            week4_end = week3_start - timedelta(days=1)  # 22天前
+            week4_start = week4_end - timedelta(days=6)  # 28天前
+            
+            logger.info(f"时间范围计算:")
+            logger.info(f"上月: {last_month_start.strftime('%Y-%m-%d')} 到 {last_month_end.strftime('%Y-%m-%d')}")
+            logger.info(f"T-1周: {week1_start.strftime('%Y-%m-%d')} 到 {week1_end.strftime('%Y-%m-%d')}")
+            logger.info(f"T-2周: {week2_start.strftime('%Y-%m-%d')} 到 {week2_end.strftime('%Y-%m-%d')}")
+            logger.info(f"T-3周: {week3_start.strftime('%Y-%m-%d')} 到 {week3_end.strftime('%Y-%m-%d')}")
+            logger.info(f"T-4周: {week4_start.strftime('%Y-%m-%d')} 到 {week4_end.strftime('%Y-%m-%d')}")
+            
+            # 获取各时间段数据
+            sales_data = {}
+            
+            # 上月数据
+            last_month_data = self.get_sales_data(
+                spec_mapping, 
+                last_month_start.strftime('%Y-%m-%d'), 
+                last_month_end.strftime('%Y-%m-%d')
+            )
+            sales_data['上月'] = last_month_data
+            
+            # T-1周数据
+            week1_data = self.get_sales_data(
+                spec_mapping, 
+                week1_start.strftime('%Y-%m-%d'), 
+                week1_end.strftime('%Y-%m-%d')
+            )
+            sales_data['T-1周'] = week1_data
+            
+            # T-2周数据
+            week2_data = self.get_sales_data(
+                spec_mapping, 
+                week2_start.strftime('%Y-%m-%d'), 
+                week2_end.strftime('%Y-%m-%d')
+            )
+            sales_data['T-2周'] = week2_data
+            
+            # T-3周数据
+            week3_data = self.get_sales_data(
+                spec_mapping, 
+                week3_start.strftime('%Y-%m-%d'), 
+                week3_end.strftime('%Y-%m-%d')
+            )
+            sales_data['T-3周'] = week3_data
+            
+            # T-4周数据
+            week4_data = self.get_sales_data(
+                spec_mapping, 
+                week4_start.strftime('%Y-%m-%d'), 
+                week4_end.strftime('%Y-%m-%d')
+            )
+            sales_data['T-4周'] = week4_data
+            
+            logger.info(f"获取销售数据完成，各时间段数据量：上月{len(last_month_data)}，T-1周{len(week1_data)}，T-2周{len(week2_data)}，T-3周{len(week3_data)}，T-4周{len(week4_data)}")
+            
+            return sales_data
+            
+        except Exception as e:
+            logger.error(f"获取销售时间段数据失败: {e}")
+            return {}
+    
+    def calculate_inventory_sales_ratio(self, inventory_qty: float, avg_daily_sales: float) -> Tuple[float, str]:
+        """计算存销比：库存/近四周日均数据"""
+        if avg_daily_sales <= 0:
+            return float('inf'), "无销售数据"
+        
+        # 确保使用float类型进行计算，避免整数除法溢出
+        inventory_qty = float(inventory_qty)
+        avg_daily_sales = float(avg_daily_sales)
+        
+        # 使用numpy的除法，避免整数溢出
+        try:
+            ratio = np.divide(inventory_qty, avg_daily_sales)
+            
+            # 检查是否溢出
+            if np.isinf(ratio) or np.isnan(ratio):
+                return float('inf'), "计算异常"
+            
+            # 按区间分类
+            if ratio >= 60:
+                return float(ratio), "严重滞销"
+            elif ratio >= 45:
+                return float(ratio), "滞销"
+            elif ratio >= 30:
+                return float(ratio), "正常"
+            elif ratio >= 20:
+                return float(ratio), "畅销"
+            else:
+                return float(ratio), "缺货预警"
+        except Exception as e:
+            logger.error(f"存销比计算异常: {e}")
+            return float('inf'), "计算异常"
     
     def get_wdt_stock_data(self, spec_mapping: Dict[str, Dict[str, str]]) -> pd.DataFrame:
         """获取wdt数据库的stock表格数据，根据规格名称映射查询"""
@@ -581,7 +757,7 @@ class InventoryAnalyzer:
             return pd.DataFrame()
     
     def aggregate_inventory_data(self) -> pd.DataFrame:
-        """聚合所有库存数据：只统计有映射关系的数据"""
+        """聚合所有库存数据：只统计有映射关系的数据，并添加销售数据和存销比"""
         logger.info("开始聚合库存数据")
         
         # 获取映射关系
@@ -653,6 +829,130 @@ class InventoryAnalyzer:
         final_df['合计数量'] = pd.to_numeric(final_df['合计数量'], errors='coerce').fillna(0)
         final_df['到仓位数量'] = pd.to_numeric(final_df['到仓位数量'], errors='coerce').fillna(0)
         
+        # 获取销售数据
+        logger.info("开始获取销售数据...")
+        sales_period_data = self.get_sales_period_data(mapping)
+        
+        if sales_period_data:
+            # 计算每个规格名称的销售数据
+            sales_summary = {}
+            
+            for spec_name in mapping.keys():
+                sales_summary[spec_name] = {
+                    '上月销量': 0,
+                    'T-1周销量': 0,
+                    'T-2周销量': 0,
+                    'T-3周销量': 0,
+                    'T-4周销量': 0,
+                    '近四周日均销量': 0,
+                    '存销比': 0,
+                    '存销比状态': '无销售数据'
+                }
+            
+            # 统计各时间段销量
+            for period, period_data in sales_period_data.items():
+                if not period_data.empty:
+                    try:
+                        # 确保销量列是数值类型
+                        period_data['销量'] = pd.to_numeric(period_data['销量'], errors='coerce').fillna(0)
+                        period_summary = period_data.groupby('规格名称')['销量'].sum()
+                        
+                        for spec_name, qty in period_summary.items():
+                            if spec_name in sales_summary:
+                                # 确保销量是安全的数值
+                                safe_qty = int(qty) if qty <= 1e9 else 1e9
+                                
+                                if period == '上月':
+                                    sales_summary[spec_name]['上月销量'] = safe_qty
+                                elif period == 'T-1周':
+                                    sales_summary[spec_name]['T-1周销量'] = safe_qty
+                                elif period == 'T-2周':
+                                    sales_summary[spec_name]['T-2周销量'] = safe_qty
+                                elif period == 'T-3周':
+                                    sales_summary[spec_name]['T-3周销量'] = safe_qty
+                                elif period == 'T-4周':
+                                    sales_summary[spec_name]['T-4周销量'] = safe_qty
+                    except Exception as e:
+                        logger.error(f"统计{period}销量时出错: {e}")
+                        continue
+            
+            # 计算近四周日均销量和存销比
+            for spec_name in sales_summary:
+                try:
+                    # 计算近四周总销量
+                    four_weeks_total = (
+                        sales_summary[spec_name]['T-1周销量'] +
+                        sales_summary[spec_name]['T-2周销量'] +
+                        sales_summary[spec_name]['T-3周销量'] +
+                        sales_summary[spec_name]['T-4周销量']
+                    )
+                    
+                    # 计算日均销量（28天）
+                    avg_daily_sales = four_weeks_total / 28.0 if four_weeks_total > 0 else 0.0
+                    sales_summary[spec_name]['近四周日均销量'] = round(avg_daily_sales, 2)
+                    
+                    # 计算存销比
+                    inventory_qty = final_df[final_df['规格名称'] == spec_name]['合计数量'].sum()
+                    if inventory_qty > 0 and avg_daily_sales > 0:
+                        try:
+                            # 确保数据类型安全
+                            inventory_qty_safe = float(inventory_qty) if inventory_qty <= 1e15 else 1e15
+                            avg_daily_sales_safe = float(avg_daily_sales) if avg_daily_sales <= 1e15 else 1e15
+                            
+                            ratio, status = self.calculate_inventory_sales_ratio(inventory_qty_safe, avg_daily_sales_safe)
+                            sales_summary[spec_name]['存销比'] = round(ratio, 1) if not np.isinf(ratio) else 0
+                            sales_summary[spec_name]['存销比状态'] = status
+                        except Exception as e:
+                            logger.error(f"计算存销比异常 - 规格名称: {spec_name}, 库存: {inventory_qty}, 日均销量: {avg_daily_sales}, 错误: {e}")
+                            sales_summary[spec_name]['存销比'] = 0
+                            sales_summary[spec_name]['存销比状态'] = '计算异常'
+                    else:
+                        sales_summary[spec_name]['存销比'] = 0
+                        sales_summary[spec_name]['存销比状态'] = '无销售数据' if avg_daily_sales == 0 else '无库存'
+                except Exception as e:
+                    logger.error(f"处理规格名称 {spec_name} 时出错: {e}")
+                    continue
+            
+            # 将销售数据添加到库存数据中
+            try:
+                sales_df = pd.DataFrame.from_dict(sales_summary, orient='index').reset_index()
+                sales_df = sales_df.rename(columns={'index': '规格名称'})
+                
+                # 合并库存数据和销售数据
+                final_df = final_df.merge(sales_df, on='规格名称', how='left')
+                
+                # 填充缺失值
+                sales_columns = ['上月销量', 'T-1周销量', 'T-2周销量', 'T-3周销量', 'T-4周销量', '近四周日均销量', '存销比']
+                for col in sales_columns:
+                    final_df[col] = final_df[col].fillna(0)
+                
+                final_df['存销比状态'] = final_df['存销比状态'].fillna('无销售数据')
+                
+                logger.info(f"销售数据添加完成，共 {len(final_df)} 条记录")
+                logger.info(f"存销比状态分布: {final_df['存销比状态'].value_counts().to_dict()}")
+            except Exception as e:
+                logger.error(f"合并销售数据时出错: {e}")
+                # 如果合并失败，添加空的销售数据列
+                final_df['上月销量'] = 0
+                final_df['T-1周销量'] = 0
+                final_df['T-2周销量'] = 0
+                final_df['T-3周销量'] = 0
+                final_df['T-4周销量'] = 0
+                final_df['近四周日均销量'] = 0
+                final_df['存销比'] = 0
+                final_df['存销比状态'] = '无销售数据'
+        else:
+            logger.warning("未获取到销售数据，仅显示库存信息")
+            # 添加空的销售数据列
+            final_df['上月销量'] = 0
+            final_df['T-1周销量'] = 0
+            final_df['T-2周销量'] = 0
+            final_df['T-3周销量'] = 0
+            final_df['T-4周销量'] = 0
+            final_df['近四周日均销量'] = 0
+            final_df['存销比'] = 0
+            final_df['存销比状态'] = '无销售数据'
+        
         logger.info(f"聚合完成，共 {len(final_df)} 条记录（只包含有映射关系的数据）")
         return final_df
     
@@ -700,7 +1000,7 @@ class InventoryAnalyzer:
             return {}
     
     def create_summary_table(self, df: pd.DataFrame) -> pd.DataFrame:
-        """创建汇总表格：按品类和型号汇总，仓库类型作为列"""
+        """创建汇总表格：按品类和型号汇总，仓库类型作为列，并添加销售数据"""
         if df.empty:
             return pd.DataFrame()
         
@@ -727,8 +1027,23 @@ class InventoryAnalyzer:
         
         pivot_df['合计库存'] = pivot_df[warehouse_columns].sum(axis=1)
         
+        # 添加销售数据列（按规格名称聚合）
+        sales_summary = df.groupby('规格名称').agg({
+            '上月销量': 'first',
+            'T-1周销量': 'first',
+            'T-2周销量': 'first',
+            'T-3周销量': 'first',
+            'T-4周销量': 'first',
+            '近四周日均销量': 'first',
+            '存销比': 'first',
+            '存销比状态': 'first'
+        }).reset_index()
+        
+        # 合并库存数据和销售数据
+        pivot_df = pivot_df.merge(sales_summary, on='规格名称', how='left')
+        
         # 重新排序列
-        columns = ['品类', '规格名称', '合计库存'] + warehouse_columns
+        columns = ['品类', '规格名称', '合计库存', '存销比', '存销比状态', '近四周日均销量', '上月销量', 'T-1周销量', 'T-2周销量', 'T-3周销量', 'T-4周销量'] + warehouse_columns
         pivot_df = pivot_df[columns]
         
         # 重命名列 - 统一使用规格名称
@@ -754,8 +1069,9 @@ class InventoryAnalyzer:
         # 创建汇总表格
         summary_df = self.create_summary_table(df)
         
-        # 获取所有品类
+        # 获取所有品类和存销比状态
         categories = summary_df['品类'].unique().tolist()
+        inventory_sales_statuses = summary_df['存销比状态'].unique().tolist()
         
         # 生成HTML表格
         html_content = f"""
@@ -767,13 +1083,13 @@ class InventoryAnalyzer:
             <title>库存分析报告</title>
             <style>
                 body {{ font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }}
-                .container {{ max-width: 1400px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
+                .container {{ max-width: 1600px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
                 h1 {{ color: #333; text-align: center; }}
                 .filters {{ margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 5px; }}
                 .filters label {{ margin-right: 15px; font-weight: bold; }}
                 .filters select {{ padding: 5px; margin-right: 20px; border: 1px solid #ddd; border-radius: 3px; }}
                 table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
-                th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }}
+                th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 11px; }}
                 th {{ background-color: #f2f2f2; font-weight: bold; position: sticky; top: 0; }}
                 tr:nth-child(even) {{ background-color: #f9f9f9; }}
                 .number {{ text-align: right; font-family: monospace; }}
@@ -781,6 +1097,11 @@ class InventoryAnalyzer:
                 .category-row {{ background-color: #e3f2fd !important; font-weight: bold; }}
                 .product-row {{ display: table-row; }}
                 .hidden {{ display: none; }}
+                .status-severely-oversold {{ background-color: #ffebee !important; color: #c62828; }}
+                .status-oversold {{ background-color: #fff3e0 !important; color: #ef6c00; }}
+                .status-normal {{ background-color: #e8f5e8 !important; color: #2e7d32; }}
+                .status-hot {{ background-color: #e3f2fd !important; color: #1565c0; }}
+                .status-shortage {{ background-color: #fce4ec !important; color: #c2185b; }}
             </style>
             <script>
                 // 存储所有数据
@@ -813,17 +1134,20 @@ class InventoryAnalyzer:
                 function filterTable() {{
                     const categoryFilter = document.getElementById('categoryFilter').value;
                     const productFilter = document.getElementById('productFilter').value;
+                    const statusFilter = document.getElementById('statusFilter').value;
                     const rows = document.querySelectorAll('tbody tr');
                     let visibleCount = 0;
                     
                     rows.forEach(row => {{
                         const categoryCell = row.cells[0];
                         const productCell = row.cells[1];
+                        const statusCell = row.cells[4]; // 存销比状态列
                         
                         if (!categoryCell || !productCell) return;
                         
                         const category = categoryCell.textContent.trim();
                         const product = productCell.textContent.trim();
+                        const status = statusCell ? statusCell.textContent.trim() : '';
                         
                         // 检查是否是品类行（包含"小计"字样）
                         const isCategoryRow = category.includes('小计');
@@ -843,8 +1167,9 @@ class InventoryAnalyzer:
                             // 产品行的处理逻辑
                             const categoryMatch = categoryFilter === '' || category === categoryFilter;
                             const productMatch = productFilter === '' || product === productFilter;
+                            const statusMatch = statusFilter === '' || status === statusFilter;
                             
-                            if (categoryMatch && productMatch) {{
+                            if (categoryMatch && productMatch && statusMatch) {{
                                 row.style.display = '';
                                 visibleCount++;
                             }} else {{
@@ -855,11 +1180,29 @@ class InventoryAnalyzer:
                     
                     // 更新显示信息
                     document.getElementById('visibleCount').textContent = visibleCount;
+                    
+                    // 如果没有显示任何记录，显示提示信息
+                    if (visibleCount === 0) {{
+                        const noDataRow = document.getElementById('noDataRow');
+                        if (!noDataRow) {{
+                            const tbody = document.querySelector('tbody');
+                            const newRow = document.createElement('tr');
+                            newRow.id = 'noDataRow';
+                            newRow.innerHTML = '<td colspan="17" style="text-align: center; color: #666; font-style: italic;">没有找到匹配的数据</td>';
+                            tbody.appendChild(newRow);
+                        }}
+                    }} else {{
+                        const noDataRow = document.getElementById('noDataRow');
+                        if (noDataRow) {{
+                            noDataRow.remove();
+                        }}
+                    }}
                 }}
                 
                 function resetFilters() {{
                     document.getElementById('categoryFilter').value = '';
                     document.getElementById('productFilter').innerHTML = '<option value="">全部规格名称</option>';
+                    document.getElementById('statusFilter').value = '';
                     
                     // 显示所有行
                     const rows = document.querySelectorAll('tbody tr');
@@ -892,6 +1235,12 @@ class InventoryAnalyzer:
                         <option value="">全部规格名称</option>
                     </select>
                     
+                    <label>存销比筛选:</label>
+                    <select id="statusFilter" onchange="filterTable()">
+                        <option value="">全部状态</option>
+                        {''.join([f'<option value="{status}">{status}</option>' for status in inventory_sales_statuses])}
+                    </select>
+                    
                     <button onclick="resetFilters()" style="padding: 5px 10px; margin-left: 10px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">重置筛选</button>
                     
                     <span style="margin-left: 20px; color: #666;">显示记录数: <span id="visibleCount">0</span></span>
@@ -903,6 +1252,14 @@ class InventoryAnalyzer:
                             <th>品类</th>
                             <th>规格名称</th>
                             <th>合计库存</th>
+                            <th>存销比</th>
+                            <th>存销比状态</th>
+                            <th>近四周日均销量</th>
+                            <th>上月销量</th>
+                            <th>T-1周销量</th>
+                            <th>T-2周销量</th>
+                            <th>T-3周销量</th>
+                            <th>T-4周销量</th>
                             <th>常规仓</th>
                             <th>顺丰仓</th>
                             <th>京仓</th>
@@ -921,12 +1278,21 @@ class InventoryAnalyzer:
             # 添加品类小计行
             category_total = category_data['合计库存'].sum()
             category_warehouse_totals = category_data[['常规仓', '顺丰仓', '京仓', '云仓', '统仓', '金融仓']].sum()
+            category_sales_totals = category_data[['上月销量', 'T-1周销量', 'T-2周销量', 'T-3周销量', 'T-4周销量']].sum()
             
             html_content += f"""
                         <tr class="category-row">
                             <td>{category} (小计)</td>
                             <td></td>
                             <td class="number">{category_total:,.0f}</td>
+                            <td></td>
+                            <td></td>
+                            <td class="number">{category_data['近四周日均销量'].sum():,.1f}</td>
+                            <td class="number">{category_sales_totals['上月销量']:,.0f}</td>
+                            <td class="number">{category_sales_totals['T-1周销量']:,.0f}</td>
+                            <td class="number">{category_sales_totals['T-2周销量']:,.0f}</td>
+                            <td class="number">{category_sales_totals['T-3周销量']:,.0f}</td>
+                            <td class="number">{category_sales_totals['T-4周销量']:,.0f}</td>
                             <td class="number">{category_warehouse_totals['常规仓']:,.0f}</td>
                             <td class="number">{category_warehouse_totals['顺丰仓']:,.0f}</td>
                             <td class="number">{category_warehouse_totals['京仓']:,.0f}</td>
@@ -938,11 +1304,32 @@ class InventoryAnalyzer:
             
             # 添加该品类的所有规格名称
             for _, row in category_data.iterrows():
+                # 根据存销比状态添加CSS类
+                status_class = ""
+                if row['存销比状态'] == '严重滞销':
+                    status_class = "status-severely-oversold"
+                elif row['存销比状态'] == '滞销':
+                    status_class = "status-oversold"
+                elif row['存销比状态'] == '正常':
+                    status_class = "status-normal"
+                elif row['存销比状态'] == '畅销':
+                    status_class = "status-hot"
+                elif row['存销比状态'] == '缺货预警':
+                    status_class = "status-shortage"
+                
                 html_content += f"""
-                        <tr>
+                        <tr class="{status_class}">
                             <td>{category}</td>
                             <td>{row['规格名称']}</td>
                             <td class="number">{row['合计库存']:,.0f}</td>
+                            <td class="number">{row['存销比']:,.1f}</td>
+                            <td>{row['存销比状态']}</td>
+                            <td class="number">{row['近四周日均销量']:,.1f}</td>
+                            <td class="number">{row['上月销量']:,.0f}</td>
+                            <td class="number">{row['T-1周销量']:,.0f}</td>
+                            <td class="number">{row['T-2周销量']:,.0f}</td>
+                            <td class="number">{row['T-3周销量']:,.0f}</td>
+                            <td class="number">{row['T-4周销量']:,.0f}</td>
                             <td class="number">{row['常规仓']:,.0f}</td>
                             <td class="number">{row['顺丰仓']:,.0f}</td>
                             <td class="number">{row['京仓']:,.0f}</td>
@@ -958,6 +1345,14 @@ class InventoryAnalyzer:
                         <tr style="background-color: #ffeb3b; font-weight: bold;">
                             <td colspan="2">总计</td>
                             <td class="number">{total_row['合计库存']:,.0f}</td>
+                            <td></td>
+                            <td></td>
+                            <td class="number">{total_row['近四周日均销量']:,.1f}</td>
+                            <td class="number">{total_row['上月销量']:,.0f}</td>
+                            <td class="number">{total_row['T-1周销量']:,.0f}</td>
+                            <td class="number">{total_row['T-2周销量']:,.0f}</td>
+                            <td class="number">{total_row['T-3周销量']:,.0f}</td>
+                            <td class="number">{total_row['T-4周销量']:,.0f}</td>
                             <td class="number">{total_row['常规仓']:,.0f}</td>
                             <td class="number">{total_row['顺丰仓']:,.0f}</td>
                             <td class="number">{total_row['京仓']:,.0f}</td>
@@ -1010,7 +1405,7 @@ class InventoryAnalyzer:
         return None
     
     def deploy_to_edgeone(self, html_content: str, filename: str) -> str:
-        """部署到EdgeOne Pages - 使用整体日报数据.py的部署方式"""
+        """部署到EdgeOne Pages - 使用简化的部署方式"""
         try:
             logger.info("🚀 开始部署到EdgeOne Pages...")
             
@@ -1067,55 +1462,94 @@ class InventoryAnalyzer:
                 edgeone_cli_path = "edgeone"
                 logger.info(f"🔧 尝试使用环境变量: {edgeone_cli_path}")
             
-            # 构建部署命令
+            # 构建部署命令 - 使用简化的命令格式
             project_name = EDGEONE_CONFIG['project_name']
             token = EDGEONE_CONFIG['token']
             
-            # 执行部署命令
-            cmd = [
-                edgeone_cli_path,
-                "pages",
-                "deploy",
-                deploy_path,  # 使用目录路径
-                "-n", project_name,  # 项目名称
-                "-t", token  # token
+            # 尝试多种部署方式
+            deployment_methods = [
+                # 方法1: 标准部署
+                [
+                    edgeone_cli_path,
+                    "pages",
+                    "deploy",
+                    deploy_path,
+                    "-n", project_name,
+                    "-t", token
+                ],
+                # 方法2: 带环境参数
+                [
+                    edgeone_cli_path,
+                    "pages",
+                    "deploy",
+                    deploy_path,
+                    "-n", project_name,
+                    "-t", token,
+                    "-e", "production"
+                ],
+                # 方法3: 使用相对路径
+                [
+                    edgeone_cli_path,
+                    "pages",
+                    "deploy",
+                    "reports",
+                    "-n", project_name,
+                    "-t", token
+                ]
             ]
             
-            logger.info(f"🔧 执行命令: {' '.join(cmd)}")
+            for i, cmd in enumerate(deployment_methods, 1):
+                try:
+                    logger.info(f"🔄 尝试部署方法 {i}: {' '.join(cmd)}")
+                    
+                    # 执行部署命令
+                    result = subprocess.run(
+                        cmd,
+                        capture_output=True,
+                        text=True,
+                        timeout=300,  # 5分钟超时
+                        cwd=script_dir  # 在脚本目录执行
+                    )
+                    
+                    if result.returncode == 0:
+                        logger.info(f"✅ 部署方法 {i} 成功！")
+                        logger.info(f"📤 部署输出: {result.stdout}")
+                        
+                        # 构建URL
+                        domain = EDGEONE_CONFIG['domain']
+                        public_url = f"https://{domain}/{filename}"
+                        
+                        # 验证URL
+                        verified_url = self._simple_verify_url(public_url)
+                        if verified_url:
+                            logger.info(f"✅ 部署成功，可访问URL: {verified_url}")
+                            return verified_url
+                        else:
+                            logger.error("❌ URL验证失败，不返回URL")
+                            return None
+                    else:
+                        logger.warning(f"⚠️ 部署方法 {i} 失败: {result.stderr}")
+                        logger.warning(f"📤 部署输出: {result.stdout}")
+                        
+                        # 如果错误信息包含项目类型不支持，尝试下一个方法
+                        if "does not support direct folder" in result.stderr:
+                            logger.info(f"🔄 项目类型不支持直接部署，尝试下一个方法...")
+                            continue
+                        else:
+                            # 其他错误，继续尝试
+                            continue
+                            
+                except subprocess.TimeoutExpired:
+                    logger.warning(f"⚠️ 部署方法 {i} 超时")
+                    continue
+                except Exception as e:
+                    logger.warning(f"⚠️ 部署方法 {i} 异常: {e}")
+                    continue
             
-            # 执行部署命令
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=300,  # 5分钟超时
-                cwd=reports_dir
-            )
-            
-            if result.returncode == 0:
-                logger.info("✅ EdgeOne Pages 部署成功！")
-                logger.info(f"📤 部署输出: {result.stdout}")
-                
-                # 构建URL
-                domain = EDGEONE_CONFIG['domain']
-                public_url = f"https://{domain}/{filename}"
-                
-                # 验证URL
-                verified_url = self._simple_verify_url(public_url)
-                if verified_url:
-                    logger.info(f"✅ 部署成功，可访问URL: {verified_url}")
-                    return verified_url
-                else:
-                    logger.error("❌ URL验证失败，不返回URL")
-                    return None
-            else:
-                logger.error(f"❌ 部署失败: {result.stderr}")
-                logger.error(f"📤 部署输出: {result.stdout}")
-                return None
-                
-        except subprocess.TimeoutExpired:
-            logger.error("❌ 部署超时（5分钟）")
+            # 所有方法都失败了
+            logger.error("❌ 所有部署方法都失败了")
             return None
+                
         except Exception as e:
             logger.error(f"❌ 部署异常: {e}")
             return None
@@ -1281,7 +1715,12 @@ class InventoryAnalyzer:
             summary = self.generate_summary(inventory_df)
             
             # 发送企业微信消息
-            self.send_wechat_message(summary, edgeone_url)
+            if edgeone_url:
+                self.send_wechat_message(summary, edgeone_url)
+            else:
+                # 如果部署失败，只发送摘要信息
+                self.send_wechat_message(summary)
+                logger.warning("EdgeOne部署失败，仅发送摘要信息")
             
             logger.info("库存分析完成")
             return True
