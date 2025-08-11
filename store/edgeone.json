@@ -1,0 +1,17 @@
+{
+    "name": "sales-report-new",
+    "type": "static",
+    "build": {
+        "command": "",
+        "output": "reports"
+    },
+    "deploy": {
+        "target": "static"
+    },
+    "pages": {
+        "type": "static"
+    },
+    "static": {
+        "directory": "reports"
+    }
+}
