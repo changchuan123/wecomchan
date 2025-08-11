@@ -33,186 +33,206 @@ import subprocess
 import pymysql
 import base64
 import threading
+import signal
 
-# ========== Git部署相关函数定义 ==========
-def create_gitignore():
-    """创建.gitignore文件"""
-    try:
-        print("📄 创建.gitignore文件...")
-        
-        gitignore_content = """# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+# 可选导入psutil
+try:
+    import psutil
+    PSUTIL_AVAILABLE = True
+except ImportError:
+    PSUTIL_AVAILABLE = False
+    print("⚠️ psutil未安装，将使用基础环境检测")
 
-# Virtual Environment
-venv/
-env/
-ENV/
+# ========== 配置选项 ==========
+SIMPLIFIED_MODE = False  # 使用完整模式，生成详细HTML报告
+HTML_TIMEOUT = 60  # HTML生成超时时间（秒）
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Data files
-*.csv
-*.xlsx
-*.xls
-data/
-
-# Allow HTML reports to be tracked
-# reports/*.html
-# !reports/index.html
-"""
-        
-        with open('.gitignore', 'w', encoding='utf-8') as f:
-            f.write(gitignore_content)
-        
-        print("✅ .gitignore文件已创建")
-        return True
-        
-    except Exception as e:
-        print(f"❌ 创建.gitignore文件失败: {e}")
-        return False
-
-def create_readme():
-    """创建README.md文件"""
-    try:
-        print("📄 创建README.md文件...")
-        
-        readme_content = f"""# 销售日报系统
-
-## 项目简介
-这是一个自动化的销售日报分析系统，通过Git推送方式部署到EdgeOne Pages。
-
-## 功能特性
-- 📊 自动分析销售数据
-- 📈 生成详细的HTML报告
-- 🚀 自动部署到EdgeOne Pages
-- 📱 企业微信推送通知
-
-## 部署方式
-本项目使用Git推送方式自动部署到EdgeOne Pages。
-
-### 配置要求
-- Git远程仓库: {GIT_REMOTE_URL}
-- 分支: {GIT_BRANCH}
-- 用户名: {GIT_USERNAME}
-- 邮箱: {GIT_EMAIL}
-
-### 自动部署流程
-1. 自动创建.gitignore文件
-2. 自动创建README.md文件
-3. 配置Git仓库
-4. 推送代码到远程仓库
-5. 自动部署到EdgeOne Pages
-
-## 使用说明
-运行主脚本即可自动完成所有部署流程。
-"""
-        
-        with open('README.md', 'w', encoding='utf-8') as f:
-            f.write(readme_content)
-        
-        print("✅ README.md文件已创建")
-        return True
-        
-    except Exception as e:
-        print(f"❌ 创建README.md失败: {e}")
-        return False
-
-def configure_git_repository():
-    """配置Git仓库"""
-    try:
-        print("🔧 配置Git仓库...")
-        
-        # 检查Git是否安装
-        try:
-            subprocess.run(['git', '--version'], check=True, capture_output=True)
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            print("❌ Git未安装或不在PATH中")
-            return False
-        
-        # 初始化Git仓库（如果不存在）
-        if not os.path.exists('.git'):
-            subprocess.run(['git', 'init'], check=True)
-            print("✅ Git仓库已初始化")
-        
-        # 配置用户信息
-        subprocess.run(['git', 'config', 'user.name', GIT_USERNAME], check=True)
-        subprocess.run(['git', 'config', 'user.email', GIT_EMAIL], check=True)
-        print("✅ Git用户信息已配置")
-        
-        # 添加远程仓库（如果不存在）
-        try:
-            subprocess.run(['git', 'remote', 'add', 'origin', GIT_REMOTE_URL], check=True)
-            print("✅ 远程仓库已添加")
-        except subprocess.CalledProcessError:
-            # 如果远程仓库已存在，更新URL
-            subprocess.run(['git', 'remote', 'set-url', 'origin', GIT_REMOTE_URL], check=True)
-            print("✅ 远程仓库URL已更新")
-        
-        # 添加所有文件
-        subprocess.run(['git', 'add', '.'], check=True)
-        print("✅ 文件已添加到暂存区")
-        
-        # 提交更改
-        commit_message = f"自动部署更新 - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-        subprocess.run(['git', 'commit', '-m', commit_message], check=True)
-        print("✅ 更改已提交")
-        
-        # 推送到远程仓库
-        subprocess.run(['git', 'push', 'origin', GIT_BRANCH], check=True)
-        print("✅ 代码已推送到远程仓库")
-        
-        return True
-        
-    except Exception as e:
-        print(f"❌ Git仓库配置失败: {e}")
-        return False
+# ========== EdgeOne Pages 配置 ==========
+EDGEONE_PROJECT = "sales-report-new"
+EDGEONE_DOMAIN = "edge.haierht.cn"
+EDGEONE_CLI_PATH = "edgeone"  # 使用环境变量，更通用
+EDGEONE_CLI_PATH_ALT = "edgeone"  # 备用路径
+EDGEONE_API_TOKEN = "YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc="  # API Token
 
 def deploy_to_edgeone(reports_dir):
-    """部署到EdgeOne Pages"""
+    """使用EdgeOne CLI部署到EdgeOne Pages - 基于官方文档的正确实现"""
     try:
-        print("🚀 部署到EdgeOne Pages...")
+        print("🚀 使用EdgeOne CLI部署到EdgeOne Pages...")
+        print("📚 基于官方文档: https://edgeone.cloud.tencent.com/pages/document/162936923278893056")
         
-        # 首先配置Git仓库
-        if not configure_git_repository():
-            print("❌ Git仓库配置失败，无法部署")
+        # 检测操作系统
+        import platform
+        is_windows = platform.system() == "Windows"
+        
+        # 根据操作系统确定EdgeOne CLI路径
+        edgeone_cmd = "edgeone"
+        
+        # 检查EdgeOne CLI是否可用
+        def check_edgeone_cli():
+            try:
+                import subprocess
+                result = subprocess.run([edgeone_cmd, "-v"], 
+                                      capture_output=True, text=True, check=True, timeout=10)
+                print(f"✅ EdgeOne CLI 已安装: {edgeone_cmd}")
+                print(f"CLI版本: {result.stdout.strip()}")
+                return edgeone_cmd
+            except Exception as e:
+                print(f"❌ EdgeOne CLI 不可用: {e}")
+                print("💡 请先安装EdgeOne CLI: npm install -g edgeone")
+                return None
+        
+        # 检查登录状态
+        def check_edgeone_login(edgeone_path):
+            try:
+                import subprocess
+                result = subprocess.run([edgeone_path, "whoami"], 
+                                      capture_output=True, text=True, check=True, timeout=10)
+                print("✅ EdgeOne CLI 已登录")
+                print(f"当前用户: {result.stdout.strip()}")
+                return True
+            except Exception as e:
+                print(f"❌ EdgeOne CLI 未登录: {e}")
+                print("💡 请先登录EdgeOne CLI: edgeone login")
+                return False
+        
+        # 执行CLI部署 - 使用官方文档的正确语法
+        def execute_cli_deploy(edgeone_path):
+            try:
+                import subprocess
+                import os
+                
+                print("🚀 步骤4: 执行CLI部署...")
+                print(f"📁 项目根目录: {os.getcwd()}")
+                print(f"📁 Reports目录: {reports_dir}")
+                
+                # 检查reports目录中的文件
+                html_files = [f for f in os.listdir(reports_dir) if f.endswith('.html')]
+                print(f"📄 发现 {len(html_files)} 个HTML文件")
+                
+                if not html_files:
+                    print("❌ Reports目录中没有HTML文件")
+                    return False
+                
+                # 根据官方文档，使用正确的部署命令
+                # edgeone pages deploy <directoryOrZip> -n <projectName> [-e <env>]
+                deploy_cmd = [
+                    edgeone_path, "pages", "deploy", 
+                    reports_dir,  # 部署整个reports目录
+                    "-n", EDGEONE_PROJECT,  # 项目名称
+                    "-e", "production"  # 生产环境
+                ]
+                
+                print(f"📤 执行CLI部署命令: {' '.join(deploy_cmd)}")
+                print("⚠️  严格遵循CLI部署方式，禁止其他任何部署方式！")
+                
+                # 执行部署命令，设置更长的超时时间
+                result = subprocess.run(deploy_cmd, 
+                                      capture_output=True, 
+                                      text=True, 
+                                      check=True, 
+                                      timeout=300)  # 5分钟超时
+                
+                print("✅ CLI部署成功！")
+                print("📋 部署输出:")
+                print(result.stdout)
+                
+                if result.stderr:
+                    print("⚠️  部署警告:")
+                    print(result.stderr)
+                
+                return True
+                
+            except subprocess.CalledProcessError as e:
+                print(f"❌ CLI部署失败: {e}")
+                print(f"错误输出: {e.stderr}")
+                return False
+            except subprocess.TimeoutExpired:
+                print("❌ CLI部署超时")
+                return False
+            except Exception as e:
+                print(f"❌ CLI部署异常: {e}")
+                return False
+        
+        # 使用API Token的部署方式（CI/CD方式）
+        def execute_api_token_deploy(edgeone_path):
+            try:
+                import subprocess
+                import os
+                
+                print("🚀 使用API Token方式部署...")
+                print("📚 参考官方文档CI/CD流水线集成部分")
+                
+                # 根据官方文档，使用API Token的部署命令
+                # edgeone pages deploy <directoryOrZip> -n <projectName> -t <token> [-e <env>]
+                deploy_cmd = [
+                    edgeone_path, "pages", "deploy", 
+                    reports_dir,  # 部署整个reports目录
+                    "-n", EDGEONE_PROJECT,  # 项目名称
+                    "-t", EDGEONE_API_TOKEN,  # API Token
+                    "-e", "production"  # 生产环境
+                ]
+                
+                print(f"📤 执行API Token部署命令: {' '.join(deploy_cmd)}")
+                
+                # 执行部署命令
+                result = subprocess.run(deploy_cmd, 
+                                      capture_output=True, 
+                                      text=True, 
+                                      check=True, 
+                                      timeout=300)  # 5分钟超时
+                
+                print("✅ API Token部署成功！")
+                print("📋 部署输出:")
+                print(result.stdout)
+                
+                if result.stderr:
+                    print("⚠️  部署警告:")
+                    print(result.stderr)
+                
+                return True
+                
+            except subprocess.CalledProcessError as e:
+                print(f"❌ API Token部署失败: {e}")
+                print(f"错误输出: {e.stderr}")
+                return False
+            except subprocess.TimeoutExpired:
+                print("❌ API Token部署超时")
+                return False
+            except Exception as e:
+                print(f"❌ API Token部署异常: {e}")
+                return False
+        
+        # 主部署流程
+        print("============================================================")
+        print("🚀 EdgeOne CLI 部署流程 - 基于官方文档")
+        print("============================================================")
+        
+        # 步骤1: 检查CLI
+        edgeone_path = check_edgeone_cli()
+        if not edgeone_path:
             return False
         
-        print("✅ 部署流程完成")
-        return True
+        # 步骤2: 检查登录状态
+        if not check_edgeone_login(edgeone_path):
+            print("🔄 尝试使用API Token方式部署...")
+            return execute_api_token_deploy(edgeone_path)
+        
+        # 步骤3: 尝试常规CLI部署
+        if execute_cli_deploy(edgeone_path):
+            return True
+        
+        # 步骤4: 如果常规部署失败，尝试API Token方式
+        print("🔄 常规部署失败，尝试API Token方式...")
+        return execute_api_token_deploy(edgeone_path)
         
     except Exception as e:
-        print(f"❌ 部署到EdgeOne失败: {e}")
+        print(f"❌ EdgeOne CLI 部署异常: {e}")
+        print("💡 请检查:")
+        print("   - EdgeOne CLI 是否正确安装")
+        print("   - 是否已登录EdgeOne")
+        print("   - 项目权限是否正确")
+        print("   - 网络连接是否正常")
+        print("   - API Token是否有效")
         return False
 
 # ========== 其他函数定义 ==========
@@ -271,11 +291,6 @@ server_base = "http://212.64.57.87:5001"
 EDGEONE_PROJECT = "sales-report"  # EdgeOne Pages 项目名
 EDGEONE_TOKEN = "YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc="  # EdgeOne Pages API Token
 
-# Git部署配置
-GIT_REMOTE_URL = "https://github.com/changchuan123/wecomchan.git"  # Git远程仓库URL
-GIT_BRANCH = "master"  # Git分支名称
-GIT_USERNAME = "weixiaogang"  # Git用户名
-GIT_EMAIL = "weixiaogang@haierht.com"  # Git邮箱
 
 # 离线模式标志（当服务器不可达时自动启用）
 offline_mode = False
@@ -344,25 +359,102 @@ PLATFORM_LOGO_MAP = {
 
 # 恢复品类emoji符号
 category_icons = {
-    '冰箱': '🧊',
-    '热水器': '♨️',
-    '厨电': '🍽️',
-    '洗碗机': '🍽️',
-    '洗衣机': '🧺',
     '空调': '❄️',
-    '家用空调': '❄️',
-    '商用空调': '❄️',
-    '冷柜': '📦',
-    '其他': '📦',
+    '冰箱': '🧊',
+    '洗衣机': '👕',
+    '洗碗机': '🍽️',
+    '热水器': '🔥',
+    '油烟机': '💨',
+    '燃气灶': '🔥',
+    '净水器': '💧',
+    '消毒柜': '🧼',
+    '其他': '📦'
 }
 
-# ========== 固定列名配置 ==========
-DATE_COL = '交易时间'
+# 品类图标配置
+category_icons = {
+    '空调': '❄️',
+    '冰箱': '🧊',
+    '洗衣机': '👕',
+    '洗碗机': '🍽️',
+    '热水器': '🔥',
+    '油烟机': '💨',
+    '燃气灶': '🔥',
+    '净水器': '💧',
+    '消毒柜': '🧼',
+    '其他': '📦'
+}
+
+# 数据列名配置
 AMOUNT_COL = '分摊后总价'
 QTY_COL = '实发数量'
 SHOP_COL = '店铺'
-CATEGORY_COL = '货品名称'
+CATEGORY_COL = '货品名称'  # 使用货品名称作为品类信息
 MODEL_COL = '规格名称'
+
+# 日期配置
+yesterday = datetime.now() - timedelta(days=1)
+yesterday_str = yesterday.strftime('%Y-%m-%d')
+day_before_yesterday = yesterday - timedelta(days=1)
+day_before_yesterday_str = day_before_yesterday.strftime('%Y-%m-%d')
+report_date = yesterday_str
+
+# 初始化变量
+total_amount = 0
+prev_total_amount = 0
+total_qty = 0
+prev_total_qty = 0
+total_price = 0
+fenxiao_amount = 0
+prev_fenxiao_amount = 0
+public_url = None
+filename = None
+
+# 初始化数据框
+df_erp = None
+df_prev = None
+category_data = None
+prev_category_data = None
+shop_summary = None
+prev_shop_summary = None
+channel_summary = None
+prev_channel_summary = None
+
+# 初始化微信内容
+wechat_content = ""
+part1 = ""
+part2 = ""
+part3 = ""
+part4 = ""
+part5 = ""
+
+# 初始化分销数据
+fenxiao_amount_cat = 0
+prev_fenxiao_amount_cat = 0
+fenxiao_qty_cat = 0
+prev_fenxiao_qty_cat = 0
+
+# 初始化品类数据
+current_amount = 0
+prev_amount = 0
+growth_rate = 0
+emoji = '📦'
+
+# 初始化渠道数据
+channel_summary_sorted = None
+
+# 初始化HTML内容
+web_content = ""
+category_trend_html = ""
+category_ranking_html = ""
+channel_ranking_html = ""
+shop_ranking_html = ""
+top_product_html = ""
+shop_product_html = ""
+
+# 初始化amount_col和qty_col
+amount_col = AMOUNT_COL
+qty_col = QTY_COL
 
 def check_required_columns(df):
     """检查必需的列是否存在，如果不存在直接报错退出"""
@@ -419,8 +511,9 @@ def save_report_to_local(content, report_type="overall_daily"):
     return filename
 
 def get_web_report_url():
-    """获取Web报告URL"""
-    return f"http://127.0.0.1:5002/reports/latest_report.html"
+    """获取Web报告URL - 基于EdgeOne Pages配置"""
+    # 使用正确的项目名称和自定义域名
+    return f"https://edge.haierht.cn/reports/"
 
 def _send_single_message(message):
     """发送单条消息"""
@@ -515,6 +608,54 @@ def send_failure_report_to_admin(script_name, error_details):
     except Exception as e:
         print(f"❌ 失败报告发送异常: {e}")
 
+def _detect_yingdao_environment():
+    """检测是否在影刀环境中运行"""
+    try:
+        # 检查环境变量
+        if 'YINGDAO_ENV' in os.environ:
+            return True
+        
+        # 检查进程名（如果psutil可用）
+        if PSUTIL_AVAILABLE:
+            try:
+                current_process = psutil.Process()
+                if 'yingdao' in current_process.name().lower():
+                    return True
+            except:
+                pass
+            
+        # 检查工作目录
+        if 'yingdao' in os.getcwd().lower():
+            return True
+            
+        return False
+    except:
+        return False
+
+def _smart_split_content(content, max_chars):
+    """智能分割内容，避免在单词中间分割"""
+    if len(content) <= max_chars:
+        return [content]
+    
+    segments = []
+    while len(content) > max_chars:
+        # 尝试在换行符处分割
+        split_pos = content.rfind('\n', 0, max_chars)
+        if split_pos == -1:
+            # 如果没有换行符，尝试在空格处分割
+            split_pos = content.rfind(' ', 0, max_chars)
+            if split_pos == -1:
+                # 如果都没有，强制分割
+                split_pos = max_chars
+        
+        segments.append(content[:split_pos].strip())
+        content = content[split_pos:].strip()
+    
+    if content:
+        segments.append(content)
+    
+    return segments
+
 def send_wecomchan_segment(result):
     """发送企业微信消息（分段发送）"""
     try:
@@ -542,15 +683,18 @@ def send_wecomchan_segment(result):
         return False
 
 def verify_multiple_urls(filename):
-    """验证多种可能的URL格式"""
+    """验证多种可能的URL格式 - 基于正确的项目配置"""
     possible_urls = [
-        f"https://sales-report.pages.edgeone.com/{filename}",
+        # 使用正确的项目名称和自定义域名
+        f"https://edge.haierht.cn/reports/{filename}",
+        f"https://sales-report-new.pages.edgeone.com/reports/{filename}",
         f"https://edge.haierht.cn/{filename}",
-        f"https://sales-report.pages.edgeone.com/reports/{filename}",
-        f"https://edge.haierht.cn/reports/{filename}"
+        f"https://sales-report-new.pages.edgeone.com/{filename}"
     ]
     
     print(f"🔍 验证多种URL格式...")
+    print(f"📋 项目名称: sales-report-new")
+    print(f"🌐 自定义域名: edge.haierht.cn")
     
     for i, url in enumerate(possible_urls, 1):
         print(f"📡 尝试URL {i}/{len(possible_urls)}: {url}")
@@ -731,8 +875,8 @@ def upload_html_and_get_url(filename, html_content):
                 print(f"✅ 找到可用URL: {verified_url}")
                 return verified_url
             
-            # 如果多URL验证失败，使用默认URL格式
-            public_url = f"https://sales-report.pages.edgeone.com/{filename}"
+            # 如果多URL验证失败，使用默认URL格式（修正项目名称）
+            public_url = f"https://sales-report-new.pages.edgeone.com/reports/{filename}"
             print(f"🔗 构建默认URL: {public_url}")
             
             # 验证URL是否可访问
@@ -1090,12 +1234,25 @@ def identify_tianmao_fenxiao(df):
         if not tianmao_fenxiao.empty:
             # 添加分销标识
             tianmao_fenxiao['数据来源'] = '分销'
+            
+            # 检查CATEGORY_COL是否存在，如果不存在则使用货品名称
+            if CATEGORY_COL not in tianmao_fenxiao.columns:
+                logging.warning(f"⚠️ 列 '{CATEGORY_COL}' 不存在，使用 '货品名称'")
+                category_col = '货品名称'
+            else:
+                category_col = CATEGORY_COL
+            
             # 使用原有的货品名称进行品类识别
-            tianmao_fenxiao[CATEGORY_COL] = tianmao_fenxiao[CATEGORY_COL].apply(categorize_product_for_fenxiao)
+            if category_col in tianmao_fenxiao.columns:
+                tianmao_fenxiao[category_col] = tianmao_fenxiao[category_col].apply(categorize_product_for_fenxiao)
+            else:
+                logging.warning(f"⚠️ 列 '{category_col}' 也不存在，跳过品类识别")
+            
             logging.info(f"📊 识别到天猫分销数据: {len(tianmao_fenxiao)}行")
             logging.info(f"📊 天猫分销数据示例:")
             for i, row in tianmao_fenxiao.head(3).iterrows():
-                logging.info(f"   店铺: {row[SHOP_COL]}, 仓库: {row[warehouse_col]}, 金额: {row[AMOUNT_COL]}, 品类: {row.get(CATEGORY_COL, 'N/A')}")
+                category_value = row.get(category_col, 'N/A') if category_col in tianmao_fenxiao.columns else 'N/A'
+                logging.info(f"   店铺: {row[SHOP_COL]}, 仓库: {row[warehouse_col]}, 金额: {row[AMOUNT_COL]}, 品类: {category_value}")
             return tianmao_fenxiao
         else:
             logging.info("📊 未识别到天猫分销数据")
@@ -1377,6 +1534,27 @@ def normalize_category(name):
     return name_str
 
 # 2. 在清洗数据后，强制归类
+print(f"🔍 检查数据框列名: {list(df_erp.columns)}")
+print(f"🔍 使用CATEGORY_COL: {CATEGORY_COL}")
+
+# 检查CATEGORY_COL是否存在，如果不存在则使用货品名称
+if CATEGORY_COL not in df_erp.columns:
+    print(f"⚠️ 列 '{CATEGORY_COL}' 不存在于数据框中，使用 '货品名称'")
+    CATEGORY_COL = '货品名称'
+    if CATEGORY_COL not in df_erp.columns:
+        print(f"❌ 列 '货品名称' 也不存在")
+        print(f"📋 可用列名: {list(df_erp.columns)}")
+        # 尝试找到包含"名称"的列
+        name_cols = [col for col in df_erp.columns if '名称' in col]
+        if name_cols:
+            CATEGORY_COL = name_cols[0]
+            print(f"✅ 使用列名: {CATEGORY_COL}")
+        else:
+            print("❌ 未找到合适的名称列，使用第一列")
+            CATEGORY_COL = df_erp.columns[0]
+
+print(f"✅ 最终使用列名: {CATEGORY_COL}")
+
 df_erp[CATEGORY_COL] = df_erp[CATEGORY_COL].apply(normalize_category)
 if df_prev is not None:
     df_prev[CATEGORY_COL] = df_prev[CATEGORY_COL].apply(normalize_category)
@@ -2518,8 +2696,91 @@ for category, growth_rate, prev_amount, current_amount in category_changes:
 # ============ 微信推送与Web发布分离，优化推送逻辑 ============
 
 try:
+    print("🚀 开始生成HTML报告...")
+    
     # 首先发布到Web (完整版本显示所有店铺)
-    web_content = f'''<!DOCTYPE html>
+    print("📝 正在生成HTML内容...")
+    
+    # 使用完整HTML生成模式
+    if SIMPLIFIED_MODE:
+        print("🔄 使用简化HTML内容...")
+        # 生成简化HTML内容
+        web_content = f'''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>销售日报报告 - {report_date}</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 20px; }}
+        h1, h2 {{ color: #0056b3; }}
+        .overview {{ background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; }}
+    </style>
+</head>
+<body>
+    <h1>销售日报报告（{report_date}）</h1>
+    
+    <div class="overview">
+        <h2>💰 整体销售概况</h2>
+        <p>总销售额: ¥{total_amount:,}，环比 {calculate_ratio(total_amount, prev_total_amount)}</p>
+        <p>单价: ¥{total_price:,}</p>
+        <p>分销销售额: ¥{fenxiao_amount:,}，环比 {calculate_ratio(fenxiao_amount, prev_fenxiao_amount)}</p>
+    </div>
+    
+    <h2>📊 渠道销售分析</h2>
+    <ul>
+'''
+        
+        # 添加渠道数据
+        channel_summary_sorted = channel_summary.sort_values(amount_col, ascending=False)
+        for idx, row in enumerate(channel_summary_sorted.iterrows(), 1):
+            _, row_data = row
+            channel = row_data['渠道']
+            amount = int(row_data[amount_col])
+            qty = int(row_data[qty_col])
+            web_content += f'        <li>{channel}: ¥{amount:,} ({qty}件)</li>\n'
+        
+        web_content += '''    </ul>
+    
+    <footer style="margin-top:2em;color:#888;font-size:0.9em;">简化版报告 | 自动生成</footer>
+</body>
+</html>'''
+        print("✅ 简化HTML内容生成成功")
+        
+    else:
+        print("🔧 正在生成完整HTML内容...")
+        
+        # 添加超时机制防止HTML生成卡顿
+        def html_timeout_handler(signum, frame):
+            raise TimeoutError("HTML生成超时")
+        
+        signal.signal(signal.SIGALRM, html_timeout_handler)
+        signal.alarm(HTML_TIMEOUT)
+        
+        try:
+            # 分步骤生成HTML，添加进度提示
+            print("📊 步骤1: 生成品类趋势HTML...")
+            category_trend_html = generate_category_trend_html(category_data, prev_category_data, category_icons, shop_summary, prev_shop_summary, df_erp, df_prev, amount_col, qty_col, MODEL_COL)
+            
+            print("📊 步骤2: 生成品类排行HTML...")
+            category_ranking_html = generate_category_ranking_html(category_data, df_erp, prev_category_data, amount_col, qty_col, CATEGORY_COL, MODEL_COL, category_icons, df_prev)
+            
+            print("📊 步骤3: 生成渠道分析HTML...")
+            channel_ranking_html = generate_channel_ranking_html(channel_summary, df_erp, prev_channel_summary, amount_col, qty_col, SHOP_COL)
+            
+            print("📊 步骤4: 生成店铺排行HTML...")
+            shop_ranking_html = generate_shop_ranking_html(shop_summary, df_erp, prev_shop_summary, amount_col, qty_col, MODEL_COL, df_prev)
+            
+            print("📊 步骤5: 生成TOP单品HTML...")
+            top_product_html = generate_top_product_html(df_erp, amount_col, qty_col, MODEL_COL, CATEGORY_COL, category_icons, top_n=5)
+            
+            print("📊 步骤6: 生成店铺单品HTML...")
+            shop_product_html = generate_shop_product_html(shop_summary, df_erp, amount_col, qty_col, MODEL_COL)
+            
+            signal.alarm(0)  # 取消超时
+            
+            # 组装完整HTML
+            web_content = f'''<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8">
@@ -2557,52 +2818,138 @@ try:
     <div class="section left-align">
         <!-- 品类变化趋势 -->
         <h2>🔍 【品类变化趋势】</h2>
-        {generate_category_trend_html(category_data, prev_category_data, category_icons, shop_summary, prev_shop_summary, df_erp, df_prev, amount_col, qty_col, MODEL_COL)}
+        {category_trend_html}
         
         <!-- 品类销售排行榜 -->
         <h2>【品类销售排行榜】</h2>
-        {generate_category_ranking_html(category_data, df_erp, prev_category_data, amount_col, qty_col, CATEGORY_COL, MODEL_COL, category_icons, df_prev)}
+        {category_ranking_html}
         
         <!-- 渠道销售分析 -->
         <h2>📊 【渠道销售分析】</h2>
-        {generate_channel_ranking_html(channel_summary, df_erp, prev_channel_summary, amount_col, qty_col, SHOP_COL)}
+        {channel_ranking_html}
         
         <!-- TOP店铺排行 -->
         <h2>【TOP店铺排行】</h2>
-        {generate_shop_ranking_html(shop_summary, df_erp, prev_shop_summary, amount_col, qty_col, MODEL_COL, df_prev)}
+        {shop_ranking_html}
         
         <!-- TOP单品数据 -->
         <h2>【TOP单品数据】</h2>
-        {generate_top_product_html(df_erp, amount_col, qty_col, MODEL_COL, CATEGORY_COL, category_icons, top_n=5)}
+        {top_product_html}
         
         <!-- 店铺单品数据 -->
         <h2>【店铺单品数据】</h2>
-        {generate_shop_product_html(shop_summary, df_erp, amount_col, qty_col, MODEL_COL)}
+        {shop_product_html}
     </div>
     <footer style="margin-top:2em;color:#888;font-size:0.9em;">自动生成 | Powered by EdgeOne Pages & 企业微信机器人</footer>
 </body>
 </html>'''
+            
+            print("✅ 完整HTML内容生成成功")
+            
+        except TimeoutError:
+            signal.alarm(0)  # 取消超时
+            print("⏰ HTML生成超时，使用简化版本")
+            # 回退到简化版本
+            web_content = f'''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>销售日报报告 - {report_date}</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 20px; }}
+        h1, h2 {{ color: #0056b3; }}
+        .overview {{ background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; }}
+    </style>
+</head>
+<body>
+    <h1>销售日报报告（{report_date}）</h1>
+    
+    <div class="overview">
+        <h2>💰 整体销售概况</h2>
+        <p>总销售额: ¥{total_amount:,}，环比 {calculate_ratio(total_amount, prev_total_amount)}</p>
+        <p>单价: ¥{total_price:,}</p>
+        <p>分销销售额: ¥{fenxiao_amount:,}，环比 {calculate_ratio(fenxiao_amount, prev_fenxiao_amount)}</p>
+    </div>
+    
+    <h2>📊 渠道销售分析</h2>
+    <ul>
+'''
+            
+            # 添加渠道数据
+            channel_summary_sorted = channel_summary.sort_values(amount_col, ascending=False)
+            for idx, row in enumerate(channel_summary_sorted.iterrows(), 1):
+                _, row_data = row
+                channel = row_data['渠道']
+                amount = int(row_data[amount_col])
+                qty = int(row_data[qty_col])
+                web_content += f'        <li>{channel}: ¥{amount:,} ({qty}件)</li>\n'
+            
+            web_content += '''    </ul>
+    
+    <footer style="margin-top:2em;color:#888;font-size:0.9em;">简化版报告 | 自动生成</footer>
+</body>
+</html>'''
+            
+        except Exception as e:
+            signal.alarm(0)  # 取消超时
+            print(f"❌ HTML生成异常: {e}")
+            # 使用最基本的HTML
+            web_content = f'''<!DOCTYPE html>
+<html>
+<head><title>销售日报报告 - {report_date}</title></head>
+<body>
+    <h1>销售日报报告（{report_date}）</h1>
+    <p>总销售额: ¥{total_amount:,}</p>
+    <p>分销销售额: ¥{fenxiao_amount:,}</p>
+</body>
+</html>'''
 
+    print("💾 正在保存HTML文件...")
     filename = save_report_to_local(web_content, report_type="overall_daily")
     public_url = None
+    
     if filename:
+        print("📤 正在上传HTML文件...")
         with open(filename, 'r', encoding='utf-8') as f:
             html_content = f.read()
-        url1 = upload_html_and_get_url(os.path.basename(filename), html_content)
-        # 只有在部署成功时才设置public_url
-        if url1:  # 确保url1不为None
-            # 修正URL路径：API返回的URL包含/reports/，但EdgeOne Pages部署后文件在根目录
-            if '/reports/' in url1:
-                public_url = url1.replace('/reports/', '/')
-                print(f"🔧 URL路径修正: {url1} -> {public_url}")
+        
+        # 添加超时机制
+        def timeout_handler(signum, frame):
+            raise TimeoutError("HTML上传超时")
+        
+        # 设置30秒超时
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(30)
+        
+        try:
+            url1 = upload_html_and_get_url(os.path.basename(filename), html_content)
+            signal.alarm(0)  # 取消超时
+            
+            # 只有在部署成功时才设置public_url
+            if url1:  # 确保url1不为None
+                # 修正URL路径：API返回的URL包含/reports/，但EdgeOne Pages部署后文件在根目录
+                if '/reports/' in url1:
+                    public_url = url1.replace('/reports/', '/')
+                    print(f"🔧 URL路径修正: {url1} -> {public_url}")
+                else:
+                    public_url = url1
+                print(f"✅ 部署成功，URL: {public_url}")
             else:
-                public_url = url1
-            print(f"✅ 部署成功，URL: {public_url}")
-        else:
-            print(f"❌ 部署失败，不返回URL")
+                print(f"❌ 部署失败，不返回URL")
+                public_url = None
+                
+        except TimeoutError:
+            signal.alarm(0)  # 取消超时
+            print("⏰ HTML上传超时，跳过Web部署")
+            public_url = None
+        except Exception as e:
+            signal.alarm(0)  # 取消超时
+            print(f"❌ HTML上传异常: {e}")
             public_url = None
 
     # 微信推送内容严格只用三段手动拼接，所有推送函数、异常、分段推送等只用 wechat_content
+    print("📱 正在生成微信推送内容...")
     wechat_content = f"""📊 {yesterday_str} 每日销售分析报告\n💰 【整体销售概况】\n├─ 总销售额: ¥{total_amount:,}\n├─ 单价: ¥{total_price:,}\n├─ 环比: {calculate_ratio(total_amount, prev_total_amount)}\n🔄 【分销数据】\n├─ 分销销售额: ¥{fenxiao_amount:,} ({calculate_ratio(fenxiao_amount, prev_fenxiao_amount)})\n\n📊 【渠道销售分析】\n"""
     channel_summary = channel_summary.sort_values(amount_col, ascending=False)
     for idx, row in enumerate(channel_summary.iterrows(), 1):
@@ -2699,4 +3046,60 @@ except Exception as e:
     {traceback.format_exc()}"""
     print(error_msg)
     send_wecomchan_segment(error_msg)
+
+# reports目录部署方法
+def try_reports_deploy(edgeone_path, reports_dir):
+    try:
+        print("🔄 尝试reports目录部署...")
+        
+        # 根据官方文档，使用正确的部署命令
+        reports_cmd = [
+            edgeone_path, "pages", "deploy", 
+            reports_dir,  # 部署整个reports目录
+            "-n", EDGEONE_PROJECT,  # 项目名称
+            "-e", "production"  # 生产环境
+        ]
+        
+        print(f"📤 执行reports目录部署命令: {' '.join(reports_cmd)}")
+        result = subprocess.run(reports_cmd, check=True, capture_output=True, text=True, timeout=300)
+        
+        print("✅ reports目录部署成功！")
+        print("📋 部署输出:")
+        print(result.stdout)
+        return True
+        
+    except subprocess.CalledProcessError as e:
+        print(f"❌ reports目录部署失败: {e}")
+        print(f"错误输出: {e.stderr}")
+        
+        # 尝试使用API Token方式
+        try:
+            print("🔄 尝试API Token方式部署...")
+            api_cmd = [
+                edgeone_path, "pages", "deploy", 
+                reports_dir,  # 部署整个reports目录
+                "-n", EDGEONE_PROJECT,  # 项目名称
+                "-t", EDGEONE_API_TOKEN,  # API Token
+                "-e", "production"  # 生产环境
+            ]
+            
+            print(f"📤 执行API Token部署命令: {' '.join(api_cmd)}")
+            result = subprocess.run(api_cmd, check=True, capture_output=True, text=True, timeout=300)
+            
+            print("✅ API Token部署成功！")
+            print("📋 部署输出:")
+            print(result.stdout)
+            return True
+            
+        except subprocess.CalledProcessError as e2:
+            print(f"❌ API Token部署也失败: {e2}")
+            return False
+        
+    except subprocess.TimeoutExpired:
+        print("❌ reports目录部署超时")
+        return False
+        
+    except Exception as e:
+        print(f"❌ reports目录部署异常: {e}")
+        return False
 

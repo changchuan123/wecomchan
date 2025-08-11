@@ -1,225 +1,302 @@
-# EdgeOne Pages 自定义域名配置指南
+# EdgeOne Pages CLI 部署配置指南
 
 ## 概述
 
-本指南将详细介绍如何为EdgeOne Pages项目配置自定义域名，实现从默认的`.edgeone.app`域名切换到您自己的域名（如`edge.haierht.cn`）。
+本指南严格按照EdgeOne Pages CLI部署方式，禁止使用其他任何部署方式。项目名称固定为`sales-report-new`，禁止Git自动生成新项目。
+
+禁止通过 GIT上传新的项目到EdgeOne pages！！！
 
 ## 当前项目配置状态
 
 ### 现有配置
-- **项目名称**: `sales-report`
+- **项目名称**: `sales-report-new` (固定，禁止修改)
+- **项目ID**: `pages-wq4qohexh64i`
 - **当前自定义域名**: `https://edge.haierht.cn`
-- **EdgeOne Token**: 已配置
-- **部署脚本**: `deploy_to_edgeone.py`
+- **部署方式**: 仅限CLI部署，禁止其他方式
 
 ### 项目结构
 ```
 /Users/weixiaogang/AI/wecomchan/
-├── deploy_to_edgeone.py          # 主要部署脚本
-├── deploy_to_edgeone.bat         # Windows部署脚本
+├── .edgeone/
+│   └── project.json              # EdgeOne项目配置文件
+├── edgeone.json                  # EdgeOne Pages配置
+├── edgeone_cli_deploy.py         # CLI部署脚本
 ├── reports/                      # 报告文件目录
-├── .gitignore                    # 包含.edgeone配置
-└── (缺失) .edgeone/
-    └── project.json              # EdgeOne项目配置文件
+└── .gitignore                    # 包含.edgeone配置
 ```
 
-## 配置方法
+## CLI部署配置方法
 
-### 方法一：通过EdgeOne控制台配置（推荐）
-
-1. **登录EdgeOne控制台**
-   - 访问 [EdgeOne控制台](https://edgeone.ai/)
-   - 使用您的腾讯云账号登录
-
-2. **进入Pages项目管理**
-   - 找到您的`sales-report`项目
-   - 点击进入项目详情页面
-
-3. **添加自定义域名**
-   - 点击「项目设置」→「域名管理」→「添加域名」
-   - 输入您的域名：`edge.haierht.cn`
-   - 点击「下一步」
-
-4. **配置DNS解析**
-   - 前往您的域名服务商（如阿里云、腾讯云DNS等）
-   - 添加CNAME解析记录：
-     ```
-     记录类型: CNAME
-     主机记录: edge
-     记录值: [EdgeOne提供的CNAME值]
-     TTL: 600（或默认值）
-     ```
-
-5. **验证域名**
-   - 返回EdgeOne控制台
-   - 点击「验证域名」
-   - 等待DNS解析生效（通常5-10分钟）
-
-6. **SSL证书自动配置**
-   - EdgeOne会自动为您的域名签发SSL证书
-   - 证书提供商：TrustAsia
-   - 证书类型：RSA2048单域名DV证书
-   - 有效期：3个月（自动续期）
-
-### 方法二：通过配置文件配置
-
-1. **创建.edgeone目录和配置文件**
-   ```bash
-   mkdir -p .edgeone
-   ```
-
-2. **创建project.json配置文件**
-   ```json
-   {
-     "name": "sales-report",
-     "domains": [
-       {
-         "domain": "edge.haierht.cn",
-         "type": "custom"
-       }
-     ],
-     "build": {
-       "outputDirectory": "reports",
-       "buildCommand": "",
-       "installCommand": ""
-     }
-   }
-   ```
-
-3. **创建edgeone.json配置文件（可选）**
-   在项目根目录创建`edgeone.json`用于高级配置：
-   ```json
-   {
-     "redirects": [
-       {
-         "source": "/reports/:path*",
-         "destination": "/:path*",
-         "permanent": false
-       }
-     ],
-     "headers": [
-       {
-         "source": "/**/*.html",
-         "headers": [
-           {
-             "key": "Cache-Control",
-             "value": "public, max-age=3600"
-           }
-         ]
-       }
-     ]
-   }
-   ```
-
-### 方法三：通过EdgeOne CLI配置
-
-1. **安装EdgeOne CLI**
-   ```bash
-   npm install -g @edgeone/cli
-   ```
-
-2. **登录EdgeOne**
-   ```bash
-   edgeone login
-   ```
-
-3. **配置项目**
-   ```bash
-   edgeone pages domain add edge.haierht.cn --project sales-report
-   ```
-
-## 验证配置
-
-### 1. DNS解析验证
+### 1. 安装EdgeOne CLI
 ```bash
-# 检查CNAME解析
-nslookup edge.haierht.cn
+# 安装EdgeOne CLI (修正：使用官方命令)
+npm install -g edgeone
 
-# 或使用dig命令
-dig edge.haierht.cn CNAME
+# 验证安装
+edgeone -v
 ```
 
-### 2. HTTP访问验证
+### 2. 登录EdgeOne
 ```bash
-# 测试HTTP访问
-curl -I https://edge.haierht.cn
+# 登录EdgeOne账户
+edgeone login
 
-# 测试具体报告页面
-curl -I https://edge.haierht.cn/reports/
+# 验证登录状态
+edgeone whoami
 ```
 
-### 3. SSL证书验证
+### 3. 项目配置
+项目已预配置，配置文件位于`.edgeone/project.json`：
+```json
+{
+  "Name": "sales-report-new",
+  "ProjectId": "pages-wq4qohexh64i"
+}
+```
+
+### 4. CLI部署命令
+**重要：仅使用以下CLI命令进行部署，禁止其他方式！**
+
+#### 4.1 本地部署命令
 ```bash
-# 检查SSL证书
-openssl s_client -connect edge.haierht.cn:443 -servername edge.haierht.cn
+# 方法1: 先链接项目，再部署（推荐）
+edgeone pages link sales-report-new
+edgeone pages deploy reports -n sales-report-new -e production
+
+# 方法2: 直接部署reports目录
+edgeone pages deploy reports -n sales-report-new -e production
+
+# 方法3: 使用Python脚本部署
+python3 整体日报数据.py
 ```
 
-## 常见问题解决
+#### 4.2 CI/CD部署命令（使用API Token）
+```bash
+# 生产环境部署
+edgeone pages deploy reports -n sales-report-new -t YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc= -e production
 
-### 1. DNS解析不生效
-- **原因**: DNS缓存或解析记录配置错误
-- **解决**: 
-  - 检查DNS解析记录配置
-  - 清除本地DNS缓存：`sudo dscacheutil -flushcache`
-  - 等待DNS全球传播（最多24小时）
+# 预览环境部署
+edgeone pages deploy reports -n sales-report-new -t YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc= -e preview
+```
 
-### 2. SSL证书问题
-- **原因**: 证书签发失败或未完成
-- **解决**:
-  - 确保域名解析正确指向EdgeOne
-  - 等待证书自动签发完成
-  - 联系EdgeOne技术支持
+### 4.3 项目链接（必需步骤）
+由于项目类型限制，必须先链接项目：
+```bash
+# 链接到现有项目
+edgeone pages link sales-report-new
 
-### 3. 404错误
-- **原因**: 路径配置或文件部署问题
-- **解决**:
-  - 检查`reports`目录下的文件
-  - 确认部署脚本正确执行
-  - 检查EdgeOne项目配置
+# 验证链接状态
+ls -la .edgeone/project.json
+```
 
-### 4. 访问速度慢
-- **原因**: 边缘节点缓存未生效
-- **解决**:
-  - 配置适当的缓存策略
-  - 使用EdgeOne的全球加速功能
-  - 优化静态资源
+### 4.4 项目类型说明（重要更新）
+**重要说明**：当前项目 `sales-report-new` 是通过Git创建的，不支持直接文件夹部署：
+- ❌ 不支持项目根目录部署：`edgeone pages deploy . -n sales-report-new`
+- ❌ 不支持reports目录直接部署：`edgeone pages deploy reports -n sales-report-new`
+- ✅ 支持Git推送触发自动部署
+- ✅ 支持使用API Token的CI/CD部署
+
+### 4.5 强制CLI部署
+如果遇到"项目类型不支持直接部署"错误，使用以下方法：
+```bash
+# 方法1: 使用API Token强制部署
+edgeone pages deploy reports -n sales-report-new -t YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc= -e production
+
+# 方法2: 使用环境变量强制部署
+EDGEONE_FORCE_DEPLOY=1 edgeone pages deploy reports -n sales-report-new -t YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc=
+```
+
+### 5. 自定义域名配置（仅通过CLI）
+
+#### 5.1 添加自定义域名
+```bash
+# 添加自定义域名
+edgeone pages domain add edge.haierht.cn --project sales-report-new
+```
+
+#### 5.2 验证域名配置
+```bash
+# 查看项目域名列表
+edgeone pages domain list --project sales-report-new
+
+# 验证域名状态
+edgeone pages domain verify edge.haierht.cn --project sales-report-new
+```
+
+#### 5.3 配置DNS解析
+在域名服务商处添加CNAME记录：
+```
+记录类型: CNAME
+主机记录: edge
+记录值: [EdgeOne提供的CNAME值]
+TTL: 600
+```
+
+## 禁止的部署方式
+
+### ❌ 禁止使用以下方式：
+1. **Git自动部署** - 禁止Git自动生成新项目
+2. **控制台手动上传** - 禁止通过Web控制台上传文件
+3. **第三方工具** - 禁止使用非官方CLI工具
+4. **API直接调用** - 禁止绕过CLI直接调用API
+
+### ✅ 仅允许的部署方式：
+1. **EdgeOne CLI** - 使用官方CLI工具
+2. **Python部署脚本** - 基于CLI的自动化脚本
+3. **API Token部署** - 用于CI/CD流水线
+
+## 配置文件说明
+
+### edgeone.json 配置
+```json
+{
+  "static": {
+    "directory": "reports"
+  },
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/reports/",
+      "permanent": false
+    }
+  ],
+  "headers": [
+    {
+      "source": "/**/*.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "trailingSlash": true,
+  "cleanUrls": true
+}
+```
+
+### .edgeone/project.json 配置
+```json
+{
+  "Name": "sales-report-new",
+  "ProjectId": "pages-wq4qohexh64i"
+}
+```
+
+## 部署流程
+
+### 1. 准备部署
+```bash
+# 确保在项目根目录
+cd /Users/weixiaogang/AI/wecomchan
+
+# 检查项目状态
+ls -la .edgeone/
+ls -la reports/
+```
+
+### 2. 执行CLI部署
+```bash
+# 使用Python脚本部署（推荐）
+python3 整体日报数据.py
+
+# 或直接使用CLI命令（使用API Token）
+edgeone pages deploy reports -n sales-report-new -t YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc= -e production
+```
+
+### 3. 验证部署
+```bash
+# 检查部署状态
+edgeone pages list
+
+# 查看项目详情
+edgeone pages info sales-report-new
+```
+
+## 故障排除
+
+### 1. CLI登录问题
+```bash
+# 重新登录
+edgeone logout
+edgeone login
+
+# 检查登录状态
+edgeone whoami
+```
+
+### 2. 项目权限问题
+```bash
+# 检查项目权限
+edgeone pages list
+
+# 如果项目不存在，联系管理员
+```
+
+### 3. 部署失败
+```bash
+# 检查错误日志
+edgeone pages logs sales-report-new
+
+# 重新部署（使用API Token）
+edgeone pages deploy reports -n sales-report-new -t YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc= -e production
+```
+
+### 4. 域名配置问题
+```bash
+# 检查域名状态
+edgeone pages domain list --project sales-report-new
+
+# 重新配置域名
+edgeone pages domain remove edge.haierht.cn --project sales-report-new
+edgeone pages domain add edge.haierht.cn --project sales-report-new
+```
 
 ## 最佳实践
 
-### 1. 域名管理
-- 使用有意义的子域名（如`edge.haierht.cn`）
-- 保持域名结构简洁明了
-- 定期检查域名解析状态
+### 1. 部署前检查
+- 确保所有文件在`reports/`目录中
+- 验证`edgeone.json`配置正确
+- 检查CLI登录状态或API Token有效性
 
-### 2. 缓存策略
-- 为静态资源设置合适的缓存时间
-- 使用版本控制避免缓存问题
-- 配置适当的Cache-Control头
+### 2. 部署后验证
+- 访问部署URL确认文件可访问
+- 检查自定义域名是否生效
+- 验证SSL证书状态
 
-### 3. 安全配置
-- 启用HTTPS强制跳转
-- 配置安全头（HSTS、CSP等）
-- 定期更新SSL证书
+### 3. 定期维护
+- 定期更新CLI工具
+- 监控部署日志
+- 备份重要配置文件
 
-### 4. 监控和维护
-- 定期检查域名解析状态
-- 监控网站访问性能
-- 及时处理SSL证书续期
+## 安全注意事项
 
-## 相关链接
+### 1. 访问控制
+- 仅授权人员使用CLI部署
+- 定期轮换访问凭证
+- 监控异常部署活动
 
-- [EdgeOne Pages 官方文档](https://edgeone.ai/document/173731777508691968)
-- [EdgeOne CLI 使用指南](https://edgeone.ai/document/177158578324279296)
-- [DNS CNAME 配置说明](https://edgeone.ai/learning/what-is-cname)
-- [EdgeOne Pages MCP 服务](https://lobehub.com/mcp/tencentedgeone-edgeone-pages-mcp)
+### 2. 文件安全
+- 确保`reports/`目录中的文件安全
+- 不要上传敏感信息
+- 定期清理临时文件
 
 ## 技术支持
 
-如果在配置过程中遇到问题，可以：
-1. 查看EdgeOne控制台的错误日志
-2. 联系EdgeOne技术支持
-3. 参考官方文档和社区资源
+### 官方资源
+- [EdgeOne CLI 官方文档](https://edgeone.cloud.tencent.com/pages/document/162936923278893056)
+- [EdgeOne Pages 使用指南](https://edgeone.cloud.tencent.com/pages/document/173731777508691968)
+
+### 联系支持
+- 腾讯云技术支持
+- EdgeOne官方社区
 
 ---
 
-**注意**: 本指南基于当前EdgeOne Pages服务的功能特性编写，具体配置方法可能会随着服务更新而变化，请以官方最新文档为准。
+**重要提醒**：
+1. 严格遵循CLI部署方式，禁止其他任何部署方式
+2. 项目名称固定为`sales-report-new`，禁止修改
+3. 禁止Git自动生成新项目
+4. 所有部署操作必须通过官方CLI工具执行
+5. 当前项目为Git类型，不支持直接文件夹部署，请使用API Token方式

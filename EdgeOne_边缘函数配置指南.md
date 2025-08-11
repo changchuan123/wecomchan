@@ -1,185 +1,232 @@
-# EdgeOne 边缘函数配置指南
+# EdgeOne Pages 静态托管配置指南
 
 ## 问题描述
-当前 EdgeOne Pages 部署后访问报告文件时返回 404 错误，这是因为 EdgeOne Pages 是静态网站托管服务，无法直接访问动态的 Flask 服务器内容。
+当前 EdgeOne Pages 部署后访问报告文件时返回 404 错误，这是因为静态文件没有正确部署到 Pages 平台。
 
 ## 解决方案
-使用 EdgeOne 边缘函数创建代理，将请求转发到 Flask 服务器。
+确保静态文件正确部署到 EdgeOne Pages，使用正确的 CLI 命令和配置。**严格按照CLI方式配置，禁止其他方式。**
 
 ## 配置步骤
 
-### 1. 登录 EdgeOne 控制台
-访问：https://console.cloud.tencent.com/edgeone
+### 1. 安装并登录 EdgeOne CLI
+```bash
+# 安装EdgeOne CLI (修正：使用官方命令)
+npm install -g edgeone
 
-### 2. 进入站点管理
-- 选择您的站点（sales-report）
-- 确保域名 `edge.haierht.cn` 已正确配置
+# 登录EdgeOne
+edgeone login
 
-### 3. 创建边缘函数
+# 验证登录状态
+edgeone whoami
+```
 
-#### 3.1 进入边缘函数页面
-- 点击左侧菜单 **"边缘函数"**
-- 点击 **"新建函数"**
+### 2. 项目配置和部署
 
-#### 3.2 基本信息配置
-- **函数名称**: `flask-proxy`
-- **描述**: `代理请求到 Flask 服务器，解决 EdgeOne Pages 404 错误`
-- **运行时**: `JavaScript`
+#### 2.1 项目链接
+```bash
+# 链接到现有项目
+edgeone pages link sales-report-new
 
-#### 3.3 函数代码
-将以下代码复制到函数编辑器中：
+# 验证链接状态
+ls -la .edgeone/project.json
+```
 
-```javascript
-// EdgeOne 边缘函数 - 代理到 Flask 服务器
-// 解决 EdgeOne Pages 404 错误，将请求代理到后端 Flask 服务器
+#### 2.2 使用API Token部署（推荐方式）
+由于当前项目为Git类型，不支持直接文件夹部署，需要使用API Token：
 
-// Flask 服务器配置
-const FLASK_SERVER = 'http://212.64.57.87:5002';
+```bash
+# 生产环境部署
+edgeone pages deploy reports -n sales-report-new -t YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc= -e production
 
-// 边缘函数入口
-addEventListener('fetch', (event) => {
-  event.respondWith(handleRequest(event));
-});
+# 预览环境部署
+edgeone pages deploy reports -n sales-report-new -t YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc= -e preview
+```
 
-/**
- * 处理请求的主函数
- * @param {FetchEvent} event - 请求事件
- * @returns {Promise<Response>} - 响应
- */
-async function handleRequest(event) {
-  const { request } = event;
-  const url = new URL(request.url);
-  
-  try {
-    // 构建代理到 Flask 服务器的 URL
-    const proxyUrl = `${FLASK_SERVER}${url.pathname}${url.search}`;
-    
-    console.log(`代理请求: ${request.url} -> ${proxyUrl}`);
-    
-    // 创建新的请求，保持原始请求的方法、头部和 body
-    const proxyRequest = new Request(proxyUrl, {
-      method: request.method,
-      headers: request.headers,
-      body: request.body,
-      redirect: 'follow'
-    });
-    
-    // 发起代理请求到 Flask 服务器
-    const response = await fetch(proxyRequest, {
-      eo: {
-        timeoutSetting: {
-          connectTimeout: 30000,  // 30秒连接超时
-          readTimeout: 30000,     // 30秒读取超时
-          writeTimeout: 30000     // 30秒写入超时
+#### 2.3 验证部署
+```bash
+# 检查部署状态
+edgeone pages list
+
+# 查看项目详情
+edgeone pages info sales-report-new
+```
+
+### 3. 静态文件配置
+
+#### 3.1 edgeone.json 配置
+确保 `edgeone.json` 配置正确：
+
+```json
+{
+  "static": {
+    "directory": "reports"
+  },
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/reports/",
+      "permanent": false
+    }
+  ],
+  "headers": [
+    {
+      "source": "/**/*.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
         }
-      }
-    });
-    
-    // 创建新的响应，保持原始响应的状态和头部
-    const modifiedResponse = new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers
-    });
-    
-    // 添加 CORS 头部（如果需要）
-    modifiedResponse.headers.set('Access-Control-Allow-Origin', '*');
-    modifiedResponse.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    modifiedResponse.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    
-    console.log(`代理响应状态: ${response.status}`);
-    
-    return modifiedResponse;
-    
-  } catch (error) {
-    console.error('代理请求失败:', error);
-    
-    // 返回错误响应
-    return new Response(
-      JSON.stringify({
-        error: '代理服务器错误',
-        message: error.message,
-        timestamp: new Date().toISOString()
-      }),
-      {
-        status: 502,
-        statusText: 'Bad Gateway',
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      }
-    );
-  }
+      ]
+    }
+  ],
+  "trailingSlash": true,
+  "cleanUrls": true
 }
 ```
 
-#### 3.4 触发规则配置
-- **触发条件**: URL 路径
-- **匹配模式**: `/*` （匹配所有路径）
-- **HTTP 方法**: 选择 `全部` 或 `GET, POST, PUT, DELETE, OPTIONS`
+#### 3.2 文件结构检查
+确保 `reports/` 目录包含所有需要部署的HTML文件：
 
-#### 3.5 环境变量（可选）
-如果需要，可以添加环境变量：
-- `FLASK_SERVER`: `http://212.64.57.87:5002`
+```bash
+# 检查reports目录
+ls -la reports/
 
-### 4. 保存并发布
-- 点击 **"保存"**
-- 点击 **"发布"**
-- 等待函数部署完成（通常需要几分钟）
+# 确保有HTML文件
+find reports/ -name "*.html" | head -10
+```
 
-### 5. 验证部署
+### 4. 访问验证
 
-#### 5.1 测试访问
-访问以下 URL 验证是否正常工作：
-- https://edge.haierht.cn/reports/
-- https://edge.haierht.cn/reports/overall_daily_2025-07-29_101349.html
+#### 4.1 测试访问
+```bash
+# 测试Pages域名访问
+curl -I https://sales-report-new.pages.edgeone.com/reports/
 
-#### 5.2 检查日志
-在 EdgeOne 控制台的边缘函数页面，可以查看函数执行日志，确认代理是否正常工作。
+# 测试自定义域名访问
+curl -I https://edge.haierht.cn/reports/
+```
+
+#### 4.2 检查文件可访问性
+```bash
+# 检查具体文件
+curl -I https://edge.haierht.cn/reports/overall_daily_2025-07-29_101349.html
+```
+
+## 禁止的配置方式
+
+### ❌ 禁止使用以下方式：
+1. **Web控制台手动上传** - 禁止通过浏览器控制台上传文件
+2. **API直接调用** - 禁止绕过CLI直接调用API
+3. **第三方工具** - 禁止使用非官方CLI工具
+4. **边缘函数代理** - Pages是静态托管，不需要边缘函数
+
+### ✅ 仅允许的配置方式：
+1. **EdgeOne CLI** - 使用官方CLI工具
+2. **API Token部署** - 用于CI/CD流水线
+3. **Git推送触发** - 自动部署
 
 ## 故障排除
 
-### 问题1：函数部署失败
-- 检查代码语法是否正确
-- 确保触发规则配置正确
-- 查看部署日志获取详细错误信息
+### 问题1：部署失败
+```bash
+# 检查CLI状态
+edgeone whoami
+edgeone pages list
 
-### 问题2：代理请求失败
-- 确认 Flask 服务器 `212.64.57.87:5002` 正常运行
-- 检查网络连接是否正常
-- 查看边缘函数执行日志
+# 重新部署（使用API Token）
+edgeone pages deploy reports -n sales-report-new -t YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc= -e production
+```
 
-### 问题3：仍然返回 404
-- 确认边缘函数已成功发布
-- 检查触发规则是否匹配请求路径
-- 等待 CDN 缓存刷新（可能需要几分钟）
+### 问题2：文件404错误
+```bash
+# 检查文件是否在reports目录
+ls -la reports/
 
-### 问题4：CORS 错误
-- 确认代码中已添加 CORS 头部
-- 检查浏览器开发者工具的网络请求
+# 检查edgeone.json配置
+cat edgeone.json
+
+# 重新部署
+edgeone pages deploy reports -n sales-report-new -t YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc= -e production
+```
+
+### 问题3：域名访问失败
+```bash
+# 检查域名配置
+edgeone pages domain list --project sales-report-new
+
+# 重新配置域名
+edgeone pages domain remove edge.haierht.cn --project sales-report-new
+edgeone pages domain add edge.haierht.cn --project sales-report-new
+```
+
+### 问题4：项目类型不支持部署
+```bash
+# 使用API Token方式（推荐）
+edgeone pages deploy reports -n sales-report-new -t YxsKLIORJJqehzWS0UlrPKr4qgMJjikkqdJwTQ/SOYc= -e production
+
+# 或使用Git推送触发自动部署
+git add reports/
+git commit -m "Update reports"
+git push origin master
+```
+
+## 监控和维护
+
+### 1. 部署监控
+```bash
+# 查看部署状态
+edgeone pages list
+
+# 查看部署日志
+edgeone pages logs sales-report-new
+```
+
+### 2. 文件监控
+```bash
+# 检查文件数量
+find reports/ -name "*.html" | wc -l
+
+# 检查文件大小
+du -sh reports/
+```
+
+### 3. 定期维护
+```bash
+# 更新CLI工具
+npm update -g edgeone
+
+# 检查项目状态
+edgeone pages info sales-report-new
+```
 
 ## 注意事项
 
-1. **性能考虑**: 边缘函数会增加一定的延迟，但可以提供更好的全球访问体验
-2. **成本考虑**: EdgeOne 边缘函数按请求次数计费，请关注使用量
-3. **安全考虑**: 确保 Flask 服务器的安全配置，避免暴露敏感信息
-4. **监控**: 定期检查边缘函数的执行日志和性能指标
+1. **静态托管特性**: EdgeOne Pages 是静态网站托管服务，不支持动态内容
+2. **文件限制**: 确保所有文件都是静态文件（HTML、CSS、JS、图片等）
+3. **部署方式**: 当前项目为Git类型，请使用API Token或Git推送方式部署
+4. **缓存配置**: 合理配置缓存策略，提高访问速度
 
 ## 替代方案
 
-如果边缘函数方案不适用，可以考虑：
-1. 直接使用 Flask 服务器，不通过 EdgeOne
-2. 将报告生成为静态文件，直接部署到 EdgeOne Pages
-3. 使用其他 CDN 服务的代理功能
+如果静态托管方案不适用，可以考虑：
+1. 使用 EdgeOne 边缘函数服务（独立服务）
+2. 使用其他云服务的静态托管
+3. 使用传统Web服务器
 
 ## 联系支持
 
 如果遇到问题，可以：
-1. 查看 EdgeOne 官方文档
+1. 查看 [EdgeOne CLI 官方文档](https://edgeone.cloud.tencent.com/pages/document/162936923278893056)
 2. 联系腾讯云技术支持
 3. 在相关技术社区寻求帮助
 
 ---
 
-**配置完成后，EdgeOne 域名应该能够正常代理到 Flask 服务器，解决 404 错误问题。**
+**重要提醒**：
+1. 严格遵循CLI配置方式，禁止其他任何配置方式
+2. 所有部署操作必须通过官方CLI工具执行
+3. 禁止通过Web控制台手动配置
+4. 当前项目为Git类型，请使用API Token或Git推送方式部署
+5. Pages是静态托管服务，不需要边缘函数代理
+
+**配置完成后，EdgeOne Pages 应该能够正常提供静态文件访问，解决 404 错误问题。**

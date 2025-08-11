@@ -151,7 +151,7 @@ TTL: 600
 
 1. 登录 [EdgeOne控制台](https://edgeone.ai/)
 2. 进入Pages项目管理
-3. 找到 `sales-report` 项目
+3. 找到 `sales-report-new` 项目
 4. 添加自定义域名 `edge.haierht.cn`
 5. 验证域名解析
 6. 等待SSL证书自动签发

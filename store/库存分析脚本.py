@@ -1405,7 +1405,7 @@ class InventoryAnalyzer:
         return None
     
     def deploy_to_edgeone(self, html_content: str, filename: str) -> str:
-        """部署到EdgeOne Pages - 使用简化的部署方式"""
+        """部署到EdgeOne Pages - 使用简化的reports目录部署"""
         try:
             logger.info("🚀 开始部署到EdgeOne Pages...")
             
@@ -1447,10 +1447,6 @@ class InventoryAnalyzer:
             
             logger.info(f"📄 找到 {len(files)} 个HTML文件")
             
-            # 使用绝对路径部署
-            deploy_path = os.path.abspath(reports_dir)
-            logger.info(f"🔧 使用绝对路径部署: {deploy_path}")
-            
             # 使用EdgeOne CLI部署
             edgeone_cli_path = EDGEONE_CONFIG['cli_path']
             logger.info(f"🔧 使用EdgeOne CLI路径: {edgeone_cli_path}")
@@ -1462,94 +1458,96 @@ class InventoryAnalyzer:
                 edgeone_cli_path = "edgeone"
                 logger.info(f"🔧 尝试使用环境变量: {edgeone_cli_path}")
             
-            # 构建部署命令 - 使用简化的命令格式
+            # 使用简化的部署方法
             project_name = EDGEONE_CONFIG['project_name']
             token = EDGEONE_CONFIG['token']
             
-            # 尝试多种部署方式
-            deployment_methods = [
-                # 方法1: 标准部署
-                [
+            # 直接使用reports目录部署
+            cmd = [
+                edgeone_cli_path,
+                "pages",
+                "deploy",
+                "reports",  # 直接使用相对路径
+                "-n", project_name,
+                "-t", token
+            ]
+            
+            logger.info(f"🔧 执行部署命令: {' '.join(cmd)}")
+            
+            # 执行部署命令
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=300,  # 5分钟超时
+                cwd=script_dir  # 在脚本目录执行
+            )
+            
+            if result.returncode == 0:
+                logger.info("✅ EdgeOne Pages 部署成功！")
+                logger.info(f"📤 部署输出: {result.stdout}")
+                
+                # 构建URL
+                domain = EDGEONE_CONFIG['domain']
+                public_url = f"https://{domain}/{filename}"
+                
+                # 验证URL
+                verified_url = self._simple_verify_url(public_url)
+                if verified_url:
+                    logger.info(f"✅ 部署成功，可访问URL: {verified_url}")
+                    return verified_url
+                else:
+                    logger.error("❌ URL验证失败，不返回URL")
+                    return None
+            else:
+                logger.error(f"❌ 部署失败: {result.stderr}")
+                logger.error(f"📤 部署输出: {result.stdout}")
+                
+                # 如果部署失败，尝试使用绝对路径
+                logger.info("🔄 尝试使用绝对路径部署...")
+                abs_cmd = [
                     edgeone_cli_path,
                     "pages",
                     "deploy",
-                    deploy_path,
-                    "-n", project_name,
-                    "-t", token
-                ],
-                # 方法2: 带环境参数
-                [
-                    edgeone_cli_path,
-                    "pages",
-                    "deploy",
-                    deploy_path,
-                    "-n", project_name,
-                    "-t", token,
-                    "-e", "production"
-                ],
-                # 方法3: 使用相对路径
-                [
-                    edgeone_cli_path,
-                    "pages",
-                    "deploy",
-                    "reports",
+                    reports_dir,  # 使用绝对路径
                     "-n", project_name,
                     "-t", token
                 ]
-            ]
-            
-            for i, cmd in enumerate(deployment_methods, 1):
-                try:
-                    logger.info(f"🔄 尝试部署方法 {i}: {' '.join(cmd)}")
-                    
-                    # 执行部署命令
-                    result = subprocess.run(
-                        cmd,
-                        capture_output=True,
-                        text=True,
-                        timeout=300,  # 5分钟超时
-                        cwd=script_dir  # 在脚本目录执行
-                    )
-                    
-                    if result.returncode == 0:
-                        logger.info(f"✅ 部署方法 {i} 成功！")
-                        logger.info(f"📤 部署输出: {result.stdout}")
-                        
-                        # 构建URL
-                        domain = EDGEONE_CONFIG['domain']
-                        public_url = f"https://{domain}/{filename}"
-                        
-                        # 验证URL
-                        verified_url = self._simple_verify_url(public_url)
-                        if verified_url:
-                            logger.info(f"✅ 部署成功，可访问URL: {verified_url}")
-                            return verified_url
-                        else:
-                            logger.error("❌ URL验证失败，不返回URL")
-                            return None
-                    else:
-                        logger.warning(f"⚠️ 部署方法 {i} 失败: {result.stderr}")
-                        logger.warning(f"📤 部署输出: {result.stdout}")
-                        
-                        # 如果错误信息包含项目类型不支持，尝试下一个方法
-                        if "does not support direct folder" in result.stderr:
-                            logger.info(f"🔄 项目类型不支持直接部署，尝试下一个方法...")
-                            continue
-                        else:
-                            # 其他错误，继续尝试
-                            continue
-                            
-                except subprocess.TimeoutExpired:
-                    logger.warning(f"⚠️ 部署方法 {i} 超时")
-                    continue
-                except Exception as e:
-                    logger.warning(f"⚠️ 部署方法 {i} 异常: {e}")
-                    continue
-            
-            # 所有方法都失败了
-            logger.error("❌ 所有部署方法都失败了")
-            return None
                 
+                logger.info(f"🔧 执行绝对路径部署: {' '.join(abs_cmd)}")
+                
+                abs_result = subprocess.run(
+                    abs_cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=300,
+                    cwd=script_dir
+                )
+                
+                if abs_result.returncode == 0:
+                    logger.info("✅ 绝对路径部署成功！")
+                    logger.info(f"📤 部署输出: {abs_result.stdout}")
+                    
+                    # 构建URL
+                    domain = EDGEONE_CONFIG['domain']
+                    public_url = f"https://{domain}/{filename}"
+                    
+                    # 验证URL
+                    verified_url = self._simple_verify_url(public_url)
+                    if verified_url:
+                        logger.info(f"✅ 部署成功，可访问URL: {verified_url}")
+                        return verified_url
+                    else:
+                        logger.error("❌ URL验证失败，不返回URL")
+                        return None
+                else:
+                    logger.error(f"❌ 绝对路径部署也失败: {abs_result.stderr}")
+                    logger.error(f"📤 部署输出: {abs_result.stdout}")
+                    return None
+                
+        except subprocess.TimeoutExpired:
+            logger.error("❌ 部署超时（5分钟）")
+            return None
         except Exception as e:
             logger.error(f"❌ 部署异常: {e}")
             return None
